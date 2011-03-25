@@ -332,7 +332,7 @@ sub _initialize_io {
       require LWP::Simple;
 
       my($handle,$tempfile) = $self->tempfile();
-      close($handle);
+      main::close($handle);
 
       my $http_result;
       for my $try ( 1 .. $IOTRIALS ){

@@ -357,7 +357,13 @@ Number of Standar Deviations (SD) tolerated as half of the range of lengths
 for a feature.  The average (Avg) and the standard deviation of the length
 are calculated based on all the stored features, and the Avg+(SD*lensd) is
 considered as the largest possible new feature.  No minimum length constraint
-is given, unless explicitly set with -minlen.  Default is 1.5.
+is given, unless explicitly set with -minlen.  This argument is ignored if
+C<-maxlen> is explicitly set.  Default is 1.5.
+
+=item -maxlen I<int>
+
+Maximum length of a new feature in number of residues.  If zero (0) evaluates
+C<-lensd> instead.  Default is 0.
 
 =item -minlen I<int>
 
@@ -426,6 +432,7 @@ my ($self, @args) = @_;
    $f{'-detectstrand'}+= 0 if defined $f{'-detectstrand'};
    $f{'-alldetected'}+= 0 if defined $f{'-alldetected'};
    $f{'-lensd'} = defined $f{'-lensd'} ? $f{'-lensd'}+0 : 1.5;
+   $f{'-maxlen'} = defined $f{'-maxlen'} ? $f{'-maxlen'}+0 : 0;
    $f{'-minlen'} = defined $f{'-minlen'} ? $f{'-minlen'}+0 : 0;
    $f{'-similarity'} = defined $f{'-similarity'} ? $f{'-similarity'}+0 : 0.8;
    $f{'-score'} = defined $f{'-score'} ? $f{'-score'}+0 : 20;
@@ -522,22 +529,23 @@ sub extend {
       }
 
       # Determine maximum size
-      my $len_avg = 0;
-      my $len_sd = 0;
-      my $max_len = 0;
-      my $ff = $self->get_features;
-      if($#$ff >= 1){
-	 for my $ft (@$ff){ $len_avg+= abs($ft->from - $ft->to) }
-	 $len_avg = $len_avg/($#$ff+1);
-	 for my $ft (@$ff){ $len_sd+= (abs($ft->from - $ft->to) - $len_avg)**2 }
-	 $len_sd = sqrt($len_sd/$#$ff); # n-1, not n (unbiased SD)
-      }elsif($#$ff==1){
-         $self->warn("Building size constrains based in one sequence only");
-         $len_avg = abs($ff->[0]->from - $ff->[0]->to);
+      my $max_len = $ext->{'-maxlen'};
+      unless($max_len){
+	 my $len_avg = 0;
+	 my $len_sd = 0;
+	 my $ff = $self->get_features;
+	 if($#$ff >= 1){
+	    for my $ft (@$ff){ $len_avg+= abs($ft->from - $ft->to) }
+	    $len_avg = $len_avg/($#$ff+1);
+	    for my $ft (@$ff){ $len_sd+= (abs($ft->from - $ft->to) - $len_avg)**2 }
+	    $len_sd = sqrt($len_sd/$#$ff); # n-1, not n (unbiased SD)
+	 }elsif($#$ff==1){
+	    $self->warn("Building size constrains based in one sequence only");
+	    $len_avg = abs($ff->[0]->from - $ff->[0]->to);
+	 }
+	 $max_len = $len_avg + $len_sd*$ext->{'-lensd'};
       }
-      $max_len = $len_avg + $len_sd*$ext->{'-lensd'};
-      $self->debug("Comparing results with maximum feature's length of $max_len".
-      		" (from $len_avg +/- $len_sd)");
+      $self->debug("Comparing results with maximum feature's length of $max_len");
 
       # Evaluate/pair
       if($eval_border){
@@ -545,12 +553,14 @@ sub extend {
 	 US: for my $us (@$up_pos){
 	    $self->throw("Unexpected array structure (upstream): ".join(" | ", @$us), $us)
 	       		unless defined $us->[0] and defined $us->[4];
+	    $self->debug(" US: ", join(':', @$us));
 	    my $found;
 	    my $pair = [];
 	    DS: for my $ds (@$down_pos){
 	       $self->throw("Unexpected array structure (downstream): ".
 	       		join(" | ", @$ds), $ds)
 	       			unless defined $ds->[0] and defined $ds->[4];
+	       $self->debug("  DS: ", join(':', @$ds));
 	       # Same contig:
 	       next DS unless $us->[0] eq $ds->[0];
 	       # Different strand:
@@ -1040,10 +1050,10 @@ sub _search_aln_seqs {
 		  ){
 			# -------------------------------------------------- Save result
 			my $r_pos = ["$Gk:".$hit->accession,
-				   $hsp->start('hit'),
-				   $hsp->end('hit'),
-				   $hsp->strand('hit'),
-				   $hsp->bits];
+				$hsp->strand('hit')==-1?$hsp->end('hit'):$hsp->start('hit'),
+				$hsp->strand('hit')==-1?$hsp->start('hit'):$hsp->end('hit'),
+				$hsp->strand('hit'),
+				$hsp->bits];
 			push @$pos, $r_pos;
 		  }
 	       } # HSP
