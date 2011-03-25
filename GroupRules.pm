@@ -556,25 +556,33 @@ sub extend {
 	    $self->debug(" US: ", join(':', @$us));
 	    my $found;
 	    my $pair = [];
+	    my $reason;
 	    DS: for my $ds (@$down_pos){
+	       $self->debug("    Discarded: $reason") if defined $reason;
 	       $self->throw("Unexpected array structure (downstream): ".
 	       		join(" | ", @$ds), $ds)
 	       			unless defined $ds->[0] and defined $ds->[4];
 	       $self->debug("  DS: ", join(':', @$ds));
 	       # Same contig:
+	       $reason = '!= ctg';
 	       next DS unless $us->[0] eq $ds->[0];
 	       # Different strand:
+	       $reason = '== strand';
 	       next DS unless $us->[3] != $ds->[3];
 	       # Close enough:
-	       my $dist = $us->[3]==1 ? $ds->[1]-$us->[2] : $us->[1]-$ds->[2];
+	       $reason = 'too long';
+	       my $dist = abs($ds->[2]-$us->[2]);
 	       next DS if $dist > $max_len or $dist < $ext->{'-minlen'};
 	       # Closer than previous pairs, if any:
+	       $reason = 'other shorter';
 	       next DS if defined $found and abs($us->[2]-$ds->[2]) > $found;
 	       # Good!
+	       $reason = undef;
 	       $self->debug("Saving pair ".$us->[1]."..".$us->[2]."/".$ds->[1]."..".$ds->[2]);
 	       $found = abs($us->[2]-$ds->[2]);
 	       $pair = [$us->[0], $us->[2], $ds->[2], $us->[3], ($us->[4]+$ds->[4])/2];
 	    }
+	    $self->debug("    Discarded: $reason") if defined $reason;
 	    push @new, $pair if $#$pair>1;
 	 }
 	 if($eval_feature){
