@@ -6,12 +6,25 @@ PLA::RuleIO - I/O interface for the sets of rules (L<PLA::RuleI>)
 
 Email lmrodriguezr at gmail dot com
 
+=head1 IMPLEMENTS OR EXTENDS
+
+=over
+
+=item *
+
+L<PLA::PLA::Root>
+
+=item *
+
+L<PLA::PLA::IO>
+
+=back
+
 =cut
 
 package PLA::RuleIO;
 
 use strict;
-
 use base qw(PLA::PLA::Root PLA::PLA::IO);
 
 =head1 PUBLIC METHODS

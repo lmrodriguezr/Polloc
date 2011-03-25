@@ -259,7 +259,7 @@ sub catfile {
 
 =head1 INTERNAL METHODS
 
-Methods intended to be used only witin the scope of PLA::*
+Methods intended to be used only within the scope of PLA::*
 
 =head2 _print
 
