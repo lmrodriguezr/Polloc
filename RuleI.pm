@@ -1,12 +1,12 @@
 =head1 NAME
 
-PLA::RuleI - Generic rules interface
+Polloc::RuleI - Generic rules interface
 
 =head1 DESCRIPTION
 
-Use this interface to initialize the PLA::Rule::* objects.  Any
+Use this interface to initialize the Polloc::Rule::* objects.  Any
 rule inherits from this Interface.  Usually, rules are initialized
-in sets (via the L<PLA::RuleIO> package).
+in sets (via the L<Polloc::RuleIO> package).
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -18,18 +18,18 @@ Email lmrodriguezr at gmail dot com
 
 =item *
 
-L<PLA::PLA::Root>
+L<Polloc::Polloc::Root>
 
 =back
 
 =cut
 
-package PLA::RuleI;
+package Polloc::RuleI;
 
 use strict;
-use PLA::RuleIO;
+use Polloc::RuleIO;
 
-use base qw(PLA::PLA::Root);
+use base qw(Polloc::Polloc::Root);
 
 
 =head1 APPENDIX
@@ -40,7 +40,7 @@ Methods provided by the package
 
 =head2 new
 
-Attempts to initialize a C<PLA::Rule::*> object
+Attempts to initialize a C<Polloc::Rule::*> object
 
 =head3 Arguments
 
@@ -56,17 +56,17 @@ The value of the rule (depends on the type of rule)
 
 =item -context
 
-The context of the rule.  See L<PLA::RuleI::context>.
+The context of the rule.  See L<Polloc::RuleI::context>.
 
 =back
 
 =head3 Returns
 
-The C<PLA::Rule::*> object
+The C<Polloc::Rule::*> object
 
 =head3 Throws
 
-L<PLA::PLA::Error> if unable to initialize the proper object
+L<Polloc::Polloc::Error> if unable to initialize the proper object
 
 =cut
 
@@ -75,19 +75,19 @@ sub new {
    my $class = ref($caller) || $caller;
    
    # Pre-fix based on type, unless the caller is a proper class
-   if($class !~ m/PLA::Rule::(\S+)/){
-      my $bme = PLA::PLA::Root->new(@args);
+   if($class !~ m/Polloc::Rule::(\S+)/){
+      my $bme = Polloc::Polloc::Root->new(@args);
       my($type) = $bme->_rearrange([qw(TYPE)], @args);
       
       if($type){
-         $type = PLA::RuleI->_qualify_type($type);
-         $class = "PLA::Rule::" . $type if $type;
+         $type = Polloc::RuleI->_qualify_type($type);
+         $class = "Polloc::Rule::" . $type if $type;
       }
    }
 
    # Try to load the object
-   if($class =~ m/PLA::Rule::(\S+)/){
-      if(PLA::RuleI->_load_module($class)){;
+   if($class =~ m/Polloc::Rule::(\S+)/){
+      if(Polloc::RuleI->_load_module($class)){;
          my $self = $class->SUPER::new(@args);
 	 $self->debug("Got the RuleI class $class ($1)");
 	 my($value,$context,$name,$id,$executable) =
@@ -100,13 +100,13 @@ sub new {
          $self->_initialize(@args);
          return $self;
       }
-      my $bme = PLA::PLA::Root->new(@args);
+      my $bme = Polloc::Polloc::Root->new(@args);
       $bme->throw("Impossible to load the module", $class);
    }
 
    # Throws exception if any previous return
-   my $bme = PLA::PLA::Root->new(@args);
-   $bme->throw("Impossible to load the proper PLA::RuleI class with ".
+   my $bme = Polloc::Polloc::Root->new(@args);
+   $bme->throw("Impossible to load the proper Polloc::RuleI class with ".
    		"[".join("; ",@args)."]", $class);
 }
 
@@ -119,7 +119,7 @@ Gets/sets the type of rule
 =head3 Arguments
 
 Value (str).  Can be: pattern, profile, repeat, tandemrepeat, similarity, coding,
-boolean, composition, crispr.  See the corresponding C<PLA::Rule::*> objects
+boolean, composition, crispr.  See the corresponding C<Polloc::Rule::*> objects
 for further details.
 
 Some variations can be introduced, like case variations or short versions like
@@ -132,7 +132,7 @@ is undef or a string from the above list, regardless of the input variations.
 
 =head3 Throws
 
-L<PLA::PLA::Error> if an unsupported type is received.
+L<Polloc::Polloc::Error> if an unsupported type is received.
 
 =cut
 
@@ -204,7 +204,7 @@ This function relies on C<_qualify_value()>
 
 =head3 Throws
 
-L<PLA::PLA:Error> if unsupported value is received
+L<Polloc::Polloc:Error> if unsupported value is received
 
 =cut
 
@@ -221,9 +221,9 @@ sub value {
 =head2 executable
 
 Sets/gets the B<executable> property.  A rule can be executed even if this
-property is false, if the L<PLA::RuleI::execute> method is called directly
+property is false, if the L<Polloc::RuleI::execute> method is called directly
 (C<$rule->execute>) or by other rule.  This property is provided only for
-L<PLA::RuleIO> objects.
+L<Polloc::RuleIO> objects.
 
 =head3 Arguments
 
@@ -314,7 +314,7 @@ sub restart_index {
 
 =head3 Purpose
 
-To provide an easy method for the (str) description of any PLA::RuleI object.
+To provide an easy method for the (str) description of any Polloc::RuleI object.
 
 =head3 Returns
 
@@ -333,7 +333,7 @@ sub stringify {
 
 =head2 stringify_value
 
-Dummy function to be overriten if non-string value like in PLA::Rule::repeat
+Dummy function to be overriten if non-string value like in Polloc::Rule::repeat
 
 =head3 Returns
 
@@ -352,11 +352,11 @@ Gets/sets the parent ruleset of the rule
 
 =head3 Arguments
 
-The ruleset to set (a L<PLA::RuleIO> object).
+The ruleset to set (a L<Polloc::RuleIO> object).
 
 =head3 Returns
 
-A PLA::RuleIO object or undef
+A Polloc::RuleIO object or undef
 
 =cut
 
@@ -364,7 +364,7 @@ sub ruleset {
    my($self,$value) = @_;
    if(defined $value){
       $self->throw("Unexpected type of value '".ref($value)."'",$value)
-      		unless $value->isa('PLA::RuleIO');
+      		unless $value->isa('Polloc::RuleIO');
       $self->{'_ruleset'} = $value;
    }
    return $self->{'_ruleset'};
@@ -382,17 +382,17 @@ A Bio::Seq object
 
 =head3 Returns
 
-An array of PLA::FeatureI objects
+An array of Polloc::FeatureI objects
 
 =head3 Throws
 
-A L<PLA::PLA::NotImplementedException> if not implemented
+A L<Polloc::Polloc::NotImplementedException> if not implemented
 
 =cut
 
 sub execute {
    my $self = shift;
-   $self->throw("execute", $self, "PLA::PLA::NotImplementedException");
+   $self->throw("execute", $self, "Polloc::Polloc::NotImplementedException");
 }
 
 =head2 safe_value
@@ -458,7 +458,7 @@ sub source {
 
 =head1 INTERNAL METHODS
 
-Methods intended to be used only witin the scope of PLA::*
+Methods intended to be used only witin the scope of Polloc::*
 
 =head2 _qualify_type
 
@@ -486,7 +486,7 @@ sub _qualify_type {
 
 sub _qualify_value {
    my $self = shift;
-   $self->throw("_qualify_value", $self, "PLA::PLA::NotImplementedException");
+   $self->throw("_qualify_value", $self, "Polloc::Polloc::NotImplementedException");
 }
 
 =head2 _initialize
@@ -495,7 +495,7 @@ sub _qualify_value {
 
 sub _initialize {
    my $self = shift;
-   $self->throw("_initialize", $self, "PLA::PLA::NotImplementedException");
+   $self->throw("_initialize", $self, "Polloc::Polloc::NotImplementedException");
 }
 
 =head2 _search_value

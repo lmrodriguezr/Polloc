@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::Rule::profile - A rule of type profile
+Polloc::Rule::profile - A rule of type profile
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -8,15 +8,15 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package PLA::Rule::profile;
+package Polloc::Rule::profile;
 
 use strict;
-use PLA::PLA::IO;
-use PLA::FeatureI;
+use Polloc::Polloc::IO;
+use Polloc::FeatureI;
 
 use Bio::SeqIO;
 
-use base qw(PLA::RuleI);
+use base qw(Polloc::RuleI);
 
 =head1 APPENDIX
 
@@ -41,7 +41,7 @@ sub _initialize {
 
  Description	: Runs the search using HMMer
  Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with PLA::Feature::repeat objects
+ Returns	: An array reference populated with Polloc::Feature::repeat objects
 
 =cut
 
@@ -64,7 +64,7 @@ sub execute {
    		unless $seq->isa('Bio::Seq');
 
    # Create the IO master
-   my $io = PLA::PLA::IO->new();
+   my $io = Polloc::Polloc::IO->new();
 
    # Search for hmmersearch
    $self->source('hmmer');
@@ -107,7 +107,7 @@ sub execute {
    }
    push @run, $self->_search_value('hmm'), $seq_file, "|";
    $self->debug("Running: ".join(" ",@run));
-   my $run = PLA::PLA::IO->new(-file=>join(" ",@run));
+   my $run = Polloc::Polloc::IO->new(-file=>join(" ",@run));
    my @feats = ();
    while(my $line = $run->_readline){
       # TODO PARSE IT
@@ -117,9 +117,9 @@ sub execute {
 	 chomp $line;
 	 #  from   ->       to  :         size    <per.>  [exp.]          err-rate       sequence
 	 $line =~ m/^\s+(\d+)\s+->\s+(\d+)\s+:\s+(\d+)\s+<(\d+)>\s+\[([\d\.]+)\]\s+([\d\.]+)\s+([\w\s]+)$/
-		or $self->throw("Unexpected line $.",$line,"PLA::PLA::ParsingException");
+		or $self->throw("Unexpected line $.",$line,"Polloc::Polloc::ParsingException");
 	 my $id = $self->_next_child_id;
-	 push @feats, PLA::FeatureI->new(
+	 push @feats, Polloc::FeatureI->new(
 	 		-type=>$self->type, -rule=>$self, -seq=>$seq,
 			-from=>$1+0, -to=>$2+0, -strand=>"+",
 			-name=>$self->name,
@@ -144,7 +144,7 @@ sub stringify_value {
 
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the PLA::RuleI interface
+ Description	: Implements the _qualify_value from the Polloc::RuleI interface
  Arguments	: Value (str or ref-to-hash or ref-to-array)
  		  The supported keys are:
 		  	-res : Resolution (allowed error)

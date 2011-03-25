@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::PLA::Error - Errors handler for the PLA::* packages
+Polloc::Polloc::Error - Errors handler for the Polloc::* packages
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -8,12 +8,12 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package PLA::PLA::Error;
+package Polloc::Polloc::Error;
 
 use strict;
 use Error qw(:try);
 
-@PLA::PLA::Error::ISA = qw( Error );
+@Polloc::Polloc::Error::ISA = qw( Error );
 
 
 =head1 PUBLIC METHODS
@@ -78,7 +78,7 @@ sub error_msg {
    my $msg = $self->text;
 
    my $value = $self->value; 
-   my $bme = PLA::PLA::Root->new();
+   my $bme = Polloc::Polloc::Root->new();
    my $out = " ".("-"x10)." ERROR ".("-"x10)." \n";
    if($msg=~/[\n]/){
       $msg=~s/([\n])/$1\t/g;
@@ -110,45 +110,45 @@ sub error_msg {
 
 Children objects included
 
-=head2 PLA::PLA::IOException
+=head2 Polloc::Polloc::IOException
 
 I/O related error
 
 =cut
 
-@PLA::PLA::IOException::ISA = qw( PLA::PLA::Error );
+@Polloc::Polloc::IOException::ISA = qw( Polloc::Polloc::Error );
 
-=head2 PLA::PLA::ParsingException
+=head2 Polloc::Polloc::ParsingException
 
 Parsing error of some external file
 
 =cut
 
-@PLA::PLA::ParsingException::ISA = qw( PLA::PLA::Error );
+@Polloc::Polloc::ParsingException::ISA = qw( Polloc::Polloc::Error );
 
-=head2 PLA::PLA::LoudWarningException
+=head2 Polloc::Polloc::LoudWarningException
 
 Warning transformed into C<throw> due to a high verbosity
 
 =cut
 
-@PLA::PLA::LoudWarningException::ISA = qw( PLA::PLA::Error );
+@Polloc::Polloc::LoudWarningException::ISA = qw( Polloc::Polloc::Error );
 
-=head2 PLA::PLA::NotLogicException
+=head2 Polloc::Polloc::NotLogicException
 
 =cut
 
-@PLA::PLA::NotLogicException::ISA = qw( PLA::PLA::Error );
+@Polloc::Polloc::NotLogicException::ISA = qw( Polloc::Polloc::Error );
 
-=head2 PLA::PLA::UnexpectedException
+=head2 Polloc::Polloc::UnexpectedException
 
 An error probably due to an internal bug
 
 =cut
 
-@PLA::PLA::UnexpectedException::ISA = qw( PLA::PLA::Error );
+@Polloc::Polloc::UnexpectedException::ISA = qw( Polloc::Polloc::Error );
 
-=head2 PLA::PLA::NotImplementedException
+=head2 Polloc::Polloc::NotImplementedException
 
 Error launched when a method is called from an object
 not implementing it, despite it is defined by at least
@@ -156,6 +156,6 @@ one parent interface
 
 =cut
 
-@PLA::PLA::NotImplementedException::ISA = qw( PLA::PLA::Error );
+@Polloc::Polloc::NotImplementedException::ISA = qw( Polloc::Polloc::Error );
 
 1;

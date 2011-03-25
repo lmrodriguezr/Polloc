@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::Rule::composition - A rule of type composition
+Polloc::Rule::composition - A rule of type composition
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -8,11 +8,11 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package PLA::Rule::composition;
+package Polloc::Rule::composition;
 
 use strict;
-use base qw(PLA::RuleI);
-use PLA::FeatureI;
+use base qw(Polloc::RuleI);
+use Polloc::FeatureI;
 use Bio::SeqIO;
 
 
@@ -39,9 +39,9 @@ sub _initialize {
 
  Description	: Counts the number of letters or groups of letters and compares this
  		  number with the requested range (See
-		  L<PLA::Rule::composition::_qualify_value>)
+		  L<Polloc::Rule::composition::_qualify_value>)
  Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with PLA::Feature::composition objects
+ Returns	: An array reference populated with Polloc::Feature::composition objects
  		  or undef.  Note that this method returns one Feature per sequence at
 		  most.
 
@@ -78,7 +78,7 @@ sub execute {
    my $perc = 100 * $oc / $ln;
    if($perc > $self->min_perc && $perc < $self->max_perc){
       my $id = $self->_next_child_id;
-      push @feats, PLA::FeatureI->new(
+      push @feats, Polloc::FeatureI->new(
       			-type=>$self->type, -rule=>$self, -seq=>$seq,
 			-from=>1, -to=>$ln, -strand=>'+',
 			-name=>$self->name,
@@ -135,7 +135,7 @@ sub max_perc { shift->_search_value("max_perc", shift) }
 
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the PLA::RuleI interface
+ Description	: Implements the _qualify_value from the Polloc::RuleI interface
  Arguments	: Value (str or ref-to-hash or ref-to-array)
  		  The supported keys are:
 		  	-letters : The residues to take into account as a string

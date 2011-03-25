@@ -1,8 +1,8 @@
-package PLA::Feature::pattern;
+package Polloc::Feature::pattern;
 
 use strict;
 
-use base qw(PLA::FeatureI);
+use base qw(Polloc::FeatureI);
 
 sub new {
    my($caller,@args) = @_;

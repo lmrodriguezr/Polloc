@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::Rule::repeat - A rule of type repeat
+Polloc::Rule::repeat - A rule of type repeat
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -16,20 +16,20 @@ lead more serious errors.
 
 =head2 Standardize
 
-Homogenize the whole values system (see L<PLA::Rule::composition>).
+Homogenize the whole values system (see L<Polloc::Rule::composition>).
 This should actually solve the former point.
 
 =cut
 
-package PLA::Rule::repeat;
+package Polloc::Rule::repeat;
 
 use strict;
-use PLA::PLA::IO;
-use PLA::FeatureI;
+use Polloc::Polloc::IO;
+use Polloc::FeatureI;
 
 use Bio::SeqIO;
 
-use base qw(PLA::RuleI);
+use base qw(Polloc::RuleI);
 
 =head1 APPENDIX
 
@@ -55,7 +55,7 @@ sub _initialize {
  Description	: This is where magic happens.  Translates the parameters of the object
  		  into a call to B<mreps>, and scans the sequence for repeats
  Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with PLA::Feature::repeat objects
+ Returns	: An array reference populated with Polloc::Feature::repeat objects
 
 =cut
 sub execute {
@@ -87,7 +87,7 @@ sub execute {
    $maxsim ||= 100;
 
    # Create the IO master
-   my $io = PLA::PLA::IO->new();
+   my $io = Polloc::Polloc::IO->new();
 
    # Search for mreps
    $self->source('mreps');
@@ -129,7 +129,7 @@ sub execute {
    push @run, "2>&1";
    push @run, "|";
    $self->debug("Running: ".join(" ",@run));
-   my $run = PLA::PLA::IO->new(-file=>join(" ",@run));
+   my $run = Polloc::Polloc::IO->new(-file=>join(" ",@run));
    my $ontable = 0;
    my @feats = ();
    while(my $line = $run->_readline){
@@ -139,12 +139,12 @@ sub execute {
 	 chomp $line;
 	 #  from   ->       to  :         size    <per.>  [exp.]          err-rate       sequence
 	 $line =~ m/^\s+(\d+)\s+->\s+(\d+)\s+:\s+(\d+)\s+<(\d+)>\s+\[([\d\.]+)\]\s+([\d\.]+)\s+([\w\s]+)$/
-		or $self->throw("Unexpected line $.",$line,"PLA::PLA::ParsingException");
+		or $self->throw("Unexpected line $.",$line,"Polloc::Polloc::ParsingException");
 	 my $score = 100 - $6*100;
 	 next if $score > $maxsim or $score < $minsim;
 	 my $id = $self->_next_child_id;
 	 my $cons = $self->_calculate_consensus($7);
-	 push @feats, PLA::FeatureI->new(
+	 push @feats, Polloc::FeatureI->new(
 	 		-type=>$self->type, -rule=>$self, -seq=>$seq,
 			-from=>$1+0, -to=>$2+0, -strand=>"+",
 			-name=>$self->name,
@@ -163,7 +163,7 @@ sub execute {
 sub _calculate_consensus {
    my($self,$seq) = @_;
    return unless $seq;
-   my $io = PLA::PLA::IO->new();
+   my $io = Polloc::Polloc::IO->new();
    my $emma = $io->exists_exe("emma");
    my $cons = $io->exists_exe("cons");
    return "no-emma" unless $emma;
@@ -174,7 +174,7 @@ sub _calculate_consensus {
    close $outseq_fh;
    return "err-seq" unless -s $outseq;
    my $outaln = "$outseq.aln";
-   my $emmarun = PLA::PLA::IO->new(-file=>"$emma '$outseq' '$outaln' '/dev/null' -auto >/dev/null |");
+   my $emmarun = Polloc::Polloc::IO->new(-file=>"$emma '$outseq' '$outaln' '/dev/null' -auto >/dev/null |");
    while($emmarun->_readline){ print STDERR $_ }
    $emmarun->close();
    unless(-s $outaln){
@@ -182,7 +182,7 @@ sub _calculate_consensus {
       return "err-aln";
    }
    my $consout = "";
-   my $consrun = PLA::PLA::IO->new(-file=>"$cons '$outaln' stdout -auto |");
+   my $consrun = Polloc::Polloc::IO->new(-file=>"$cons '$outaln' stdout -auto |");
    while(my $ln = $consrun->_readline){
       chomp $ln;
       next if $ln =~ /^>/;
@@ -210,7 +210,7 @@ sub _parameters {
 
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the PLA::RuleI interface
+ Description	: Implements the _qualify_value from the Polloc::RuleI interface
  Arguments	: Value (str or ref-to-hash or ref-to-array)
  		  The supported keys are:
 		  	-res : Resolution (allowed error)

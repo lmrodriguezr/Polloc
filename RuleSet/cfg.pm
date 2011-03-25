@@ -1,12 +1,12 @@
-package PLA::RuleSet::cfg;
+package Polloc::RuleSet::cfg;
 
 use strict;
-use PLA::PLA::Config;
-use PLA::RuleI;
-use PLA::GroupRules;
+use Polloc::Polloc::Config;
+use Polloc::RuleI;
+use Polloc::GroupRules;
 use Bio::Seq;
 
-use base qw(PLA::RuleIO);
+use base qw(Polloc::RuleIO);
 
 sub new {
    my($caller,@args) = @_;
@@ -24,7 +24,7 @@ sub _initialize {
 
 sub _parse_cfg {
    my($self,@args) = @_;
-   $self->_cfg( PLA::PLA::Config->new(-noparse=>1, @args) );
+   $self->_cfg( Polloc::Polloc::Config->new(-noparse=>1, @args) );
    $self->_cfg->spaces(".rule");
    $self->_cfg->spaces(".rulegroup");
    $self->_cfg->spaces(".groupextension");
@@ -89,7 +89,7 @@ sub _cfg {
    my($self,$value) = @_;
    $self->{'_cfg_obj'} = $value if $value;
    return unless $self->{'_cfg_obj'};
-   $self->{'_cfg_obj'}->isa('PLA::PLA::Config') or
+   $self->{'_cfg_obj'}->isa('Polloc::Polloc::Config') or
    	$self->throw("Unexpected type of cfg object", $self->{'_cfg_obj'});
    return $self->{'_cfg_obj'};
 }
@@ -110,7 +110,7 @@ sub _parse_rule {
    my $id = $self->_next_child_id;
    $value = $self->_cfg->value(-key=>$key, -space=>"rule", -mandatory=>1)
    		unless defined $value;
-   my $rule = PLA::RuleI->new(
+   my $rule = Polloc::RuleI->new(
    			-type=>$type,
    			-format=>$self->format,
    			-name=>$name,
@@ -127,7 +127,7 @@ sub _parse_rule {
  
  Description	: Parses the body of the .rule.set and the .rule.setrule statements
  		  with the structure [set|setrule] key param='value'.  If setrule,
-		  the value is replaced by the corresponding PLA::RuleI object
+		  the value is replaced by the corresponding Polloc::RuleI object
  Params		: Str body, described above
  		  Array reference defaults, supporting only the -isrule flag (to
 		  distinguish among set and setrule)
@@ -184,7 +184,7 @@ sub _parse_group_eval {
    return unless defined $self->{'_rulegroup'};
    defined $self->{'_rulegroup'}->{$body} or
       $self->throw("Impossible to evaluate an undefined variable", $body);
-   my $group = new PLA::GroupRules(
+   my $group = new Polloc::GroupRules(
    	-source=>$self->safe_value("source"),
 	-target=>$self->safe_value("target"));
    $group->condition($self->_parse_group_operation($body, $defaults));

@@ -1,10 +1,10 @@
 =head1 NAME
 
-PLA::Feature::repeat - A repeat feature
+Polloc::Feature::repeat - A repeat feature
 
 =head1 DESCRIPTION
 
-A feature of repeats.  Implements L<PLA::FeatureI>.
+A feature of repeats.  Implements L<Polloc::FeatureI>.
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -12,10 +12,10 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package PLA::Feature::repeat;
+package Polloc::Feature::repeat;
 
 use strict;
-use base qw(PLA::FeatureI);
+use base qw(Polloc::FeatureI);
 
 
 =head1 APPENDIX
@@ -24,13 +24,13 @@ use base qw(PLA::FeatureI);
 
 =head2 new
 
- Description	: Creates a B<PLA::Feature::repeat> object
+ Description	: Creates a B<Polloc::Feature::repeat> object
  Arguments	: -period : (float) The period of the repeat (units length)
  		  -exponent: (float) The exponent (No of units)
 		  -error : (float) Mismatches percentage
 		  -repeats : (str) Repetitive sequences, repeats space-separated
 		  -consensus : (str) Repeats consensus
- Returns	: A B<PLA::Feature::repeat> object
+ Returns	: A B<Polloc::Feature::repeat> object
 
 =cut
 
@@ -137,7 +137,7 @@ sub score {
 =head2 _initialize
 
  Description	: Initialization function.
- Arguments	: See L<PLA::Feature::repeat::new>
+ Arguments	: See L<Polloc::Feature::repeat::new>
  Returns	: none
 
 =cut

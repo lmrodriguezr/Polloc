@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::GroupRules - Rules to group features
+Polloc::GroupRules - Rules to group features
 
 =head1 DESCRIPTION
 
@@ -19,21 +19,21 @@ Email lmrodriguezr at gmail dot com
 
 =item *
 
-L<PLA::PLA::Root>
+L<Polloc::Polloc::Root>
 
 =back
 
 =cut
 
-package PLA::GroupRules;
+package Polloc::GroupRules;
 
 use strict;
 use List::Util qw(min max);
-use PLA::PLA::IO;
+use Polloc::Polloc::IO;
 use Bio::Tools::Run::Alignment::Muscle;
 use Bio::Seq;
 
-use base qw(PLA::PLA::Root);
+use base qw(Polloc::Polloc::Root);
 
 #
 
@@ -45,7 +45,7 @@ Methods provided by the package
 
 =head2 new
 
-Attempts to initialize a PLA::Rule::* object
+Attempts to initialize a Polloc::Rule::* object
 
 =head3 Arguments
 
@@ -61,17 +61,17 @@ The value of the rule (depends on the type of rule)
 
 =item -context
 
-The context of the rule.  See L<PLA::RuleI->context()>
+The context of the rule.  See L<Polloc::RuleI->context()>
 
 =back
 
 =head3 Returns
 
-The C<PLA::Rule::*> object
+The C<Polloc::Rule::*> object
 
 =head3 Throws
 
-L<PLA::PLA::Error> if unable to initialize the proper object
+L<Polloc::Polloc::Error> if unable to initialize the proper object
 
 =cut
 
@@ -178,11 +178,11 @@ Compares two features based on the defined conditions
 
 =item *
 
-The first feature (a L<PLA::FeatureI> object)
+The first feature (a L<Polloc::FeatureI> object)
 
 =item *
 
-The second feature (a L<PLA::FeatureI> object)
+The second feature (a L<Polloc::FeatureI> object)
 
 =back
 
@@ -192,7 +192,7 @@ Boolean
 
 =head3 Throws
 
-L<PLA::PLA::Error> if unexpected input or undefined condition, source or
+L<Polloc::Polloc::Error> if unexpected input or undefined condition, source or
 target
 
 =cut
@@ -200,9 +200,9 @@ target
 sub evaluate {
    my($self, $feat1, $feat2) = @_;
    $self->throw("First feature of illegal class", $feat1)
-   		unless $feat1->isa('PLA::FeatureI');
+   		unless $feat1->isa('Polloc::FeatureI');
    $self->throw("Second feature of illegal class", $feat2)
-   		unless $feat2->isa('PLA::FeatureI');
+   		unless $feat2->isa('Polloc::FeatureI');
    $self->throw("Undefined condition, impossible to group")
    		unless defined $self->condition;
    $self->throw("Unexpected type of condition", $self->condition)
@@ -225,11 +225,11 @@ Adds one or more features to the evaluation set
 
 =head3 Parameters
 
-One or more L<PLA::FeatureI> objects
+One or more L<Polloc::FeatureI> objects
 
 =head3 Throws
 
-L<PLA::PLA::Error> if unexpected input
+L<Polloc::Polloc::Error> if unexpected input
 
 =cut
 
@@ -239,7 +239,7 @@ sub add_features {
    $self->{'_reorder'} = 1;
    $self->{'_features'} = [] unless defined $self->{'_features'};
    while(my $value = shift @values){
-      $self->throw("Illegal feature", $value) unless $value->isa('PLA::FeatureI');
+      $self->throw("Illegal feature", $value) unless $value->isa('Polloc::FeatureI');
       push @{$self->{'_features'}}, $value;
    }
 }
@@ -292,7 +292,7 @@ The index (int).
 
 =head3 Returns
 
-A L<PLA::FeatureI> object or undef.
+A L<Polloc::FeatureI> object or undef.
 
 =head3 Note
 
@@ -416,7 +416,7 @@ default.
 
 =head3 Throws
 
-L<PLA::PLA::Error> if unexpected input
+L<Polloc::Polloc::Error> if unexpected input
 
 =cut
 
@@ -445,7 +445,7 @@ my ($self, @args) = @_;
 
 =head2 extend
 
-Extends a group based on the arguments provided by L<PLA::GroupRules->extension()>.
+Extends a group based on the arguments provided by L<Polloc::GroupRules->extension()>.
 
 =head3 Arguments
 
@@ -454,7 +454,7 @@ Extends a group based on the arguments provided by L<PLA::GroupRules->extension(
 =item -feats I<ref to array, mandatory>
 
 An array with all the features from a given group (reference to array of
-L<PLA::FeatureI>)
+L<Polloc::FeatureI>)
 
 =item -index I<bool (int)>
 
@@ -465,12 +465,12 @@ If true, treats the input references as integer indexes.
 =head3 Returns
 
 An array with all the newly detected features (reference to array of
-L<PLA::FeatureI>).  Note that this is not a simple array, but a reference
+L<Polloc::FeatureI>).  Note that this is not a simple array, but a reference
 array of reference arrays (one per genome).
 
 =head3 Throws
 
-L<PLA::PLA::Error> if unexpected input or weird extension definition.
+L<Polloc::Polloc::Error> if unexpected input or weird extension definition.
 
 =cut
 
@@ -485,7 +485,7 @@ sub extend {
    $self->throw("First feature is not an object", $feats->[0])
    	unless ref($feats->[0]) and UNIVERSAL::can($feats->[0],'isa');
    $self->throw("Unexpected Feature type", $feats->[0])
-   	unless $feats->[0]->isa('PLA::FeatureI');
+   	unless $feats->[0]->isa('Polloc::FeatureI');
    my $group_id = $self->_next_group_id;
    my @new = ();
    $self->debug("--- Extending group (based on ".($#$feats+1)." features) ---");
@@ -643,7 +643,7 @@ sub extend {
       $self->throw('Undefined genome-contig pair', $acc, 'UnexpectedException')
       		unless defined $self->seqs->[$seq->[0]]->[$seq->[1]];
       my $id = $self->source . "-ext:".($Gk+1).".$group_id.$itemk";
-      push @{$out->[$Gk]}, PLA::FeatureI->new(
+      push @{$out->[$Gk]}, Polloc::FeatureI->new(
       		-type=>'extend',
 		-from=>$item->[1],
 		-to=>$item->[2],
@@ -711,7 +711,7 @@ Builds groups of features based on a binary matrix
 
 =head3 Arguments
 
-A matrix as returned by L<PLA::GroupRules::build_bin()>
+A matrix as returned by L<Polloc::GroupRules::build_bin()>
 
 =head3 Returns
 
@@ -721,7 +721,7 @@ A reference to a 2-dimensional matrix of groups
 
 This method is intended to build groups providing information on all-vs-all
 comparisons.  If you do not need this information, use the much more
-efficient L<PLA::GroupRules::build_groups()> method, that relies on
+efficient L<Polloc::GroupRules::build_groups()> method, that relies on
 transitive property of groups to avoid unnecessary comparisons.  Please note
 that this function also relies on transitivity, but gives you the option to
 examine all the paired comparisons and even write your own grouping function.
@@ -742,7 +742,7 @@ sub bin_build_groups {
       }
       push @{$groups}, [$f]; # If not found in previous groups
    }
-   # Change indexes by PLA::FeatureI objects
+   # Change indexes by Polloc::FeatureI objects
    return $self->_feat_index2obj($groups);
 }
 
@@ -784,7 +784,7 @@ comparison.
 
 =head3 Returns
 
-A 2-dimensional matrix (ref) with groups of L<PLA::FeatureI> objects.  It is,
+A 2-dimensional matrix (ref) with groups of L<Polloc::FeatureI> objects.  It is,
 and array of arrays (groups) of features.
 
 =head3 Note
@@ -829,7 +829,7 @@ sub build_groups {
 
 =head1 INTERNAL METHODS
 
-Methods intended to be used only within the scope of PLA::*
+Methods intended to be used only within the scope of Polloc::*
 
 =head2 _next_group_id
 
@@ -991,7 +991,7 @@ sub _search_aln_seqs {
    if($alg eq 'blast' or $alg eq 'hmmer'){ # ------------------------------- BLAST & HMMer
       # -------------------------------------------------------------------- Setup DB
       unless(defined $self->{'_seqsdb'}){
-	 $self->{'_seqsdb'} = PLA::PLA::IO->tempdir();
+	 $self->{'_seqsdb'} = Polloc::Polloc::IO->tempdir();
 	 $self->debug("Creating DB at ".$self->{'_seqsdb'});
 	 for my $Gk (0 .. $#{$self->{'_seqs'}}){
 	    my $file = $self->{'_seqsdb'}."/$Gk";
@@ -999,7 +999,7 @@ sub _search_aln_seqs {
 	    for my $ctg (@{$self->{'_seqs'}->[$Gk]}){ $fasta->write_seq($ctg) }
 	    # BLAST requires a formatdb (not only the fasta)
 	    if($alg eq 'blast'){
-	       my $run = PLA::PLA::IO->new(-file=>"formatdb -p F -i '$file' 2>&1 |");
+	       my $run = Polloc::Polloc::IO->new(-file=>"formatdb -p F -i '$file' 2>&1 |");
 	       while($run->_readline) {} # just run ;o)
 	       $run->close;
 	    }
@@ -1013,7 +1013,7 @@ sub _search_aln_seqs {
          $query = Bio::Seq->new(-seq=>$aln->consensus_string($ext->{'-consensusperc'}));
       }elsif($alg eq 'hmmer'){
 	 require Bio::Tools::Run::Hmmer;
-	 my $tmpio = PLA::PLA::IO->new();
+	 my $tmpio = Polloc::Polloc::IO->new();
 	 # The following lines should be addressed with a three-lines code,
 	 # but the buggy AUTOLOAD of Bio::Tools::Run::Hmmer let us no option
 	 # -lrr
@@ -1105,7 +1105,7 @@ All the following arguments are mandatory, and must be passed in that order:
 
 =item *
 
-feat I<PLA::FeatureI> : The object which context is going to be extracted
+feat I<Polloc::FeatureI> : The object which context is going to be extracted
 
 =item *
 
@@ -1174,7 +1174,7 @@ sub _extract_context {
 
 =head2 _feat_index2obj
 
-Takes an index 2D matrix and returns it as the equivalent L<PLA::FeatureI> objects
+Takes an index 2D matrix and returns it as the equivalent L<Polloc::FeatureI> objects
 
 =head3 Arguments
 
@@ -1182,7 +1182,7 @@ Takes an index 2D matrix and returns it as the equivalent L<PLA::FeatureI> objec
 
 =head3 Returns
 
-2D matrix of L<PLA::FeatureI> objects (ref)
+2D matrix of L<Polloc::FeatureI> objects (ref)
 
 =cut
 
@@ -1211,7 +1211,7 @@ Mix
 
 =head3 Throws
 
-L<PLA::PLA::Error> if no input
+L<Polloc::Polloc::Error> if no input
 
 =cut
 

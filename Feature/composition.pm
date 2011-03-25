@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::Feature::composition - A composition feature
+Polloc::Feature::composition - A composition feature
 
 =head1 DESCRIPTION
 
@@ -14,10 +14,10 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package PLA::Feature::composition;
+package Polloc::Feature::composition;
 
 use strict;
-use base qw(PLA::FeatureI);
+use base qw(Polloc::FeatureI);
 
 
 =head1 APPENDIX
@@ -32,7 +32,7 @@ use base qw(PLA::FeatureI);
  Arguments	: -letters : (str) The residues
  		  -composition : (float) The percentage of the sequence covered by
 		  	the residues (letters).
- Returns	: A PLA::Feature::composition object
+ Returns	: A Polloc::Feature::composition object
 
 =cut
 
@@ -88,7 +88,7 @@ sub composition {
 
 =head2 score
 
- Description	: Dummy function, required by the L<PLA::FeatureI>
+ Description	: Dummy function, required by the L<Polloc::FeatureI>
  		  interface.  Returns undef because any score is associated
  Arguments	: none
  Returns	: undef

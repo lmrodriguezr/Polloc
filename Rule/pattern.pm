@@ -1,8 +1,8 @@
-package PLA::Rule::pattern;
+package Polloc::Rule::pattern;
 
 use strict;
 
-use base qw(PLA::RuleI);
+use base qw(Polloc::RuleI);
 
 sub new {
    my($caller,@args) = @_;
@@ -20,7 +20,7 @@ sub _initialize {
 
 
 =head2 _qualify_value
- Purpose	: Implements the _qualify_value from the PLA::RuleI interface
+ Purpose	: Implements the _qualify_value from the Polloc::RuleI interface
  Arguments	: Value (str)
  Return		: Value (str or undef)
 =cut

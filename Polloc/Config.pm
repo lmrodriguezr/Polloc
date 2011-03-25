@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::PLA::Config - Handles .cfg files
+Polloc::Polloc::Config - Handles .cfg files
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -8,11 +8,11 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package PLA::PLA::Config;
+package Polloc::Polloc::Config;
 
 use strict;
 
-use base qw(PLA::PLA::Root PLA::PLA::IO);
+use base qw(Polloc::Polloc::Root Polloc::Polloc::IO);
 
 =head1 GLOBALS
 
@@ -87,7 +87,7 @@ sub parse {
 	 $self->_execute_token(-space=>$onspace, -token=>$1, -body=>$3);
       }else{
          $self->throw("Unable to parse configuration file ".$self->file,
-	 		$line, "PLA::PLA::IOException");
+	 		$line, "Polloc::Polloc::IOException");
       }
    }
    $self->close();
@@ -145,7 +145,7 @@ sub _save {
       push @{$self->{'_reparse'}}, $key if $value =~ /\$\{[\w\.]+\}/;
    }else{
       $self->throw("Bad value on configuration file ".$self->resource,
-      		$value, "PLA::PLA::IOException");
+      		$value, "Polloc::Polloc::IOException");
    }
    $self->{'_data'}->{$key} = $value;
 
@@ -302,14 +302,14 @@ sub _parse_key {
    my($self,@args) = @_;
    my($key,$space) = $self->_rearrange([qw(KEY SPACE)], @args);
    $key or $self->throw("Got an empty key to parse, illegal action", $key,
-   		"PLA::PLA::IOException");
+   		"Polloc::Polloc::IOException");
    $key = lc $key;
    $space = $self->_parse_space($space);
    $key = $space . "." . $key if $space && $key !~ /^\./;
    $key =~ s/\.\./\./g;
    $key =~ s/\.\./\./g;
    $self->throw("Bad key or token on configuration file ".$self->resource, $key,
-   		"PLA::PLA::IOException")
+   		"Polloc::Polloc::IOException")
    		unless $key=~m/^[\w\.]+$/;
    return $key;
 }

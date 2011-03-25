@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::Rule::crispr - A rule of type CRISPR
+Polloc::Rule::crispr - A rule of type CRISPR
 
 =heqd1 DESCRIPTION
 
@@ -12,18 +12,18 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package PLA::Rule::crispr;
+package Polloc::Rule::crispr;
 
 use strict;
-use PLA::PLA::IO;
-use PLA::FeatureI;
+use Polloc::Polloc::IO;
+use Polloc::FeatureI;
 
 use Bio::SeqIO;
 # For CRISPRFinder:
 use File::Spec;
 use Cwd;
 
-use base qw(PLA::RuleI);
+use base qw(Polloc::RuleI);
 
 =head1 APPENDIX
 
@@ -47,7 +47,7 @@ sub _initialize {
 
  Description	: Runs CRIPRRfinder and parses the output.
  Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with PLA::Feature::repeat objects
+ Returns	: An array reference populated with Polloc::Feature::repeat objects
 
 =cut
 sub execute {
@@ -68,7 +68,7 @@ sub execute {
    $self->throw("Illegal class of sequence '".ref($seq)."'", $seq) unless $seq->isa('Bio::Seq');
 
    # Create the IO master
-   my $io = PLA::PLA::IO->new();
+   my $io = Polloc::Polloc::IO->new();
 
    # Search for CRISPRFinder
    $self->source('CRISPRFinder');
@@ -118,7 +118,7 @@ sub execute {
    chdir $cf_dir or $self->throw("I can not move myself to the CRISPRFinder directory: $!", $cf_dir);
    $self->debug("Hello from ".cwd());
    $self->debug("Running: ".join(" ",@run));
-   my $run = PLA::PLA::IO->new(-file=>join(" ",@run));
+   my $run = Polloc::Polloc::IO->new(-file=>join(" ",@run));
    my @dirs = ();
    while(my $line = $run->_readline){
       if($line =~ m/\*\*\* your results files will be in the (.*) directory \*\*\*/){
@@ -161,7 +161,7 @@ sub execute {
 	       $spacers ||= 0;
 	       my $id = $self->_next_child_id;
 	       my $score = $file=~/_PossibleCrispr_\d+$/i ? 50 : 100;
-	       push @feats, PLA::FeatureI->new(
+	       push @feats, Polloc::FeatureI->new(
 	 		-type=>$self->type, -rule=>$self, -seq=>$seq,
 			-from=>$from, -to=>$to, -strand=>"+",
 			-name=>$self->name,
@@ -193,7 +193,7 @@ sub _parameters {
 
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the PLA::RuleI interface
+ Description	: Implements the _qualify_value from the Polloc::RuleI interface
  Arguments	: Value (str or ref-to-hash or ref-to-array)
  		  The supported keys are:
 			-ignoreprobable : Should I ignore the 'ProbableCrispr' results?

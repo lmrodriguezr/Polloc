@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::PLA::IO - I/O interface for the PLA::* packages
+Polloc::Polloc::IO - I/O interface for the Polloc::* packages
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -8,7 +8,7 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package PLA::PLA::IO;
+package Polloc::Polloc::IO;
 
 use strict;
 use File::Path;
@@ -16,7 +16,7 @@ use File::Spec;
 use File::Temp;
 use Symbol;
 
-use base qw(PLA::PLA::Root);
+use base qw(Polloc::Polloc::Root);
 
 =head1 GLOBALS
 
@@ -49,7 +49,7 @@ The system's temporal directory
 =cut
 
 $TEMPDIR =File::Spec->tmpdir() unless defined $TEMPDIR;
-sub TEMPDIR { shift if ref $_[0] || $_[0] =~ m/^PLA::/ ; $TEMPDIR = shift }
+sub TEMPDIR { shift if ref $_[0] || $_[0] =~ m/^Polloc::/ ; $TEMPDIR = shift }
 
 
 =head2 ROOTDIR
@@ -111,7 +111,7 @@ The URL to read
 
 =head3 Returns
 
-A L<PLA::PLA::IO> object
+A L<Polloc::Polloc::IO> object
 
 =cut
 
@@ -210,7 +210,7 @@ sub exists_exe {
    $exe .= '.exe' if(($^O =~ /mswin/i) && ($exe !~ /\.(exe|com|bat|cmd)$/i));
    return $exe if(-e $exe);
    for my $dir ( File::Spec->path ){
-      my $f = PLA::PLA::IO->catfile($dir, $exe);
+      my $f = Polloc::Polloc::IO->catfile($dir, $exe);
       return $f if -e $f && -x $f;
    }
    return 0;
@@ -224,7 +224,7 @@ sub tempfile {
    my($self,@args) = @_;
    my($tfh, $file);
    my($dir, $unlink, $template, $suffix) =
-   	$self->_rearrange([qw(DIR UNLINK TEMPLATE SUFFIX)], @args);
+   	$self->_rearrange([qw(DIR UNLINK TEMPollocTE SUFFIX)], @args);
    $dir = $TEMPDIR unless defined $dir;
    $unlink = 1 unless defined $unlink;
    
@@ -259,7 +259,7 @@ sub catfile {
 
 =head1 INTERNAL METHODS
 
-Methods intended to be used only within the scope of PLA::*
+Methods intended to be used only within the scope of Polloc::*
 
 =head2 _print
 

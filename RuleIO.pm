@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::RuleIO - I/O interface for the sets of rules (L<PLA::RuleI>)
+Polloc::RuleIO - I/O interface for the sets of rules (L<Polloc::RuleI>)
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -12,20 +12,20 @@ Email lmrodriguezr at gmail dot com
 
 =item *
 
-L<PLA::PLA::Root>
+L<Polloc::Polloc::Root>
 
 =item *
 
-L<PLA::PLA::IO>
+L<Polloc::Polloc::IO>
 
 =back
 
 =cut
 
-package PLA::RuleIO;
+package Polloc::RuleIO;
 
 use strict;
-use base qw(PLA::PLA::Root PLA::PLA::IO);
+use base qw(Polloc::Polloc::Root Polloc::Polloc::IO);
 
 =head1 PUBLIC METHODS
 
@@ -39,7 +39,7 @@ The basic initialization method
 
 =head3 Arguments
 
-The same arguments of L<PLA::PLA::IO>, plus:
+The same arguments of L<Polloc::Polloc::IO>, plus:
 
 =over
 
@@ -55,8 +55,8 @@ sub new {
    my($caller,@args) = @_;
    my $class = ref($caller) || $caller;
    
-   if($class !~ m/PLA::RuleSet::(\S+)/){
-      my $bme = PLA::PLA::Root->new(@args);
+   if($class !~ m/Polloc::RuleSet::(\S+)/){
+      my $bme = Polloc::Polloc::Root->new(@args);
       my($format,$file) = $bme->_rearrange([qw(FORMAT FILE)], @args);
       
       if(!$format && $file){
@@ -64,24 +64,24 @@ sub new {
          $format =~ s/.*\.//;
       }
       if($format){
-         $format = PLA::RuleIO->_qualify_format($format);
-         $class = "PLA::RuleSet::" . $format if $format;
+         $format = Polloc::RuleIO->_qualify_format($format);
+         $class = "Polloc::RuleSet::" . $format if $format;
       }
    }
 
-   if($class =~ m/PLA::RuleSet::(\S+)/){
-      if(PLA::RuleIO->_load_module($class)){;
+   if($class =~ m/Polloc::RuleSet::(\S+)/){
+      if(Polloc::RuleIO->_load_module($class)){;
          my $self = $class->SUPER::new(@args);
 	 $self->debug("Got the RuleIO class $class ($1)");
 	 $self->format($1);
          $self->_initialize(@args);
          return $self;
       }
-      my $bme = PLA::PLA::Root->new(@args);
+      my $bme = Polloc::Polloc::Root->new(@args);
       $bme->throw("Impossible to load the module", $class);
    } else {
-      my $bme = PLA::PLA::Root->new(@args);
-      $bme->throw("Impossible to load the proper PLA::RuleIO class with [".
+      my $bme = Polloc::Polloc::Root->new(@args);
+      $bme->throw("Impossible to load the proper Polloc::RuleIO class with [".
       		join("; ",@args)."]", $class);
    }
 }
@@ -145,7 +145,7 @@ Appends rules to the rules set.
 
 =head2 Arguments
 
-One or more L<PLA::RuleI> objects
+One or more L<Polloc::RuleI> objects
 
 =head2 Returns
 
@@ -153,7 +153,7 @@ The index of the last rule
 
 =head2 Throws
 
-A L<PLA::PLA::Error> exception if some object is not a L<PLA::RuleI>
+A L<Polloc::Polloc::Error> exception if some object is not a L<Polloc::RuleI>
 
 =cut
 
@@ -163,7 +163,7 @@ sub add_rule {
    $self->get_rules; #<- to initialize the array if does not exist
    for my $rule (@rules){
       $self->throw("Trying to add an illegal class of Rule", $rule)
-      		unless $rule->isa('PLA::RuleI');
+      		unless $rule->isa('Polloc::RuleI');
       $rule->ruleset($self);
       push @{$self->{'_registered_rules'}}, $rule;
    }
@@ -181,7 +181,7 @@ The index (int)
 
 =head3 Returns
 
-A L<PLA::RuleI> object or undef
+A L<Polloc::RuleI> object or undef
 
 =cut
 
@@ -207,7 +207,7 @@ sub get_rules {
 
 =head3 Returns
 
-A L<PLA::RuleI> object
+A L<Polloc::RuleI> object
 
 =cut
 sub next_rule {
@@ -224,11 +224,11 @@ Sets/gets the grouprules objects.
 
 =head3 Arguments
 
-A L<PLA::GroupRules> array ref (optional)
+A L<Polloc::GroupRules> array ref (optional)
 
 =head3 Returns
 
-A L<PLA::GroupRules> array ref or undef
+A L<Polloc::GroupRules> array ref or undef
 
 =cut
 
@@ -244,17 +244,17 @@ Adds a grouprules object
 
 =head3 Arguments
 
-A L<PLA::GroupRules> object
+A L<Polloc::GroupRules> object
 
 =head3 Throws
 
-A L<PLA::PLA::Error> if not a proper object
+A L<Polloc::Polloc::Error> if not a proper object
 
 =cut
 
 sub addgrouprules {
    my($self,$value) = @_;
-   $self->throw("Illegal grouprules object",$value) unless $value->isa("PLA::GroupRules");
+   $self->throw("Illegal grouprules object",$value) unless $value->isa("Polloc::GroupRules");
    $self->{'_grouprules'} = [] unless defined $self->{'_grouprules'};
    push @{$self->{'_grouprules'}}, $value;
 }
@@ -271,7 +271,7 @@ Any argument supported/required by the rules.  C<-seq> is always required
 
 =head3 Returns
 
-A reference to an array of L<PLA::FeatureI> objects
+A reference to an array of L<Polloc::FeatureI> objects
 
 =cut
 
@@ -350,8 +350,8 @@ sub safe_value {
 =head3 Purpose
 
 Gets/sets some generic parameter.  It is intended to provide an
-interface between L<PLA::RuleIO>'s general configuration and
-L<PLA::RuleI>, regardless of the format.
+interface between L<Polloc::RuleIO>'s general configuration and
+L<Polloc::RuleI>, regardless of the format.
 
 =head3 Arguments
 
@@ -363,13 +363,13 @@ The value (mix or undef)
 
 =head3 Throws
 
-A L<PLA::PLA::NotImplementedException> if not implemented
+A L<Polloc::Polloc::NotImplementedException> if not implemented
 
 =cut
 
 sub parameter {
    my $self = shift;
-   $self->throw("parameter",$self,"PLA::PLA::NotImplementedException");
+   $self->throw("parameter",$self,"Polloc::Polloc::NotImplementedException");
 }
 
 =head2 read
@@ -378,12 +378,12 @@ sub parameter {
 
 sub read {
    my $self = shift;
-   $self->throw("read",$self,"PLA::PLA::NotImplementedException");
+   $self->throw("read",$self,"Polloc::Polloc::NotImplementedException");
 }
 
 =head1 INTERNAL METHODS
 
-Methods intended to be used only within the scope of PLA::*
+Methods intended to be used only within the scope of Polloc::*
 
 =head2 _register_rule_parse
 
@@ -391,7 +391,7 @@ Methods intended to be used only within the scope of PLA::*
 
 sub _register_rule_parse {
    my $self = shift;
-   $self->throw("_register_rule_parse",$self,"PLA::PLA::NotImplementedException");
+   $self->throw("_register_rule_parse",$self,"Polloc::Polloc::NotImplementedException");
 }
 
 =head2 _next_child_id
@@ -411,7 +411,7 @@ sub _next_child_id {
 
 sub _initialize {
    my($self,@args) = @_;
-   $self->throw("_initialize", $self, "PLA::PLA::NotImplementedException");
+   $self->throw("_initialize", $self, "Polloc::Polloc::NotImplementedException");
 }
 
 =head2 _qualify_format

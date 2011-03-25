@@ -1,5 +1,5 @@
-Polymorphic Loci Analysis . perl modules (PLA.pm)
-=================================================
+Perl modules for Polymorphic Loci Analysis (Polloc)
+===================================================
 
 A collection of perl modules to analyse *Polymorphic Loci*
 in bacterial genomes.

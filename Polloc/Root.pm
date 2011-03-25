@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::PLA::Root - The parent of all the PLA::* objects
+Polloc::Polloc::Root - The parent of all the Polloc::* objects
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -8,11 +8,11 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package PLA::PLA::Root;
+package Polloc::Polloc::Root;
 
 use strict;
-use PLA::PLA::IO;
-use PLA::PLA::Error;
+use Polloc::Polloc::IO;
+use Polloc::Polloc::Error;
 use Error qw(:try);
 
 
@@ -39,7 +39,7 @@ Verbosity level
 =cut
 
 $VERBOSITY = 0;
-sub VERBOSITY { shift if ref $_[0] || $_[0] =~ m/^PLA::/ ; $VERBOSITY = 0+shift }
+sub VERBOSITY { shift if ref $_[0] || $_[0] =~ m/^Polloc::/ ; $VERBOSITY = 0+shift }
 
 =head2 DOER
 
@@ -54,13 +54,13 @@ sub DOER { shift ; $DOER = 0+shift }
 
 Sets the file at which debug information should be saved
 if VERBOSITY is greater or equal to 2, and returns a
-L<PLA::PLA::IO> object to write on it.
+L<Polloc::Polloc::IO> object to write on it.
 
 =cut
 
 sub DEBUGLOG {
    my $self = shift;
-   $DEBUGLOG = PLA::PLA::IO->new(@_) if $#_ >= 0;
+   $DEBUGLOG = Polloc::Polloc::IO->new(@_) if $#_ >= 0;
    return $DEBUGLOG;
 }
 
@@ -137,7 +137,7 @@ The element causing the error
 
 =item -class
 
-The exception class (L<PLA::PLA::Error> by default)
+The exception class (L<Polloc::Polloc::Error> by default)
 
 =back
 
@@ -151,14 +151,14 @@ sub throw {
    my ($self, @args) = @_;
    my ($text, $value, $class) =
    	$self->_rearrange([qw(TEXT VALUE CLASS)], @args);
-   $class ||= "PLA::PLA::Error";
+   $class ||= "Polloc::Polloc::Error";
    $class->throw( -text=>$text, -value=>$value, -object=>$self );
 }
 
 
 =head2 debug
 
-Appends debug information to the L<PLA::PLA::DEBUGLOG> or STDERR
+Appends debug information to the L<Polloc::Polloc::DEBUGLOG> or STDERR
 if verbosity is greater than 1
 
 =cut
@@ -184,7 +184,7 @@ sub warn {
    my ($self, $txt, $value) = @_;
    my $verb = $self->verbosity;
    return if $verb==-1;
-   $self->throw($txt,$value,'PLA::PLA::LoudWarningException') if $verb >=3;
+   $self->throw($txt,$value,'Polloc::Polloc::LoudWarningException') if $verb >=3;
    my $out = "\n" . ("-"x10) . " WARNING " . ("-"x10) . "\n" .
    	"MSG: " . $txt . "\n" ;
    $out.= "VALUE: $value - ".ref($value)."\n" if defined $value;
@@ -277,7 +277,7 @@ sub vardump {
 
 =head1 INTERNAL METHODS
 
-Methods intended to be used only witin the scope of PLA::*
+Methods intended to be used only witin the scope of Polloc::*
 
 =head2 _rearrange
 
@@ -310,7 +310,7 @@ sub _load_module {
 
    $self->throw("Illegal perl package name", $name) unless $name =~ m/^([\w:]+)$/;
    $load = "$name.pm";
-   my $io = PLA::PLA::IO->new();
+   my $io = Polloc::Polloc::IO->new();
    $load = $io->catfile((split /::/, $load));
    eval {
       require $load;

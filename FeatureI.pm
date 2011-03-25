@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::FeatureI - Interface of C<PLA::Feature::*> objects
+Polloc::FeatureI - Interface of C<Polloc::Feature::*> objects
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -12,19 +12,19 @@ Email lmrodriguezr at gmail dot com
 
 =item *
 
-L<PLA::PLA::Root>
+L<Polloc::Polloc::Root>
 
 =back
 
 =cut
 
-package PLA::FeatureI;
+package Polloc::FeatureI;
 
 use strict;
-use PLA::RuleI;
-use PLA::PLA::IO;
+use Polloc::RuleI;
+use Polloc::Polloc::IO;
 
-use base qw(PLA::PLA::Root);
+use base qw(Polloc::Polloc::Root);
 
 =head1 PUBLIC METHODS
 
@@ -42,22 +42,22 @@ sub new {
    my($caller,@args) = @_;
    my $class = ref($caller) || $caller;
    
-   if($class !~ m/PLA::Feature::(\S+)/){
-      my $bme = PLA::PLA::Root->new(@args);
+   if($class !~ m/Polloc::Feature::(\S+)/){
+      my $bme = Polloc::Polloc::Root->new(@args);
       my($type) = $bme->_rearrange([qw(TYPE)], @args);
       
       if($type){
-         $type = PLA::FeatureI->_qualify_type($type);
-         $class = "PLA::Feature::" . $type if $type;
+         $type = Polloc::FeatureI->_qualify_type($type);
+         $class = "Polloc::Feature::" . $type if $type;
       }
    }
 
-   if($class =~ m/PLA::Feature::(\S+)/){
+   if($class =~ m/Polloc::Feature::(\S+)/){
       my $load = 0;
-      if(PLA::RuleI->_load_module($class)){
+      if(Polloc::RuleI->_load_module($class)){
          $load = $class;
-      }elsif(PLA::RuleI->_load_module("PLA::Feature::generic")){
-         $load = "PLA::Feature::generic";
+      }elsif(Polloc::RuleI->_load_module("Polloc::Feature::generic")){
+         $load = "Polloc::Feature::generic";
       }
       
       if($load){
@@ -81,11 +81,11 @@ sub new {
          
       }
       
-      my $bme = PLA::PLA::Root->new(@args);
+      my $bme = Polloc::Polloc::Root->new(@args);
       $bme->throw("Impossible to load the module", $class);
    }
-   my $bme = PLA::PLA::Root->new(@args);
-   $bme->throw("Impossible to load the proper PLA::FeatureI class with ".
+   my $bme = Polloc::Polloc::Root->new(@args);
+   $bme->throw("Impossible to load the proper Polloc::FeatureI class with ".
    		"[".join("; ",@args)."]", $class);
 }
 
@@ -106,7 +106,7 @@ or a string from the above list, regardless of the input variations.
 
 =head3 Throws
 
-L<PLA::PLA::Error> if an unsupported type is received.
+L<Polloc::Polloc::Error> if an unsupported type is received.
 
 =cut
 
@@ -184,11 +184,11 @@ sub parents { return shift->{'_parents'}; }
 
 =head3 Arguments
 
-One or more parent object (C<PLA::FeatureI>)
+One or more parent object (C<Polloc::FeatureI>)
 
 =head3 Throws
 
-L<PLA::PLA::Error> if some argument is not L<PLA::FeatureI>
+L<Polloc::Polloc::Error> if some argument is not L<Polloc::FeatureI>
 
 =cut
 
@@ -196,7 +196,7 @@ sub add_parent {
    my($self,@values) = @_;
    $self->{'_parents'} ||= [];
    for(@values){ $self->throw("Illegal parent class '".ref($_)."'",$_)
-   	unless $_->isa('PLA::FeatureI') }
+   	unless $_->isa('Polloc::FeatureI') }
    push(@{$self->{'_aliases'}}, @values);
 }
 
@@ -413,7 +413,7 @@ The explicitly defined family.
 
 =item 2
 
-The prefix of the ID (asuming it was produced by some L<PLA::RuleI> object).
+The prefix of the ID (asuming it was produced by some L<Polloc::RuleI> object).
 
 =item 3
 
@@ -510,15 +510,15 @@ Gets/sets the origin rule
 
 =head3 Arguments
 
-A L<PLA::RuleI> object
+A L<Polloc::RuleI> object
 
 =head3 Returns
 
-A L<PLA::RuleI> object
+A L<Polloc::RuleI> object
 
 =head3 Throws
 
-L<PLA::PLA::Error> if the argument is not of the proper class
+L<Polloc::Polloc::Error> if the argument is not of the proper class
 
 =cut
 
@@ -526,7 +526,7 @@ sub rule {
    my($self,$value) = @_;
    if(defined $value){
       $self->throw("Unexpected class of argument '".ref($value)."'",$value)
-      		unless $value->isa('PLA::RuleI');
+      		unless $value->isa('Polloc::RuleI');
       $self->{'_rule'} = $value;
    }
    return $self->{'_rule'};
@@ -543,11 +543,11 @@ The score (float)
 
 =head3 Throws
 
-L<PLA::PLA::NotImplementedException> if not implemented
+L<Polloc::Polloc::NotImplementedException> if not implemented
 
 =cut
 
-sub score { $_[0]->throw("score",$_[0],"PLA::PLA::NotImplementedException") }
+sub score { $_[0]->throw("score",$_[0],"Polloc::Polloc::NotImplementedException") }
 
 
 =head2 seq
@@ -564,7 +564,7 @@ The sequence (Bio::Seq object or undef)
 
 =head3 Throws
 
-L<PLA::PLA::Error> if the sequence is not Bio::Seq
+L<Polloc::Polloc::Error> if the sequence is not Bio::Seq
 
 =head3 Note
 
@@ -646,7 +646,7 @@ sub gff3_line {
 
 =head3 Purpose
 
-To provide an easy method for the (str) description of any L<PLA::FeatureI> object.
+To provide an easy method for the (str) description of any L<Polloc::FeatureI> object.
 
 =head3 Returns
 
@@ -680,17 +680,17 @@ The file handler pointing to the GFF3 content
 
 =item ...
 
-Any other argument supported by L<PLA::PLA::IO-E<gt>new()>, such as C<-url>
+Any other argument supported by L<Polloc::Polloc::IO-E<gt>new()>, such as C<-url>
 
 =back
 
 =head3 Returns
 
-An array of L<PLA::FeatureI> objects
+An array of L<Polloc::FeatureI> objects
 
 =head3 Note
 
-Static function, call it as C<PLA::FeatureI->read_gff3>).
+Static function, call it as C<Polloc::FeatureI->read_gff3>).
 
 =head3 TODO
 
@@ -700,7 +700,7 @@ B<Still not functional!>
 
 sub read_gff3 {
    my ($class,@args) = @_;
-   my $io = PLA::PLA::IO->new(@args);
+   my $io = Polloc::Polloc::IO->new(@args);
    my @feats;
    while(my $ln = $io->_readline){
       next if $ln =~ /^\s*#.*$/;
@@ -720,7 +720,7 @@ sub read_gff3 {
          # ID, Note, Name
       }
       $type = $family unless defined $type;
-      my $ft = PLA::FeatureI->new(-type=>$type);
+      my $ft = Polloc::FeatureI->new(-type=>$type);
       # 
       # TODO
       # 
@@ -731,7 +731,7 @@ sub read_gff3 {
 
 =head1 INTERNAL METHODS
 
-Methods intended to be used only within the scope of PLA::*
+Methods intended to be used only within the scope of Polloc::*
 
 =head2 _gff3_attribute
 
@@ -740,7 +740,7 @@ the colon-separated entries in the ninth column)
 
 =head3 Purpose
 
-To simplify the code of L<PLA::FeatureI::gff3_line>
+To simplify the code of L<Polloc::FeatureI::gff3_line>
 
 =head3 Arguments
 
@@ -770,12 +770,12 @@ sub _gff3_attribute {
 
 Properly escapes a value on the GFF3 line.  I.e., the content of one column.
 Not to be used with the ninth column, because scapes the colon. the comma and
-the equals signs.  Use instead the L<PLA::FeatureI::_gff3_attribute()> function
+the equals signs.  Use instead the L<Polloc::FeatureI::_gff3_attribute()> function
 attribute by attribute
 
 =head3 Purpose
 
-To simplify the code of L<PLA::FeatureI::gff3_line()>
+To simplify the code of L<Polloc::FeatureI::gff3_line()>
 
 =head3 Arguments
 
@@ -865,7 +865,7 @@ sub _qualify_type {
 
 sub _initialize {
    my $self = shift;
-   $self->throw("_initialize", $self, "PLA::PLA::NotImplementedException");
+   $self->throw("_initialize", $self, "Polloc::Polloc::NotImplementedException");
 }
 
 1;

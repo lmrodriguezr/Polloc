@@ -1,6 +1,6 @@
 =head1 NAME
 
-PLA::Rule::boolean - A rule of type boolean operator
+Polloc::Rule::boolean - A rule of type boolean operator
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -8,15 +8,15 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package PLA::Rule::boolean;
+package Polloc::Rule::boolean;
 
 use strict;
-use PLA::PLA::IO;
-use PLA::FeatureI;
+use Polloc::Polloc::IO;
+use Polloc::FeatureI;
 
 use Bio::SeqIO;
 
-use base qw(PLA::RuleI);
+use base qw(Polloc::RuleI);
 
 =head1 APPENDIX
 
@@ -41,9 +41,9 @@ sub _initialize {
 
  Description	: 
  Parameters	: -seq, a Bio::Seq or Bio::SeqIO object
- Returns	: An array reference populated with PLA::Feature::* objects
- Throws		: PLA::PLA::UnexpectedException if the operator is not supported
- 		  PLA::PLA::Error if the rule is not within a rule set
+ Returns	: An array reference populated with Polloc::Feature::* objects
+ Throws		: Polloc::Polloc::UnexpectedException if the operator is not supported
+ 		  Polloc::Polloc::Error if the rule is not within a rule set
 
 =cut
 
@@ -62,10 +62,10 @@ sub execute {
    }
    
    # Preset the environment
-   $self->throw("Impossible to qualify a boolean outside a Rule Set (PLA::RuleIO)", $self)
+   $self->throw("Impossible to qualify a boolean outside a Rule Set (Polloc::RuleIO)", $self)
    		unless defined $self->ruleset;
    $self->throw("Illegal object as Rule Set", $self->ruleset)
-   		unless $self->ruleset->isa('PLA::RuleIO');
+   		unless $self->ruleset->isa('Polloc::RuleIO');
    $self->value($self->value); # To implicitly call _qualify_value
    
    $self->throw("Illegal class of sequence '".ref($seq)."'", $seq)
@@ -104,7 +104,7 @@ sub execute {
       }else{
       # Oops!
          $self->throw("Unsupported operator",
-	 	$self->operator, 'PLA::PLA::UnexpectedException');
+	 	$self->operator, 'Polloc::Polloc::UnexpectedException');
       }
    }
    if($self->operator eq 'or'){
@@ -119,8 +119,8 @@ sub execute {
 =head2 rule1
 
  Description	: Gets/sets the first rule
- Arguments	: A PLA::RuleI object (optional)
- Returns	: PLA::RuleI object or undef
+ Arguments	: A Polloc::RuleI object (optional)
+ Returns	: Polloc::RuleI object or undef
 
 =cut
 
@@ -173,8 +173,8 @@ sub operator {
 =head2 rule2
 
  Description	: Gets/sets the second rule
- Arguments	: A PLA::RuleI object (optional)
- Returns	: PLA::RuleI object or undef
+ Arguments	: A Polloc::RuleI object (optional)
+ Returns	: Polloc::RuleI object or undef
 
 =cut
 
@@ -198,12 +198,12 @@ sub stringify_value {
 
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the PLA::RuleI interface
+ Description	: Implements the _qualify_value from the Polloc::RuleI interface
  Arguments	: Anything, the operation should be set using the
- 		  L<PLA::Rule::boolean::rule1()>, L<PLA::Rule::boolean::operator()>
-		  and L<PLA::Rule::boolean::rule2()> functions
+ 		  L<Polloc::Rule::boolean::rule1()>, L<Polloc::Rule::boolean::operator()>
+		  and L<Polloc::Rule::boolean::rule2()> functions
  Return		: The received value.
- Note		: Do not call L<PLA::RuleI::value()> with an undefined value, it is
+ Note		: Do not call L<Polloc::RuleI::value()> with an undefined value, it is
  		  the only way to make it crash for booleans
 
 =cut

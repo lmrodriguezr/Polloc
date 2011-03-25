@@ -1,10 +1,10 @@
 =head1 NAME
 
-PLA::Rule::tandemrepeat - A rule of type tandemrepeat
+Polloc::Rule::tandemrepeat - A rule of type tandemrepeat
 
 =head1 DESCRIPTION
 
-This rule is similar to PLA::Rule::repeat, but employes TRF (Benson 1999, NAR 27(2):573-580)
+This rule is similar to Polloc::Rule::repeat, but employes TRF (Benson 1999, NAR 27(2):573-580)
 for the repeats calculation.
 
 =head1 AUTHOR - Luis M. Rodriguez-R
@@ -16,11 +16,11 @@ Email lmrodriguezr at gmail dot com
 I should add support to the linux32 binary of TRF, based on the local arch.
 
 =cut
-package PLA::Rule::tandemrepeat;
+package Polloc::Rule::tandemrepeat;
 
 use strict;
-use PLA::PLA::IO;
-use PLA::FeatureI;
+use Polloc::Polloc::IO;
+use Polloc::FeatureI;
 
 use Bio::SeqIO;
 # Thanks to TRF:
@@ -28,7 +28,7 @@ use File::Spec;
 use File::Basename;
 use Cwd;
 
-use base qw(PLA::RuleI);
+use base qw(Polloc::RuleI);
 
 =head1 APPENDIX
 
@@ -53,7 +53,7 @@ sub _initialize {
  Description	: This is where magic happens.  Translates the parameters of the object
  		  into a call to B<TRF>, and scans the sequence for repeats
  Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with PLA::Feature::tandemrepeat objects
+ Returns	: An array reference populated with Polloc::Feature::tandemrepeat objects
 
 =cut
 sub execute {
@@ -90,7 +90,7 @@ sub execute {
    }
 
    # Create the IO master
-   my $io = PLA::PLA::IO->new();
+   my $io = Polloc::Polloc::IO->new();
 
    # Search for TRF
    $self->source('trf'); # For GFF
@@ -147,11 +147,11 @@ sub execute {
    push @run, "|";
    my $cwd = cwd();
    # Finger crossed
-   my $tmpdir = PLA::PLA::IO->tempdir();
+   my $tmpdir = Polloc::Polloc::IO->tempdir();
    chdir $tmpdir or $self->throw("I can not move myself to the temporal directory: $!", $tmpdir);
    $self->debug("Hello from ".cwd());
    $self->debug("Running: ".join(" ",@run)." [CWD: ".cwd()."]");
-   my $run = PLA::PLA::IO->new(-file=>join(" ",@run));
+   my $run = Polloc::Polloc::IO->new(-file=>join(" ",@run));
    while($run->_readline) {} # Do nothing, this is truly unuseful output
    $run->close();
    # Finger crossed (yes, again)
@@ -159,7 +159,7 @@ sub execute {
    $self->debug("Hello from ".cwd());
    
    # Try to locate the output (belive it or not)...
-   my $outfile = PLA::PLA::IO->catfile($tmpdir, basename($seq_file) . "." .
+   my $outfile = Polloc::Polloc::IO->catfile($tmpdir, basename($seq_file) . "." .
    		$c_v{'match'} . "." . $c_v{'mismatch'} . "." . $c_v{'indels'} . "." .
 		$c_v{'pm'} . "." . $c_v{'pi'} . "." . $c_v{'minscore'} . "." .
 		$c_v{'maxperiod'} . ".dat");
@@ -168,7 +168,7 @@ sub execute {
    # And finally parse it
    my $ontable = 0;
    my @feats = ();
-   $run = PLA::PLA::IO->new(-file=>$outfile);
+   $run = Polloc::Polloc::IO->new(-file=>$outfile);
    while(my $line = $run->_readline){
       if($line =~ m/^Parameters:\s/){
          $ontable = 1;
@@ -178,7 +178,7 @@ sub execute {
 	 #from to period-size copy-number consensus-size percent-matches percent-indels score A T C G entropy consensus sequence
 	 #269 316 18 2.6 19 56 3 51 8 45 35 10 1.68 GTCGCGGCCACGTGCACCC GTCGCGTCCACGTGCGCCCGAGCCGGC...
 	 my @v = split /\s+/, $line;
-	 $#v==14 or $self->throw("Unexpected line $.",$line,"PLA::PLA::ParsingException");
+	 $#v==14 or $self->throw("Unexpected line $.",$line,"Polloc::Polloc::ParsingException");
 	 # MINSIZE MAXSIZE MINPERIOD MAXPERIOD EXP MATCH MISMATCH INDELS MINSCORE MAXSCORE
 	 next if length($v[14]) > $c_v{'maxsize'} or length($v[14]) < $c_v{'minsize'};
 	 next if $v[2] > $c_v{'maxperiod'} or $v[2] < $c_v{'minperiod'};
@@ -188,7 +188,7 @@ sub execute {
 	 next if $v[5] < $c_v{'minsim'} or $v[5] > $c_v{'maxsim'};
 	 
 	 my $id = $self->_next_child_id;
-	 push @feats, PLA::FeatureI->new(
+	 push @feats, Polloc::FeatureI->new(
 	 		-type=>'repeat', # Be careful, usually $self->type
 			-rule=>$self, -seq=>$seq,
 			-from=>$v[0]+0, -to=>$v[1]+0, -strand=>"+",
@@ -223,7 +223,7 @@ sub _parameters {
 
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the PLA::RuleI interface
+ Description	: Implements the _qualify_value from the Polloc::RuleI interface
  Arguments	: Value (str or ref-to-hash or ref-to-array)
  		  The supported keys are:
 			-minsize : Minimum size of the repeat
