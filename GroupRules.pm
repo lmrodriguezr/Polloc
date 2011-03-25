@@ -879,7 +879,7 @@ sub _build_subseq {
    my $cleanstr = $seqstr;
    $cleanstr =~ s/^N*//;
    $cleanstr =~ s/N*$//;
-   return unless length $cleanstr > 0; # See issue BME #5
+   return unless length $cleanstr > 0; # See issue BME#5
    my $subseq = Bio::Seq->new(-seq=>$seqstr);
    $subseq = $subseq->revcom if $from < $to;
    return $subseq;
