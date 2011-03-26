@@ -17,6 +17,12 @@ Group Effectors
 
 Montpellier, France
 
+License
+-------
+
+This package is licensed under the terms of *The Artistic
+License*. See LICENSE.txt.
+
 Description
 -----------
 
@@ -45,7 +51,7 @@ modules:
 The following requirements can be ignored depending on the
 set of modules to be used.
 
-Perl modules:
+#### Perl modules:
 
 *  `File::Basename`
 
