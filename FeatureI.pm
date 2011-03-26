@@ -468,7 +468,7 @@ The source of the rule (if defined).
 
 =item 3
 
-If any of the above, returns B<pla>.
+If any of the above, returns B<polloc>.
 
 =back
 
@@ -479,7 +479,7 @@ sub source {
    $self->{'_source'} = $value if defined $value;
    $self->{'_source'} = $self->rule->source
    	if not defined $self->{'_source'} and defined $self->rule;
-   return 'pla' if not defined $self->{'_source'};
+   return 'polloc' if not defined $self->{'_source'};
    return $self->{'_source'};
 }
 
