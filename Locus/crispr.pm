@@ -1,10 +1,10 @@
 =head1 NAME
 
-Polloc::Feature::crispr - A CRISPR feature
+Polloc::Locus::crispr - A CRISPR locus
 
 =head1 DESCRIPTION
 
-A feature of CRISPR.  Implements L<Polloc::FeatureI>.
+A CRISPR locus.  Implements L<Polloc::LocusI>.
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -12,10 +12,10 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package Polloc::Feature::crispr;
+package Polloc::Locus::crispr;
 
 use strict;
-use base qw(Polloc::FeatureI);
+use base qw(Polloc::LocusI);
 
 
 =head1 APPENDIX
@@ -24,10 +24,10 @@ use base qw(Polloc::FeatureI);
 
 =head2 new
 
- Description	: Creates a B<Polloc::Feature::repeat> object
+ Description	: Creates a B<Polloc::Locus::repeat> object
  Arguments	: -spacers_no : (int) The number of spacers
  		  -dr: (str) Direct repeat sequence
- Returns	: A B<Polloc::Feature::repeat> object
+ Returns	: A B<Polloc::Locus::repeat> object
 
 =cut
 
@@ -86,7 +86,7 @@ sub score {
 =head2 _initialize
 
  Description	: Initialization function.
- Arguments	: See L<Polloc::Feature::repeat::new>
+ Arguments	: See L<Polloc::Locus::repeat::new>
  Returns	: none
 
 =cut

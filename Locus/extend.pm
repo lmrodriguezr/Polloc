@@ -1,12 +1,12 @@
 =head1 NAME
 
-Polloc::Feature::extend - A feature based on another one
+Polloc::Locus::extend - A feature based on another one
 
 =head1 DESCRIPTION
 
 A feature of a sequence, inferred by similarity or surrounding
 regions similar to those of a known feature.  Implements
-L<Polloc::FeatureI>.
+L<Polloc::LocusI>.
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -14,10 +14,10 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package Polloc::Feature::extend;
+package Polloc::Locus::extend;
 
 use strict;
-use base qw(Polloc::FeatureI);
+use base qw(Polloc::LocusI);
 
 
 =head1 APPENDIX
@@ -29,12 +29,12 @@ use base qw(Polloc::FeatureI);
 
 =head2 new
 
- Description	: Creates a B<Polloc::Feature::repeat> object
- Arguments	: -basefeature : (Polloc;;FeatureI object) The reference
+ Description	: Creates a B<Polloc::Locus::repeat> object
+ Arguments	: -basefeature : (C<Polloc::LocusI> object) The reference
  			feature or part of the reference collection
  		  -score : (float) The score of extension (bit-score
 		  	on BLAST or score on HMMer, for example).
- Returns	: A B<Polloc::Feature::extend> object
+ Returns	: A B<Polloc::Locus::extend> object
 
 =cut
 
@@ -52,8 +52,8 @@ sub new {
  		  careful, this can also refer to one feature in a
 		  collection of reference.  Avoid using specific data
 		  from this feature.
- Arguments	: The reference feature (Polloc::FeatureI object, optional)
- Returns	: The reference feature (Polloc::FeatureI object or undef)
+ Arguments	: The reference feature (Polloc::LocusI object, optional)
+ Returns	: The reference feature (Polloc::LocusI object or undef)
 
 =cut
 
@@ -85,7 +85,7 @@ sub score {
 =head2 _initialize
 
  Description	: Initialization function.
- Arguments	: See L<Polloc::Feature::repeat::new>
+ Arguments	: See L<Polloc::Locus::repeat::new>
  Returns	: none
 
 =cut
