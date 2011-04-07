@@ -1,8 +1,8 @@
-package Polloc::Feature::pattern;
+package Polloc::Locus::pattern;
 
 use strict;
 
-use base qw(Polloc::FeatureI);
+use base qw(Polloc::LocusI);
 
 sub new {
    my($caller,@args) = @_;

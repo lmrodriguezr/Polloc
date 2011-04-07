@@ -1,11 +1,11 @@
 =head1 NAME
 
-Polloc::Feature::generic - An unknown feature
+Polloc::Locus::generic - An unknown feature
 
 =head1 DESCRIPTION
 
 A feature loaded by some external source, but not directly created by
-some L<Polloc::RuleI> object.  Implements L<Polloc::FeatureI>.
+some L<Polloc::RuleI> object.  Implements L<Polloc::LocusI>.
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -13,10 +13,10 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package Polloc::Feature::generic;
+package Polloc::Locus::generic;
 
 use strict;
-use base qw(Polloc::FeatureI);
+use base qw(Polloc::LocusI);
 
 
 =head1 APPENDIX
@@ -25,9 +25,9 @@ use base qw(Polloc::FeatureI);
 
 =head2 new
 
- Description	: Creates a B<Polloc::Feature::repeat> object
+ Description	: Creates a B<Polloc::Locus::repeat> object
  Arguments	: none
- Returns	: A B<Polloc::Feature::generic> object
+ Returns	: A B<Polloc::Locus::generic> object
 
 =cut
 

@@ -1,6 +1,6 @@
 =head1 NAME
 
-Polloc::Feature::composition - A composition feature
+Polloc::Locus::composition - A composition feature
 
 =head1 DESCRIPTION
 
@@ -14,10 +14,10 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package Polloc::Feature::composition;
+package Polloc::Locus::composition;
 
 use strict;
-use base qw(Polloc::FeatureI);
+use base qw(Polloc::LocusI);
 
 
 =head1 APPENDIX
@@ -32,7 +32,7 @@ use base qw(Polloc::FeatureI);
  Arguments	: -letters : (str) The residues
  		  -composition : (float) The percentage of the sequence covered by
 		  	the residues (letters).
- Returns	: A Polloc::Feature::composition object
+ Returns	: A Polloc::Locus::composition object
 
 =cut
 
@@ -88,7 +88,7 @@ sub composition {
 
 =head2 score
 
- Description	: Dummy function, required by the L<Polloc::FeatureI>
+ Description	: Dummy function, required by the L<Polloc::LocusI>
  		  interface.  Returns undef because any score is associated
  Arguments	: none
  Returns	: undef

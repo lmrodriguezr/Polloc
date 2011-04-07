@@ -1,10 +1,10 @@
 =head1 NAME
 
-Polloc::Feature::repeat - A repeat feature
+Polloc::Locus::repeat - A repetitive locus
 
 =head1 DESCRIPTION
 
-A feature of repeats.  Implements L<Polloc::FeatureI>.
+A repeatitive locus.  Implements L<Polloc::LocusI>.
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -12,10 +12,10 @@ Email lmrodriguezr at gmail dot com
 
 =cut
 
-package Polloc::Feature::repeat;
+package Polloc::Locus::repeat;
 
 use strict;
-use base qw(Polloc::FeatureI);
+use base qw(Polloc::LocusI);
 
 
 =head1 APPENDIX
@@ -24,13 +24,13 @@ use base qw(Polloc::FeatureI);
 
 =head2 new
 
- Description	: Creates a B<Polloc::Feature::repeat> object
+ Description	: Creates a B<Polloc::Locus::repeat> object
  Arguments	: -period : (float) The period of the repeat (units length)
  		  -exponent: (float) The exponent (No of units)
 		  -error : (float) Mismatches percentage
 		  -repeats : (str) Repetitive sequences, repeats space-separated
 		  -consensus : (str) Repeats consensus
- Returns	: A B<Polloc::Feature::repeat> object
+ Returns	: A B<Polloc::Locus::repeat> object
 
 =cut
 
@@ -137,7 +137,7 @@ sub score {
 =head2 _initialize
 
  Description	: Initialization function.
- Arguments	: See L<Polloc::Feature::repeat::new>
+ Arguments	: See L<Polloc::Locus::repeat::new>
  Returns	: none
 
 =cut

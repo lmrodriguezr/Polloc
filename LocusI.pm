@@ -1,6 +1,6 @@
 =head1 NAME
 
-Polloc::FeatureI - Interface of C<Polloc::Feature::*> objects
+Polloc::LocusI - Interface of C<Polloc::Locus::*> objects
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -18,7 +18,7 @@ L<Polloc::Polloc::Root>
 
 =cut
 
-package Polloc::FeatureI;
+package Polloc::LocusI;
 
 use strict;
 use Polloc::RuleI;
@@ -42,27 +42,27 @@ sub new {
    my($caller,@args) = @_;
    my $class = ref($caller) || $caller;
    
-   if($class !~ m/Polloc::Feature::(\S+)/){
+   if($class !~ m/Polloc::Locus::(\S+)/){
       my $bme = Polloc::Polloc::Root->new(@args);
       my($type) = $bme->_rearrange([qw(TYPE)], @args);
       
       if($type){
-         $type = Polloc::FeatureI->_qualify_type($type);
-         $class = "Polloc::Feature::" . $type if $type;
+         $type = Polloc::LocusI->_qualify_type($type);
+         $class = "Polloc::Locus::" . $type if $type;
       }
    }
 
-   if($class =~ m/Polloc::Feature::(\S+)/){
+   if($class =~ m/Polloc::Locus::(\S+)/){
       my $load = 0;
       if(Polloc::RuleI->_load_module($class)){
          $load = $class;
-      }elsif(Polloc::RuleI->_load_module("Polloc::Feature::generic")){
-         $load = "Polloc::Feature::generic";
+      }elsif(Polloc::RuleI->_load_module("Polloc::Locus::generic")){
+         $load = "Polloc::Locus::generic";
       }
       
       if($load){
          my $self = $load->SUPER::new(@args);
-	 $self->debug("Got the FeatureI class $load");
+	 $self->debug("Got the LocusI class $load");
 	 my($from,$to,$strand,$name,$rule,$seq,$id, $family, $source, $comments) =
 	 	$self->_rearrange(
 	 		[qw(FROM TO STRAND NAME RULE SEQ ID FAMILY SOURCE COMMENTS)], @args);
@@ -85,7 +85,7 @@ sub new {
       $bme->throw("Impossible to load the module", $class);
    }
    my $bme = Polloc::Polloc::Root->new(@args);
-   $bme->throw("Impossible to load the proper Polloc::FeatureI class with ".
+   $bme->throw("Impossible to load the proper Polloc::LocusI class with ".
    		"[".join("; ",@args)."]", $class);
 }
 
@@ -114,7 +114,7 @@ sub type {
    my($self,$value) = @_;
    if($value){
       my $v = $self->_qualify_type($value);
-      $self->throw("Attempting to set an invalid type of feature",$value) unless $v;
+      $self->throw("Attempting to set an invalid type of locus",$value) unless $v;
       $self->{'_type'} = $v;
    }
    return $self->{'_type'};
@@ -122,7 +122,7 @@ sub type {
 
 =head2 name
 
-Sets/gets the name of the feature
+Sets/gets the name of the locus
 
 =head3 Arguments
 
@@ -170,7 +170,7 @@ sub add_alias {
 
 =head2 parents
 
-Gets the parent features
+Gets the parent features or loci
 
 =head3 Returns
 
@@ -184,11 +184,11 @@ sub parents { return shift->{'_parents'}; }
 
 =head3 Arguments
 
-One or more parent object (C<Polloc::FeatureI>)
+One or more parent object (C<Polloc::LocusI>)
 
 =head3 Throws
 
-L<Polloc::Polloc::Error> if some argument is not L<Polloc::FeatureI>
+L<Polloc::Polloc::Error> if some argument is not L<Polloc::LocusI>
 
 =cut
 
@@ -196,7 +196,7 @@ sub add_parent {
    my($self,@values) = @_;
    $self->{'_parents'} ||= [];
    for(@values){ $self->throw("Illegal parent class '".ref($_)."'",$_)
-   	unless $_->isa('Polloc::FeatureI') }
+   	unless $_->isa('Polloc::LocusI') }
    push(@{$self->{'_aliases'}}, @values);
 }
 
@@ -244,7 +244,7 @@ sub target {
 
 =head2 comments
 
-Gets/sets the comments on the feature, newline-separated
+Gets/sets the comments on the locus, newline-separated
 
 =head3 Arguments
 
@@ -269,7 +269,7 @@ sub comments {
 
 =head2 xrefs
 
-Gets the cross references of the feature
+Gets the cross references of the locus
 
 =head3 Returns
 
@@ -368,7 +368,7 @@ sub to {
 
 =head2 id
 
-Gets/sets the ID of the feature
+Gets/sets the ID of the locus
 
 =head3 Arguments
 
@@ -389,7 +389,7 @@ sub id {
 
 =head2 family
 
-Sets/gets the family of features.  I<I.e.>, a name identifying the type of feature.
+Sets/gets the family of features.  I<I.e.>, a name identifying the type of locus.
 A common family is B<CDS>, but other families can be defined.  Note that the family
 is not qualified by the software used for the prediction (use C<source()> for that).
 
@@ -646,7 +646,7 @@ sub gff3_line {
 
 =head3 Purpose
 
-To provide an easy method for the (str) description of any L<Polloc::FeatureI> object.
+To provide an easy method for the (str) description of any L<Polloc::LocusI> object.
 
 =head3 Returns
 
@@ -664,7 +664,7 @@ sub stringify {
 
 =head2 read_gff3
 
-Reads a GFF3 file and returns an array of features
+Reads a GFF3 file and returns an array of loci
 
 =head3 Arguments
 
@@ -686,11 +686,11 @@ Any other argument supported by L<Polloc::Polloc::IO-E<gt>new()>, such as C<-url
 
 =head3 Returns
 
-An array of L<Polloc::FeatureI> objects
+An array of L<Polloc::LocusI> objects
 
 =head3 Note
 
-Static function, call it as C<Polloc::FeatureI->read_gff3>).
+Static function, call it as C<Polloc::LocusI->read_gff3>).
 
 =head3 TODO
 
@@ -720,7 +720,7 @@ sub read_gff3 {
          # ID, Note, Name
       }
       $type = $family unless defined $type;
-      my $ft = Polloc::FeatureI->new(-type=>$type);
+      my $ft = Polloc::LocusI->new(-type=>$type);
       # 
       # TODO
       # 
@@ -740,7 +740,7 @@ the colon-separated entries in the ninth column)
 
 =head3 Purpose
 
-To simplify the code of L<Polloc::FeatureI::gff3_line>
+To simplify the code of L<Polloc::LocusI::gff3_line>
 
 =head3 Arguments
 
@@ -770,12 +770,12 @@ sub _gff3_attribute {
 
 Properly escapes a value on the GFF3 line.  I.e., the content of one column.
 Not to be used with the ninth column, because scapes the colon. the comma and
-the equals signs.  Use instead the L<Polloc::FeatureI::_gff3_attribute()> function
+the equals signs.  Use instead the L<Polloc::LocusI::_gff3_attribute()> function
 attribute by attribute
 
 =head3 Purpose
 
-To simplify the code of L<Polloc::FeatureI::gff3_line()>
+To simplify the code of L<Polloc::LocusI::gff3_line()>
 
 =head3 Arguments
 
