@@ -96,20 +96,22 @@ Installation
 1.  **Install the requirements**.  Remember, you can
     find the Perl modules in [CPAN](cpan.org).
 
-2.  **Download** the library.  There are several alternatives.
-    However, we love git:
+2.  **Download** the library.  There are several alternatives,
+    but we love git:
 
-    mkdir Polloc
-    cd Polloc
-    git init
-    git clone git://github.com/lmrodriguezr/Polloc
-    cd ..
-    mv Polloc <wherever-the-perl-libraries-are> # For example /usr/lib/perl5/site_perl
+	mkdir Polloc
+	cd Polloc
+	git init
+	git clone git://github.com/lmrodriguezr/Polloc
+	cp -r lib/Polloc <wherever-the-perl-libraries-are> # For example /usr/lib/perl5/site_perl
 
-3.  **Start developing**.  See the following section for
-    some examples.  Also, you can check the documentation
-    within the modules using perldoc (or any other Pod
-    interpreter).
+3.  **Use the package**.  See the following section for
+    some examples.
+
+4.  Familiar enough?  We are glad to listen than, **start developing**.
+    You can check the documentation within the modules using perldoc
+    (or any other Pod interpreter), or contact us at for questions and
+    features requests.
 
 Usage
 -----
