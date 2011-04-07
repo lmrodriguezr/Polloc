@@ -1058,9 +1058,12 @@ sub _search_aln_seqs {
 		  ){
 			# -------------------------------------------------- Save result
 			my $r_pos = ["$Gk:".$hit->accession,
-				$hsp->strand('hit')==-1?$hsp->start('hit'):$hsp->end('hit'),
-				$hsp->strand('hit')==-1?$hsp->end('hit'):$hsp->start('hit'),
-				$hsp->strand('hit'),
+				$hsp->strand('hit')!=$hsp->strand('query')?
+						$hsp->start('hit'):$hsp->end('hit'),
+				$hsp->strand('hit')!=$hsp->strand('query')?
+						$hsp->end('hit'):$hsp->start('hit'),
+				$hsp->strand('hit')!=$hsp->strand('query')?
+						-1 : 1,
 				$hsp->bits];
 			push @$pos, $r_pos;
 		  }
