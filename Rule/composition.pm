@@ -12,7 +12,7 @@ package Polloc::Rule::composition;
 
 use strict;
 use base qw(Polloc::RuleI);
-use Polloc::FeatureI;
+use Polloc::LocusI;
 use Bio::SeqIO;
 
 
@@ -41,8 +41,8 @@ sub _initialize {
  		  number with the requested range (See
 		  L<Polloc::Rule::composition::_qualify_value>)
  Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Feature::composition objects
- 		  or undef.  Note that this method returns one Feature per sequence at
+ Returns	: An array reference populated with Polloc::Locus::composition objects
+ 		  or undef.  Note that this method returns one Locus per sequence at
 		  most.
 
 =cut
@@ -78,7 +78,7 @@ sub execute {
    my $perc = 100 * $oc / $ln;
    if($perc > $self->min_perc && $perc < $self->max_perc){
       my $id = $self->_next_child_id;
-      push @feats, Polloc::FeatureI->new(
+      push @feats, Polloc::LocusI->new(
       			-type=>$self->type, -rule=>$self, -seq=>$seq,
 			-from=>1, -to=>$ln, -strand=>'+',
 			-name=>$self->name,

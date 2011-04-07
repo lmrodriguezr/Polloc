@@ -16,7 +16,7 @@ package Polloc::Rule::crispr;
 
 use strict;
 use Polloc::Polloc::IO;
-use Polloc::FeatureI;
+use Polloc::LocusI;
 
 use Bio::SeqIO;
 # For CRISPRFinder:
@@ -47,7 +47,7 @@ sub _initialize {
 
  Description	: Runs CRIPRRfinder and parses the output.
  Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Feature::repeat objects
+ Returns	: An array reference populated with Polloc::Locus::repeat objects
 
 =cut
 sub execute {
@@ -161,7 +161,7 @@ sub execute {
 	       $spacers ||= 0;
 	       my $id = $self->_next_child_id;
 	       my $score = $file=~/_PossibleCrispr_\d+$/i ? 50 : 100;
-	       push @feats, Polloc::FeatureI->new(
+	       push @feats, Polloc::LocusI->new(
 	 		-type=>$self->type, -rule=>$self, -seq=>$seq,
 			-from=>$from, -to=>$to, -strand=>"+",
 			-name=>$self->name,

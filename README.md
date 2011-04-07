@@ -71,7 +71,7 @@ set of modules to be used.
 CRISPRs detection.
 
 * [TRF](http://tandem.bu.edu/trf/trf.html), for Tandem
-Repeats detection (producing `Polloc::Feature::Repeat`
+Repeats detection (producing `Polloc::Locus::Repeat`
 objects).
 
 * [mreps](http://bioinfo.lifl.fr/mreps/), for Repeats

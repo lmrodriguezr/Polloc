@@ -295,7 +295,7 @@ sub id {
    my($self,$value) = @_;
    if($value){
       $value =~ s/\./_/g;
-      $self->debug("Setting Feature ID '$value'");
+      $self->debug("Setting Locus ID '$value'");
       $self->{'_id'} = $value;
    }
    return $self->{'_id'};
@@ -382,7 +382,7 @@ A Bio::Seq object
 
 =head3 Returns
 
-An array of Polloc::FeatureI objects
+An array of Polloc::LocusI objects
 
 =head3 Throws
 

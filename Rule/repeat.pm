@@ -25,7 +25,7 @@ package Polloc::Rule::repeat;
 
 use strict;
 use Polloc::Polloc::IO;
-use Polloc::FeatureI;
+use Polloc::LocusI;
 
 use Bio::SeqIO;
 
@@ -55,7 +55,7 @@ sub _initialize {
  Description	: This is where magic happens.  Translates the parameters of the object
  		  into a call to B<mreps>, and scans the sequence for repeats
  Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Feature::repeat objects
+ Returns	: An array reference populated with Polloc::Locus::repeat objects
 
 =cut
 sub execute {
@@ -144,7 +144,7 @@ sub execute {
 	 next if $score > $maxsim or $score < $minsim;
 	 my $id = $self->_next_child_id;
 	 my $cons = $self->_calculate_consensus($7);
-	 push @feats, Polloc::FeatureI->new(
+	 push @feats, Polloc::LocusI->new(
 	 		-type=>$self->type, -rule=>$self, -seq=>$seq,
 			-from=>$1+0, -to=>$2+0, -strand=>"+",
 			-name=>$self->name,

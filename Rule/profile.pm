@@ -12,7 +12,7 @@ package Polloc::Rule::profile;
 
 use strict;
 use Polloc::Polloc::IO;
-use Polloc::FeatureI;
+use Polloc::LocusI;
 
 use Bio::SeqIO;
 
@@ -41,7 +41,7 @@ sub _initialize {
 
  Description	: Runs the search using HMMer
  Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Feature::repeat objects
+ Returns	: An array reference populated with Polloc::Locus::repeat objects
 
 =cut
 
@@ -119,7 +119,7 @@ sub execute {
 	 $line =~ m/^\s+(\d+)\s+->\s+(\d+)\s+:\s+(\d+)\s+<(\d+)>\s+\[([\d\.]+)\]\s+([\d\.]+)\s+([\w\s]+)$/
 		or $self->throw("Unexpected line $.",$line,"Polloc::Polloc::ParsingException");
 	 my $id = $self->_next_child_id;
-	 push @feats, Polloc::FeatureI->new(
+	 push @feats, Polloc::LocusI->new(
 	 		-type=>$self->type, -rule=>$self, -seq=>$seq,
 			-from=>$1+0, -to=>$2+0, -strand=>"+",
 			-name=>$self->name,

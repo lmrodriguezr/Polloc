@@ -271,7 +271,7 @@ Any argument supported/required by the rules.  C<-seq> is always required
 
 =head3 Returns
 
-A reference to an array of L<Polloc::FeatureI> objects
+A reference to an array of L<Polloc::LocusI> objects
 
 =cut
 

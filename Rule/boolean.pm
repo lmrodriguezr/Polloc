@@ -12,7 +12,7 @@ package Polloc::Rule::boolean;
 
 use strict;
 use Polloc::Polloc::IO;
-use Polloc::FeatureI;
+use Polloc::LocusI;
 
 use Bio::SeqIO;
 
@@ -41,7 +41,7 @@ sub _initialize {
 
  Description	: 
  Parameters	: -seq, a Bio::Seq or Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Feature::* objects
+ Returns	: An array reference populated with Polloc::Locus::* objects
  Throws		: Polloc::Polloc::UnexpectedException if the operator is not supported
  		  Polloc::Polloc::Error if the rule is not within a rule set
 

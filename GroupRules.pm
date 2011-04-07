@@ -178,11 +178,11 @@ Compares two features based on the defined conditions
 
 =item *
 
-The first feature (a L<Polloc::FeatureI> object)
+The first feature (a L<Polloc::LocusI> object)
 
 =item *
 
-The second feature (a L<Polloc::FeatureI> object)
+The second feature (a L<Polloc::LocusI> object)
 
 =back
 
@@ -200,9 +200,9 @@ target
 sub evaluate {
    my($self, $feat1, $feat2) = @_;
    $self->throw("First feature of illegal class", $feat1)
-   		unless $feat1->isa('Polloc::FeatureI');
+   		unless $feat1->isa('Polloc::LocusI');
    $self->throw("Second feature of illegal class", $feat2)
-   		unless $feat2->isa('Polloc::FeatureI');
+   		unless $feat2->isa('Polloc::LocusI');
    $self->throw("Undefined condition, impossible to group")
    		unless defined $self->condition;
    $self->throw("Unexpected type of condition", $self->condition)
@@ -225,7 +225,7 @@ Adds one or more features to the evaluation set
 
 =head3 Parameters
 
-One or more L<Polloc::FeatureI> objects
+One or more L<Polloc::LocusI> objects
 
 =head3 Throws
 
@@ -239,7 +239,7 @@ sub add_features {
    $self->{'_reorder'} = 1;
    $self->{'_features'} = [] unless defined $self->{'_features'};
    while(my $value = shift @values){
-      $self->throw("Illegal feature", $value) unless $value->isa('Polloc::FeatureI');
+      $self->throw("Illegal feature", $value) unless $value->isa('Polloc::LocusI');
       push @{$self->{'_features'}}, $value;
    }
 }
@@ -292,7 +292,7 @@ The index (int).
 
 =head3 Returns
 
-A L<Polloc::FeatureI> object or undef.
+A L<Polloc::LocusI> object or undef.
 
 =head3 Note
 
@@ -454,7 +454,7 @@ Extends a group based on the arguments provided by L<Polloc::GroupRules->extensi
 =item -feats I<ref to array, mandatory>
 
 An array with all the features from a given group (reference to array of
-L<Polloc::FeatureI>)
+L<Polloc::LocusI>)
 
 =item -index I<bool (int)>
 
@@ -465,7 +465,7 @@ If true, treats the input references as integer indexes.
 =head3 Returns
 
 An array with all the newly detected features (reference to array of
-L<Polloc::FeatureI>).  Note that this is not a simple array, but a reference
+L<Polloc::LocusI>).  Note that this is not a simple array, but a reference
 array of reference arrays (one per genome).
 
 =head3 Throws
@@ -484,8 +484,8 @@ sub extend {
    return unless defined $feats and $#$feats>=0;
    $self->throw("First feature is not an object", $feats->[0])
    	unless ref($feats->[0]) and UNIVERSAL::can($feats->[0],'isa');
-   $self->throw("Unexpected Feature type", $feats->[0])
-   	unless $feats->[0]->isa('Polloc::FeatureI');
+   $self->throw("Unexpected Locus type", $feats->[0])
+   	unless $feats->[0]->isa('Polloc::LocusI');
    my $group_id = $self->_next_group_id;
    my @new = ();
    $self->debug("--- Extending group (based on ".($#$feats+1)." features) ---");
@@ -651,7 +651,7 @@ sub extend {
       $self->throw('Undefined genome-contig pair', $acc, 'UnexpectedException')
       		unless defined $self->seqs->[$seq->[0]]->[$seq->[1]];
       my $id = $self->source . "-ext:".($Gk+1).".$group_id.$itemk";
-      push @{$out->[$Gk]}, Polloc::FeatureI->new(
+      push @{$out->[$Gk]}, Polloc::LocusI->new(
       		-type=>'extend',
 		-from=>$item->[1],
 		-to=>$item->[2],
@@ -750,7 +750,7 @@ sub bin_build_groups {
       }
       push @{$groups}, [$f]; # If not found in previous groups
    }
-   # Change indexes by Polloc::FeatureI objects
+   # Change indexes by Polloc::LocusI objects
    return $self->_feat_index2obj($groups);
 }
 
@@ -792,7 +792,7 @@ comparison.
 
 =head3 Returns
 
-A 2-dimensional matrix (ref) with groups of L<Polloc::FeatureI> objects.  It is,
+A 2-dimensional matrix (ref) with groups of L<Polloc::LocusI> objects.  It is,
 and array of arrays (groups) of features.
 
 =head3 Note
@@ -1116,7 +1116,7 @@ All the following arguments are mandatory, and must be passed in that order:
 
 =item *
 
-feat I<Polloc::FeatureI> : The object which context is going to be extracted
+feat I<Polloc::LocusI> : The object which context is going to be extracted
 
 =item *
 
@@ -1185,7 +1185,7 @@ sub _extract_context {
 
 =head2 _feat_index2obj
 
-Takes an index 2D matrix and returns it as the equivalent L<Polloc::FeatureI> objects
+Takes an index 2D matrix and returns it as the equivalent L<Polloc::LocusI> objects
 
 =head3 Arguments
 
@@ -1193,7 +1193,7 @@ Takes an index 2D matrix and returns it as the equivalent L<Polloc::FeatureI> ob
 
 =head3 Returns
 
-2D matrix of L<Polloc::FeatureI> objects (ref)
+2D matrix of L<Polloc::LocusI> objects (ref)
 
 =cut
 

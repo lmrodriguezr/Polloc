@@ -20,7 +20,7 @@ package Polloc::Rule::tandemrepeat;
 
 use strict;
 use Polloc::Polloc::IO;
-use Polloc::FeatureI;
+use Polloc::LocusI;
 
 use Bio::SeqIO;
 # Thanks to TRF:
@@ -53,7 +53,7 @@ sub _initialize {
  Description	: This is where magic happens.  Translates the parameters of the object
  		  into a call to B<TRF>, and scans the sequence for repeats
  Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Feature::tandemrepeat objects
+ Returns	: An array reference populated with Polloc::Locus::tandemrepeat objects
 
 =cut
 sub execute {
@@ -188,7 +188,7 @@ sub execute {
 	 next if $v[5] < $c_v{'minsim'} or $v[5] > $c_v{'maxsim'};
 	 
 	 my $id = $self->_next_child_id;
-	 push @feats, Polloc::FeatureI->new(
+	 push @feats, Polloc::LocusI->new(
 	 		-type=>'repeat', # Be careful, usually $self->type
 			-rule=>$self, -seq=>$seq,
 			-from=>$v[0]+0, -to=>$v[1]+0, -strand=>"+",
