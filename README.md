@@ -13,7 +13,7 @@ Institut de Recherche pour le developpement
 
 UMR Resistance des Plantes aux Bioagresseurs
 
-Group Effectors
+Group *Effecteur/Cible*
 
 Montpellier, France
 
@@ -64,6 +64,23 @@ set of modules to be used.
 * `Bio::Tools::Run::StandAloneBlast`
 
 * `Bio::Tools::Run::Hmmer`
+
+#### External tools
+
+* (CRISPRfinder)[http://crispr.u-psud.fr/Server/], for CRISPRs detection
+
+* (TRF)[http://tandem.bu.edu/trf/trf.html], for Tandem Repeats detection (producing `Polloc::Feature::Repeat` objects)
+
+* (mreps)[http://bioinfo.lifl.fr/mreps/], for Repeats detection (alternative to TRF).
+
+* (Stand-Alone NCBI BLAST)[http://blast.ncbi.nlm.nih.gov/], for several analyses including features grouping,
+homology-based detection of features and context-based groups extension.
+
+* (Muscle)[http://www.drive5.com/muscle/], for alignments in features detection and grouping, as well as context-based
+groups extension.
+
+* (HMMER)[http://http://hmmer.janelia.org/], for profiles-based features detection and as alternative to BLAST in
+context-based groups extension.
 
 Installation
 ------------
