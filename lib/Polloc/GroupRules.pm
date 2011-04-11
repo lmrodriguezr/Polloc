@@ -458,22 +458,16 @@ Extends a group based on the arguments provided by L<Polloc::GroupRules->extensi
 
 =over
 
-=item -feats I<ref to array, mandatory>
+=item -loci I<Polloc::LociGroup>
 
-An array with all the loci from a given group (reference to array of
-L<Polloc::LocusI>)
-
-=item -index I<bool (int)>
-
-If true, treats the input references as integer indexes.
+The L<Polloc::LociGroup> containing the loci in the group to extend.
 
 =back
 
 =head3 Returns
 
-An array with all the newly detected features (reference to array of
-L<Polloc::LocusI>).  Note that this is not a simple array, but a reference
-array of reference arrays (one per genome).
+A L<Polloc::LociGroup> object containing the updated group, i.e. the
+original group PLUS the extended features.
 
 =head3 Throws
 
@@ -483,17 +477,21 @@ L<Polloc::Polloc::Error> if unexpected input or weird extension definition.
 
 sub extend {
    my ($self, @args) = @_;
-   my ($loci, $index) = $self->_rearrange([qw(FEATS INDEX)], @args);
-   $loci = $self->_feat_index2obj([$loci])->[0] if $index;
+   my ($loci, $index) = $self->_rearrange([qw(LOCI INDEX)], @args);
    
+   # Check input
    my $ext = $self->{'_groupextension'};
    return unless defined $ext;
-   return unless defined $loci and $#$loci>=0;
-   $self->throw("First feature is not an object", $loci->[0])
-   	unless ref($loci->[0]) and UNIVERSAL::can($loci->[0],'isa');
-   $self->throw("Unexpected Locus type", $loci->[0])
-   	unless $loci->[0]->isa('Polloc::LocusI');
+   $self->throw("The loci are not into an object", $loci)
+   	unless defined $loci and ref($loci) and UNIVERSAL::can($loci,'isa');
+   $self->throw("Unexpected type for the group of loci", $loci)
+   	unless $loci->isa('Polloc::LociGroup');
+   return unless $#{$loci->loci}>=0;
+
+   # Set ID base
    my $group_id = $self->_next_group_id;
+
+   # Run
    my @new = ();
    $self->debug("--- Extending group (based on ".($#$loci+1)." features) ---");
    if(lc($ext->{'-function'}) eq 'context'){
@@ -628,17 +626,16 @@ sub extend {
 
    # And finally, create the detected features discarding features overlapping input features
    $self->debug("Found ".($#new+1)." loci, creating extend features");
-   my $out = [];
    my $comments = "Based on group $group_id: ";
-   for my $feat (@$loci) { $comments.= $feat->id . ", " if defined $feat->id }
+   for my $locus ($loci->loci) { $comments.= $locus->id . ", " if defined $locus->id }
    $comments = substr $comments, 0, -2;
    
    NEW: for my $itemk (0 .. $#new){
       my $item = $new[$itemk];
       ($item->[1], $item->[2]) = (min($item->[1], $item->[2]), max($item->[1], $item->[2]));
       unless($ext->{'-alldetected'}){
-         OLD: for my $feat (@$loci){
-	    if($item->[1]<$feat->to and $item->[2]>$feat->from){
+         OLD: for my $locus ($loci->loci){
+	    if($item->[1]<$locus->to and $item->[2]>$locus->from){
 	       # Not new!
 	       next NEW;
 	    }
@@ -647,7 +644,6 @@ sub extend {
       my $seq;
       my($Gk, $acc) = split /:/, $item->[0], 2;
       $Gk+=0;
-      $out->[$Gk] = [] unless defined $out->[$Gk];
       for my $ck (0 .. $#{$self->seqs->[$Gk]}){
          my $id = $self->seqs->[$Gk]->[$ck]->display_id;
 	 if($id eq $acc or $id =~ m/\|$acc(\.\d+)?(\||\s*$)/){
@@ -658,7 +654,7 @@ sub extend {
       $self->throw('Undefined genome-contig pair', $acc, 'UnexpectedException')
       		unless defined $self->seqs->[$seq->[0]]->[$seq->[1]];
       my $id = $self->source . "-ext:".($Gk+1).".$group_id.$itemk";
-      push @{$out->[$Gk]}, Polloc::LocusI->new(
+      $loci->add_loci($Gk, Polloc::LocusI->new(
       		-type=>'extend',
 		-from=>$item->[1],
 		-to=>$item->[2],
@@ -668,11 +664,11 @@ sub extend {
 		#		    Gk:Genome	 ck:Contig
 		-seq=>$self->seqs->[$seq->[0]]->[$seq->[1]],
 		-score=>$item->[4],
-		-basefeature=>$loci->[0],
+		-basefeature=>$loci->loci->[0],
 		-comments=>$comments
-      );
+      ));
    }
-   return $out;
+   return $loci;
 }
 
 =head2 build_bin
