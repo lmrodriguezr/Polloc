@@ -199,16 +199,23 @@ target
 
 sub evaluate {
    my($self, $feat1, $feat2) = @_;
-   $self->throw("First feature of illegal class", $feat1)
-   		unless $feat1->isa('Polloc::LocusI');
-   $self->throw("Second feature of illegal class", $feat2)
-   		unless $feat2->isa('Polloc::LocusI');
-   $self->throw("Undefined condition, impossible to group")
-   		unless defined $self->condition;
-   $self->throw("Unexpected type of condition", $self->condition)
-   		unless $self->condition->{'-type'} eq 'bool';
+   # Test the input
+   $feat1->isa('Polloc::LocusI') or
+   	$self->throw("First feature of illegal class", $feat1);
+   
+   $feat2->isa('Polloc::LocusI') or
+   	$self->throw("Second feature of illegal class", $feat2);
+   
+   defined $self->condition or
+   	$self->throw("Undefined condition, impossible to group");
+   
+   $self->condition->{'-type'} eq 'bool' or
+   	$self->throw("Unexpected type of condition", $self->condition);
+   
    $self->throw("Undefined source features") unless defined $self->source;
    $self->throw("Undefined target features") unless defined $self->target;
+   
+   # Run
    return 0 unless $feat1->family eq $self->source;
    return 0 unless $feat2->family eq $self->target;
    $self->{'_FEAT1'} = $feat1;
@@ -453,7 +460,7 @@ Extends a group based on the arguments provided by L<Polloc::GroupRules->extensi
 
 =item -feats I<ref to array, mandatory>
 
-An array with all the features from a given group (reference to array of
+An array with all the loci from a given group (reference to array of
 L<Polloc::LocusI>)
 
 =item -index I<bool (int)>
@@ -476,19 +483,19 @@ L<Polloc::Polloc::Error> if unexpected input or weird extension definition.
 
 sub extend {
    my ($self, @args) = @_;
-   my ($feats, $index) = $self->_rearrange([qw(FEATS INDEX)], @args);
-   $feats = $self->_feat_index2obj([$feats])->[0] if $index;
+   my ($loci, $index) = $self->_rearrange([qw(FEATS INDEX)], @args);
+   $loci = $self->_feat_index2obj([$loci])->[0] if $index;
    
    my $ext = $self->{'_groupextension'};
    return unless defined $ext;
-   return unless defined $feats and $#$feats>=0;
-   $self->throw("First feature is not an object", $feats->[0])
-   	unless ref($feats->[0]) and UNIVERSAL::can($feats->[0],'isa');
-   $self->throw("Unexpected Locus type", $feats->[0])
-   	unless $feats->[0]->isa('Polloc::LocusI');
+   return unless defined $loci and $#$loci>=0;
+   $self->throw("First feature is not an object", $loci->[0])
+   	unless ref($loci->[0]) and UNIVERSAL::can($loci->[0],'isa');
+   $self->throw("Unexpected Locus type", $loci->[0])
+   	unless $loci->[0]->isa('Polloc::LocusI');
    my $group_id = $self->_next_group_id;
    my @new = ();
-   $self->debug("--- Extending group (based on ".($#$feats+1)." features) ---");
+   $self->debug("--- Extending group (based on ".($#$loci+1)." features) ---");
    if(lc($ext->{'-function'}) eq 'context'){
       my ($up_aln, $down_aln, $in_aln);
       my ($up_pos, $down_pos, $in_pos);
@@ -502,27 +509,27 @@ sub extend {
 	 my $upsize = $ext->{'-upstream'};
 	 $downsize ||= 0;
 	 $upsize ||= 0;
-	 $self->_detectstrand_context($feats, max($downsize, $upsize));
+	 $self->_detectstrand_context($loci, max($downsize, $upsize));
       }
       
       # Search
       if(defined $ext->{'-upstream'} and $ext->{'-upstream'}+0){
 	 $self->debug("Searching upstream sequences");
-	 $up_aln = $self->_align_feat_context($feats, -1, $ext->{'-upstream'}, 0);
+	 $up_aln = $self->_align_feat_context($loci, -1, $ext->{'-upstream'}, 0);
 	 $up_pos = $self->_search_aln_seqs($up_aln);
 	 $eval_border = 0;
 	 $self->debug(($#$up_pos+1)." results");
       }
       if(defined $ext->{'-downstream'} and $ext->{'-downstream'}+0){
          $self->debug("Searching downstream sequences");
-	 $down_aln = $self->_align_feat_context($feats, 1, $ext->{'-downstream'}, 0);
+	 $down_aln = $self->_align_feat_context($loci, 1, $ext->{'-downstream'}, 0);
 	 $down_pos = $self->_search_aln_seqs($down_aln);
 	 $eval_border = 1 if defined $eval_border;
 	 $self->debug(($#$down_pos+1)." results");
       }
       if(defined $ext->{'-feature'} and $ext->{'-feature'}+0){
          $self->debug("Searching in-feature sequences");
-	 $in_aln = $self->_align_feat_context($feats, 0, 0, 0);
+	 $in_aln = $self->_align_feat_context($loci, 0, 0, 0);
 	 $in_pos = $self->_search_aln_seqs($in_aln);
 	 $eval_feature = 1;
 	 $self->debug(($#$in_pos+1)." results");
@@ -623,14 +630,14 @@ sub extend {
    $self->debug("Found ".($#new+1)." loci, creating extend features");
    my $out = [];
    my $comments = "Based on group $group_id: ";
-   for my $feat (@$feats) { $comments.= $feat->id . ", " if defined $feat->id }
+   for my $feat (@$loci) { $comments.= $feat->id . ", " if defined $feat->id }
    $comments = substr $comments, 0, -2;
    
    NEW: for my $itemk (0 .. $#new){
       my $item = $new[$itemk];
       ($item->[1], $item->[2]) = (min($item->[1], $item->[2]), max($item->[1], $item->[2]));
       unless($ext->{'-alldetected'}){
-         OLD: for my $feat (@$feats){
+         OLD: for my $feat (@$loci){
 	    if($item->[1]<$feat->to and $item->[2]>$feat->from){
 	       # Not new!
 	       next NEW;
@@ -661,7 +668,7 @@ sub extend {
 		#		    Gk:Genome	 ck:Contig
 		-seq=>$self->seqs->[$seq->[0]]->[$seq->[1]],
 		-score=>$item->[4],
-		-basefeature=>$feats->[0],
+		-basefeature=>$loci->[0],
 		-comments=>$comments
       );
    }
