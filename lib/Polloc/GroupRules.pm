@@ -1,12 +1,12 @@
 =head1 NAME
 
-Polloc::GroupRules - Rules to group features
+Polloc::GroupRules - Rules to group loci
 
 =head1 DESCRIPTION
 
-Takes features and returns groups of features based on
-certain rules.  If defined via .bme (.cfg) files, it is
-defined in the C<[ RuleGroup ]> and C<[ GroupExtension ]>
+Takes loci and returns groups of loci based on certain
+rules.  If created via .bme (.cfg) files, it is defined
+in the C<[ RuleGroup ]> and C<[ GroupExtension ]>
 namespaces.
 
 =head1 AUTHOR - Luis M. Rodriguez-R
@@ -30,6 +30,7 @@ package Polloc::GroupRules;
 use strict;
 use List::Util qw(min max);
 use Polloc::Polloc::IO;
+use Polloc::LociGroup;
 use Bio::Tools::Run::Alignment::Muscle;
 use Bio::Seq;
 
@@ -102,17 +103,20 @@ sub target {
    return $self->{'_target'};
 }
 
-=head2 features
+=head2 locigroup
+
+Gets/sets the input L<Polloc::LociGroup> object containing
+all the loci to evaluate.
 
 =cut
 
-sub features {
+sub locigroup {
    my($self, $value) = @_;
    if(defined $value){
-      $self->{'_features'} = $value;
+      $self->{'_locigroup'} = $value;
       $self->{'_reorder'} = 1;
    }
-   return $self->{'_features'};
+   return $self->{'_locigroup'};
 }
 
 =head2 condition
@@ -125,52 +129,9 @@ sub condition {
    return $self->{'_condition'};
 }
 
-=head2 seqs
-
-Sets/Gets the sequences employed (i.e., all the tested genomes, drafts or
-target sequences).
-
-
-=head3 Arguments
-
-ref, optional.  A reference to an array of references of arrays of C<Bio::SeqI>
-objects.  The structure is like:
-
-=begin text
-
-	[ # container array
-	   [ ctg1, ctg2, ... ], # sequences of the genome 1
-	   [ ctg1, ctg2, ... ], # sequences of the genome 2
-	   ...
-	]
-
-=end text
-
-=head3 Returns
-
-ref or undef.  Like argument.
-
-=head3 Note
-
-This method is recent, and some functions work only with the target sequences
-explicitly set.  If one function does require the target sequences, but no
-means to provide it are documented, it uses the sequences stored with this method.
-
-=cut
-
-sub seqs {
-   my ($self, $value) = @_;
-   if(defined $value){
-      $self->{'_seqs'} = $value;
-      $self->{'_seqsdb'} = undef; # to force re-formatdb if BLAST is used
-   }
-   return $self->{'_seqs'};
-}
-
-
 =head2 evaluate
 
-Compares two features based on the defined conditions
+Compares two loci based on the defined conditions
 
 =head3 Parameters
 
@@ -178,11 +139,11 @@ Compares two features based on the defined conditions
 
 =item *
 
-The first feature (a L<Polloc::LocusI> object)
+The first locus (a L<Polloc::LocusI> object)
 
 =item *
 
-The second feature (a L<Polloc::LocusI> object)
+The second locus (a L<Polloc::LocusI> object)
 
 =back
 
@@ -226,63 +187,31 @@ sub evaluate {
    return $o;
 }
 
-=head2 add_features
+=head2 get_loci
 
-Adds one or more features to the evaluation set
+Gets the stored loci
 
-=head3 Parameters
+=head3 Note
 
-One or more L<Polloc::LocusI> objects
-
-=head3 Throws
-
-L<Polloc::Polloc::Error> if unexpected input
+The stored loci can also be obtained with C<$object-E<gt>locigroup-E<gt>loci>,
+but this function ensures a consistent order in the loci for its evaluation.
 
 =cut
 
-sub add_features {
-   my($self, @values) = @_;
-   $self->throw("Undefined feature") unless $#values>=0;
-   $self->{'_reorder'} = 1;
-   $self->{'_features'} = [] unless defined $self->{'_features'};
-   while(my $value = shift @values){
-      $self->throw("Illegal feature", $value) unless $value->isa('Polloc::LocusI');
-      push @{$self->{'_features'}}, $value;
-   }
-}
-
-
-=head2 add_feature
-
-Alias of L<add_features()>
-
-=cut
-
-sub add_feature { shift->add_features(@_) }
-
-
-=head2 get_features
-
-Gets the stored features
-
-=cut
-
-sub get_features {
+sub get_loci {
    my($self,@args) = @_;
    $self->{'_features'} = [] unless defined $self->{'_features'};
    if($self->{'_reorder'} && $self->source ne $self->target){
       my @src = ();
       my @tgt = ();
       my @oth = ();
-      for my $ft ($self->{'_features'}){
+      for my $ft ($self->locigroup->loci){
       	    if($ft->family eq $self->source){ push (@src, $ft) }
 	 elsif($ft->family eq $self->target){ push (@tgt, $ft) }
 	 else{ push @oth, $ft }
       }
       $self->{'_features'} = [];
-      $self->add_features(@tgt);
-      $self->add_features(@src);
-      $self->add_features(@oth);
+      push @{$self->{'_features'}, @tgt, @src, @oth;
       $self->{'_reorder'} = 0;
    }
    return $self->{'_features'};
@@ -303,7 +232,7 @@ A L<Polloc::LocusI> object or undef.
 
 =head3 Note
 
-This is a lazzy method, and should be used B<ONLY> after C<get_features()>
+This is a lazzy method, and should be used B<ONLY> after C<get_loci()>
 were called at least once.  Otherwise, the order might not be the expected,
 and weird results would appear.
 
@@ -726,7 +655,7 @@ A matrix as returned by L<Polloc::GroupRules::build_bin()>
 
 =head3 Returns
 
-A reference to a 2-dimensional matrix of groups
+A 2-D matrix ref.
 
 =head3 Note
 
@@ -766,12 +695,6 @@ This is the main method, creates groups of features.
 
 =over
 
-=item -index I<bool (int)>
-
-If true, returns a 2-dimensional matrix of integers, containing the index of
-the feature objects instead of the objects itself.  It can save resources
-(reducing I/O penalties) with large datasets and/or a distributed environment.
-
 =item -cpus I<int>
 
 If defined, attempts to distribute the work among the specified number of
@@ -795,8 +718,7 @@ comparison.
 
 =head3 Returns
 
-A 2-dimensional matrix (ref) with groups of L<Polloc::LocusI> objects.  It is,
-and array of arrays (groups) of features.
+A L<Polloc::LociGroup> object.
 
 =head3 Note
 
@@ -809,7 +731,7 @@ inspection).
 
 sub build_groups {
    my($self,@args) = @_;
-   my ($index, $cpus, $advance) = $self->_rearrange([qw(INDEX CPUS ADVANCE)], @args);
+   my ($cpus, $advance) = $self->_rearrange([qw(CPUS ADVANCE)], @args);
    
    my $groups = [[0]]; #<- this is bcs first feature is ignored in FEAT1
    my $f_max = $#{$self->get_features};
@@ -835,7 +757,11 @@ sub build_groups {
       # --> If I am here, FEAT1 belongs to a new group <--
       push @{$groups}, [$i];
    }#FEAT1
-   return $index ? $groups : $self->_feat_index2obj($groups);
+   my $out = Polloc::LociGroup->new(); #+++ ToDo: ID
+   for my $k (0 .. $#$groups){
+      $out->add_loci($k, @{ $groups->[$k] });
+   }
+   return $out;
 }
 
 =head1 INTERNAL METHODS

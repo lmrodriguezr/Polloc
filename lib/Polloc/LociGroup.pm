@@ -21,7 +21,7 @@ L<Polloc::Polloc::Root>
 package Polloc::LociGroup;
 
 use strict;
-
+use Polloc::Polloc::IO;
 use base qw(Polloc::Polloc::Root);
 
 =head1 PUBLIC METHODS
@@ -76,7 +76,7 @@ sub add_loci {
    $self->{'_loci'}->[$space] = [] unless defined $self->{'_loci'}->[$space];
    for my $locus (@_){
       $self->throw('Expecting a Polloc::LocusI object', $locus)
-      	unless UNIVERSAL::can($locus, 'isa') and $self->isa('Polloc::LocusI');
+      	unless UNIVERSAL::can($locus, 'isa') and $locus->isa('Polloc::LocusI');
       push @{ $self->{'_loci'}->[$space] }, $locus;
    }
 }
@@ -104,7 +104,7 @@ incremental for each locus.
 
 sub structured_loci {
    my $self = shift;
-   return $self->{'_loci'};
+   return wantarray ? @{$self->{'_loci'}} : $self->{'_loci'};
 }
 
 =head2 locus
@@ -142,6 +142,23 @@ sub name {
    return $self->{'_name'};
 }
 
+=head2 genomes
+
+Gets/sets the genomes to be used as analysis base.
+
+=head3 Arguments
+
+A reference to an array of L<Polloc::Genome> objects.
+
+=cut
+
+sub genomes {
+   my($self, $value) = @_;
+   $self->{'_genomes'} = $value if defined $value;
+   return wantarray ? @{$self->{'_genomes'}} : $self->{'_genomes'};
+}
+
+
 =head2 featurename
 
 Gets/Sets the name of the feature common to all the
@@ -155,6 +172,31 @@ sub featurename {
    return $self->{'_featurename'};
 }
 
+=head2 export_gff3
+
+Exports the list of loci to the specified file or file handler
+
+=head3 Arguments
+
+Any argument accepted by Polloc::Polloc::IO->new()
+
+=head3 Returns
+
+The L<Polloc::Polloc::IO> object handling the output.
+
+=cut
+
+sub export_gff3 {
+   my $self = shift;
+   my $gff = Polloc::Polloc::IO->new(@_);
+   $gff->_print("##gff-version 3\n\n");
+   for my $locus ($self->loci){
+      $gff->_print($locus->gff3_line);
+   }
+   $gff->close();
+   return $gff;
+}
+
 =head1 INTERNAL METHODS
 
 Methods intended to be used only within the scope of Polloc::*
@@ -165,9 +207,10 @@ Methods intended to be used only within the scope of Polloc::*
 
 sub _initialize {
    my ($self, @args) = @_;
-   my($name, $featurename) = $self->_rearrange([qw(NAME FEATURENAME)], @args);
+   my($name, $featurename, $genomes) = $self->_rearrange([qw(NAME FEATURENAME GENOMES)], @args);
    $self->name($name);
    $self->featurename($featurename);
+   $self->genomes($genomes);
 }
 
 1;
