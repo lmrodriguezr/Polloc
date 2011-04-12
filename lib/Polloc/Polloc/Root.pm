@@ -30,7 +30,7 @@ The package's version
 
 =cut
 
-$VERSION = "0.01";
+$VERSION = "0.0200"; # 0.2.0
 
 =head2 VERBOSITY
 
