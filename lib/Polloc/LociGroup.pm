@@ -63,21 +63,25 @@ a L<Polloc::LocusI> object.
 
 =head3 Arguments
 
-The first argument B<MUST> be the identifier of
+The first argument B<can> be the identifier of
 the genome's space (int).  All the following are
 expected to be L<Polloc::LocusI> objects.
 
 =cut
 
 sub add_loci {
-   my $self = shift;
-   my $space = 0+shift;
+   my ($self,@l) = @_;
+   my $space;
+   if(defined $l[0] and not ref $l[0]){
+      $space = 0 + shift @l;
+   }
    $self->{'_loci'} = [] unless defined $self->{'_loci'};
-   $self->{'_loci'}->[$space] = [] unless defined $self->{'_loci'}->[$space];
-   for my $locus (@_){
+   for my $locus (@l){
+      $self->debug("Saving locus");
       $self->throw('Expecting a Polloc::LocusI object', $locus)
       	unless UNIVERSAL::can($locus, 'isa') and $locus->isa('Polloc::LocusI');
-      push @{ $self->{'_loci'}->[$space] }, $locus;
+      $locus->genome($self->genomes->[$space]) if defined $space;
+      push @{ $self->{'_loci'} }, $locus;
    }
 }
 
@@ -89,9 +93,8 @@ Gets the loci
 
 sub loci {
    my $self = shift;
-   my @out = ();
-   for my $space ($self->structured_loci){ push @out, @$space }
-   return wantarray ? @out : \@out;
+   $self->{'_loci'} = [] unless defined $self->{'loci'};
+   return wantarray ? @{$self->{'_loci'}} : $self->{'_loci'};
 }
 
 =head2 structured_loci
@@ -100,11 +103,34 @@ Returns a two-dimensional array where the first key corresponds
 to the number of the genome space and the second key is an
 incremental for each locus.
 
+=head3 Note
+
+This function is provided for convenience in some output formating,
+but its use should be avoided as it causes a huge processing time
+penalty.
+
+=head3 Warning
+
+Loci without defined genome will not be included in the output.
+
 =cut
 
 sub structured_loci {
    my $self = shift;
-   return wantarray ? @{$self->{'_loci'}} : $self->{'_loci'};
+   return unless defined $self->genomes;
+   my $struct = [];
+   for my $locus ($self->loci){
+      next unless defined $locus->genome;
+      my $space = 0;
+      for my $genome ($self->genomes){
+	 $struct->[$space] = [] unless defined $struct->[$space];
+	 if($genome->name eq $locus->genome->name){
+	    push @{ $struct->[$space] }, $locus;
+	 }
+         $space++;
+      }
+   }
+   return wantarray ? @$struct : $struct;
 }
 
 =head2 locus

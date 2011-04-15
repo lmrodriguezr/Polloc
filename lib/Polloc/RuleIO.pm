@@ -320,15 +320,20 @@ sub execute {
          $rulek++;
 	 $self->debug("On " . $self->{'_loop_index_rules'});
 	 if($rule->executable){
-	    $self->debug("RUN!");
-	    for my $seq ($genome->get_sequences){
-	       $group->add_loci($gk, @{$rule->execute(-seq=>$seq, @args)});
-	       &$advance($#{$group->loci}+1, $gk+1, $#{$self->genomes}+1, $rulek) if defined $advance;
+	    $self->debug("RUN! on ".($#{$genome->get_sequences}+1)." sequences");
+	    for my $seq (@{$genome->get_sequences}){
+	       for my $locus (@{ $rule->execute(-seq=>$seq, @args) }){
+	          $locus->genome($genome);
+	          $group->add_loci($locus);
+	       }
+	       &$advance($#{$group->loci}+1, $gk+1, $#{$self->genomes}+1, $rulek)
+	       		if defined $advance;
 	    }
 	 }
       }
       $self->_increase_index;
    }
+   $self->debug("Got ".($#{$group->loci}+1)." loci");
    return $group;
 }
 

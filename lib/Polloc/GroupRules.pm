@@ -211,7 +211,7 @@ sub get_loci {
 	 else{ push @oth, $ft }
       }
       $self->{'_features'} = [];
-      push @{$self->{'_features'}, @tgt, @src, @oth;
+      push @{$self->{'_features'}}, @tgt, @src, @oth;
       $self->{'_reorder'} = 0;
    }
    return $self->{'_features'};
@@ -422,7 +422,7 @@ sub extend {
 
    # Run
    my @new = ();
-   $self->debug("--- Extending group (based on ".($#$loci+1)." features) ---");
+   $self->debug("--- Extending group (based on ".($#{$loci->loci}+1)." loci) ---");
    if(lc($ext->{'-function'}) eq 'context'){
       my ($up_aln, $down_aln, $in_aln);
       my ($up_pos, $down_pos, $in_pos);
@@ -536,7 +536,7 @@ sub extend {
 		  next WI unless $br->[3]*$in->[1] < $br->[3]*$br->[2]
 		  		and $br->[3]*$in->[2] > $br->[3]*$br->[1];
 		  # Good!
-		  # ToDo: Should I use the features' data to sharpen borders?...
+		  # ToDo: Should I use the loci' data to sharpen borders?...
 		  $br->[4] = (2*$br->[4] + $in->[4])/3;
 		  push @new, $br;
 	       }
@@ -553,7 +553,7 @@ sub extend {
       $self->throw('Unsupported function for group extension', $ext->{'-function'});
    }
 
-   # And finally, create the detected features discarding features overlapping input features
+   # And finally, create the detected features discarding loci overlapping input loci
    $self->debug("Found ".($#new+1)." loci, creating extend features");
    my $comments = "Based on group $group_id: ";
    for my $locus ($loci->loci) { $comments.= $locus->id . ", " if defined $locus->id }
@@ -583,7 +583,7 @@ sub extend {
       $self->throw('Undefined genome-contig pair', $acc, 'UnexpectedException')
       		unless defined $self->seqs->[$seq->[0]]->[$seq->[1]];
       my $id = $self->source . "-ext:".($Gk+1).".$group_id.$itemk";
-      $loci->add_loci($Gk, Polloc::LocusI->new(
+      $loci->add_loci(Polloc::LocusI->new(
       		-type=>'extend',
 		-from=>$item->[1],
 		-to=>$item->[2],
@@ -594,7 +594,8 @@ sub extend {
 		-seq=>$self->seqs->[$seq->[0]]->[$seq->[1]],
 		-score=>$item->[4],
 		-basefeature=>$loci->loci->[0],
-		-comments=>$comments
+		-comments=>$comments,
+		-genome=>$self->genomes->[$Gk]
       ));
    }
    return $loci;
@@ -602,7 +603,7 @@ sub extend {
 
 =head2 build_bin
 
-Compares all the included features and returns the identity matrix
+Compares all the included loci and returns the identity matrix
 
 =head3 Arguments
 
@@ -647,7 +648,7 @@ sub build_bin {
 
 =head2 bin_build_groups
 
-Builds groups of features based on a binary matrix
+Builds groups of loci based on a binary matrix
 
 =head3 Arguments
 
@@ -689,7 +690,7 @@ sub bin_build_groups {
 
 =head2 build_groups
 
-This is the main method, creates groups of features.
+This is the main method, creates groups of loci.
 
 =head3 Arguments
 
@@ -709,10 +710,9 @@ considerations must be addressed before using it. B<TODO>.
 =item -advance I<ref to sub>
 
 A reference to a function to call at every new pair.  The function is called
-with three arguments, the first is the index of the first feature, the second
-is the index of the second feature and the third is the total number of
-features.  Please note that this function is called BEFORE running the
-comparison.
+with three arguments, the first is the index of the first locus, the second
+is the index of the second locus and the third is the total number of loci.
+Note that this function is called B<BEFORE> running the comparison.
 
 =over
 
@@ -734,14 +734,17 @@ sub build_groups {
    my ($cpus, $advance) = $self->_rearrange([qw(CPUS ADVANCE)], @args);
    
    my $groups = [[0]]; #<- this is bcs first feature is ignored in FEAT1
-   my $f_max = $#{$self->get_features};
+   my $loci = $self->get_loci;
+   my $f_max = $#$loci;
+   $self->debug("Building groups for ".($f_max)." loci");
+   $self->warn('Nothing to do, any stored loci') unless $f_max>=0;
    FEAT1: for my $i (1 .. $f_max){
       FEAT2: for my $j (0 .. $i-1){
          $self->debug("Evaluate [$i vs $j]");
 	 &$advance($i, $j, $f_max+1) if defined $advance;
          next FEAT2 unless $self->evaluate(
-	 	$self->get_feature($i),
-		$self->get_feature($j)
+	 	$loci->[$i],
+		$loci->[$j]
 	 );
 	 # --> If I am here, FEAT1 ~ FEAT2 <--
 	 GROUP: for my $g (0 .. $#{$groups}){
@@ -757,9 +760,18 @@ sub build_groups {
       # --> If I am here, FEAT1 belongs to a new group <--
       push @{$groups}, [$i];
    }#FEAT1
-   my $out = Polloc::LociGroup->new(); #+++ ToDo: ID
-   for my $k (0 .. $#$groups){
-      $out->add_loci($k, @{ $groups->[$k] });
+   my $out = [];
+   for my $gk (0 .. $#$groups){
+      my $group = Polloc::LociGroup->new(-id=>$gk); #+++ ToDo: Is ID ok?
+      for my $lk (0 .. $#{$groups->[$gk]}){
+         my $locus = $loci->[ $groups->[$gk]->[$lk] ];
+	 # Paranoid bugbuster:
+	 $self->throw('Impossible to gather the locus back:'.
+	 	' $groups->['.$gk.']->['.$lk.']: '.$groups->[$gk]->[$lk],
+	 	$loci, 'Polloc::Polloc::UnexpectedException')
+		unless defined $locus;
+         $group->add_loci($locus);
+      }
    }
    return $out;
 }
@@ -835,27 +847,42 @@ sub _build_subseq {
 
 =head2 _detectstrand_context
 
+=head3 Arguments
+
+=over
+
+=item 1
+
+Loci: A L<Polloc::LociGroup> object, base group
+
+=item 2
+
+Size: Int, context size
+
+=back
+
 =cut
 
 sub _detectstrand_context {
-   my ($self, $feats, $size) = @_;
-   return unless defined $feats;
+   my ($self, $loci, $size) = @_;
+   return unless defined $loci;
+   my $feats = $loci->loci;
    return unless $#$feats>0; # No need to check
    my $factory = Bio::Tools::Run::Alignment::Muscle->new();
    $factory->quiet(1);
    
    # Find a suitable reference
    my $ref = [undef, undef];
-   FEATURE: for my $k (1 .. $#$feats){
+   FEATURE: for my $lk (1 .. $#$feats){
       my $ref_test = [
       		$self->_build_subseq(
-				$feats->[$k]->seq,
-				$feats->[$k]->from - $size,
-				$feats->[$k]->from),
+				$feats->[$lk]->seq,
+				$feats->[$lk]->from - $size,
+				$feats->[$lk]->from),
       		$self->_build_subseq(
-				$feats->[$k]->seq,
-				$feats->[$k]->to,
-				$feats->[$k]->to + $size)
+				$feats->[$lk]->seq,
+				$feats->[$lk]->to,
+				$feats->[$lk]->to + $size)
 		];
       if(defined $ref->[0] and defined $ref->[1]){
          $ref = $ref_test
@@ -930,10 +957,10 @@ sub _search_aln_seqs {
       unless(defined $self->{'_seqsdb'}){
 	 $self->{'_seqsdb'} = Polloc::Polloc::IO->tempdir();
 	 $self->debug("Creating DB at ".$self->{'_seqsdb'});
-	 for my $Gk (0 .. $#{$self->{'_seqs'}}){
-	    my $file = $self->{'_seqsdb'}."/$Gk";
+	 for my $seqk (0 .. $#{$self->{'_seqs'}}){
+	    my $file = $self->{'_seqsdb'}."/$seqk";
 	    my $fasta = Bio::SeqIO->new(-file=>">$file", -format=>'Fasta');
-	    for my $ctg (@{$self->{'_seqs'}->[$Gk]}){ $fasta->write_seq($ctg) }
+	    for my $ctg (@{$self->{'_seqs'}->[$seqk]}){ $fasta->write_seq($ctg) }
 	    # BLAST requires a formatdb (not only the fasta)
 	    if($alg eq 'blast'){
 	       my $run = Polloc::Polloc::IO->new(-file=>"formatdb -p F -i '$file' 2>&1 |");
@@ -1008,10 +1035,32 @@ sub _search_aln_seqs {
 
 =head2 _align_feat_context
 
+=head3 Arguments
+
+=over
+
+=item 1
+
+Loci: A L<Polloc::LociGroup> object with the base loci.
+
+=item 2
+
+Ref: Int, reference position.
+
+=item 3
+
+From: Int, the I<from> position.
+
+=item 4
+
+To: Int, the I<to> position.
+
+=back
+
 =cut
 
 sub _align_feat_context {
-   my ($self, $feats, $ref, $from, $to) = @_;
+   my ($self, $loci, $ref, $from, $to) = @_;
    my $ext = $self->{'_groupextension'};
    return unless defined $ext;
    $from+=0; $to+=0; $ref+=0;
@@ -1020,6 +1069,7 @@ sub _align_feat_context {
    my $factory = Bio::Tools::Run::Alignment::Muscle->new();
    $factory->quiet(1);
    my @seqs = ();
+   my $feats = $loci->loci;
    for my $feat (@$feats){
       # Get the sequence
       my $seq = $self->_extract_context($feat, $ref, $from, $to);
@@ -1340,10 +1390,13 @@ sub _operate_bool {
 
 sub _initialize {
    my($self, @args) = @_;
-   my($source, $target, $features) = $self->_rearrange([qw(SOURCE TARGET FEATURES)], @args);
+   my($source, $target, $features, $loci) =
+   	$self->_rearrange([qw(SOURCE TARGET FEATURES LOCI)], @args);
+   # $self->throw('Discouraged use of -features flag, use -loci instead');
    $self->source($source);
    $self->target($target);
-   $self->features($features);
+   $loci = $features if defined $features and not defined $loci;
+   $self->locigroup($loci);
 }
 
 
