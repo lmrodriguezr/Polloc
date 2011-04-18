@@ -4,6 +4,7 @@ Perl modules for Polymorphic Loci Analysis (Polloc)
 A collection of perl modules to analyse *Polymorphic Loci*
 in bacterial genomes.
 
+
 Author
 ------
 
@@ -17,11 +18,13 @@ Group *Effecteur/Cible*
 
 Montpellier, France
 
+
 License
 -------
 
 This package is licensed under the terms of *The Artistic
 License*. See LICENSE.txt.
+
 
 Description
 -----------
@@ -90,6 +93,7 @@ groups extension.
 profiles-based features detection and as alternative to
 BLAST in context-based groups extension.
 
+
 Installation
 ------------
 
@@ -105,7 +109,7 @@ Installation
 	git clone git://github.com/lmrodriguezr/Polloc
 	cp -r lib/Polloc <perl-libraries-location> # For example /usr/lib/perl5/site_perl
 
-3.  **Use the package**.  See the following section for
+3.  **Use the package**.  See the following section (Usage) for
     some examples.
 
 4.  Familiar enough?  We are glad to listen than, **start developing**.
@@ -113,7 +117,12 @@ Installation
     (or any other Pod interpreter), or contact us at for questions and
     features requests.
 
+
 Usage
 -----
 
+### Running existing scripts
+
+
+### Writing new scripts
 
