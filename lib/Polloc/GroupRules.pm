@@ -200,12 +200,14 @@ but this function ensures a consistent order in the loci for its evaluation.
 
 sub get_loci {
    my($self,@args) = @_;
+   $self->{'_features'} = $self->locigroup->loci
+   	if defined $self->locigroup and not defined $self->{'_features'};
    $self->{'_features'} = [] unless defined $self->{'_features'};
    if($self->{'_reorder'} && $self->source ne $self->target){
       my @src = ();
       my @tgt = ();
       my @oth = ();
-      for my $ft ($self->locigroup->loci){
+      for my $ft (@{$self->locigroup->loci}){
       	    if($ft->family eq $self->source){ push (@src, $ft) }
 	 elsif($ft->family eq $self->target){ push (@tgt, $ft) }
 	 else{ push @oth, $ft }
@@ -406,7 +408,7 @@ L<Polloc::Polloc::Error> if unexpected input or weird extension definition.
 
 sub extend {
    my ($self, @args) = @_;
-   my ($loci, $index) = $self->_rearrange([qw(LOCI INDEX)], @args);
+   my ($loci) = $self->_rearrange([qw(LOCI)], @args);
    
    # Check input
    my $ext = $self->{'_groupextension'};
@@ -553,52 +555,54 @@ sub extend {
       $self->throw('Unsupported function for group extension', $ext->{'-function'});
    }
 
-   # And finally, create the detected features discarding loci overlapping input loci
+   # And finally, create the detected features, discarding loci overlapping input loci
    $self->debug("Found ".($#new+1)." loci, creating extend features");
    my $comments = "Based on group $group_id: ";
-   for my $locus ($loci->loci) { $comments.= $locus->id . ", " if defined $locus->id }
+   for my $locus (@{$loci->loci}) { $comments.= $locus->id . ", " if defined $locus->id }
    $comments = substr $comments, 0, -2;
    
+   my $newloci = Polloc::LociGroup->new();
+   $newloci->name($loci->name."-ext") if defined $loci->name;
+   $newloci->featurename($loci->featurename) if defined $loci->featurename;
+   $newloci->genomes($loci->genomes) if defined $loci->genomes;
    NEW: for my $itemk (0 .. $#new){
       my $item = $new[$itemk];
       ($item->[1], $item->[2]) = (min($item->[1], $item->[2]), max($item->[1], $item->[2]));
       unless($ext->{'-alldetected'}){
-         OLD: for my $locus ($loci->loci){
-	    if($item->[1]<$locus->to and $item->[2]>$locus->from){
-	       # Not new!
-	       next NEW;
-	    }
+         OLD: for my $locus (@{$loci->loci}){
+	    # Not new! :
+	    next NEW if $item->[1]<$locus->to and $item->[2]>$locus->from;
 	 }
       }
       my $seq;
       my($Gk, $acc) = split /:/, $item->[0], 2;
       $Gk+=0;
-      for my $ck (0 .. $#{$self->seqs->[$Gk]}){
-         my $id = $self->seqs->[$Gk]->[$ck]->display_id;
+      for my $ck (0 .. $#{$self->genomes->[$Gk]->get_sequences}){
+         my $id = $self->genomes->[$Gk]->get_sequences->[$ck]->display_id;
 	 if($id eq $acc or $id =~ m/\|$acc(\.\d+)?(\||\s*$)/){
 	    $seq = [$Gk,$ck]; last;
 	 }
       }
       $self->warn('I can not find the sequence', $acc) unless defined $seq;
       $self->throw('Undefined genome-contig pair', $acc, 'UnexpectedException')
-      		unless defined $self->seqs->[$seq->[0]]->[$seq->[1]];
-      my $id = $self->source . "-ext:".($Gk+1).".$group_id.$itemk";
-      $loci->add_loci(Polloc::LocusI->new(
+      		unless defined $self->genomes->[$seq->[0]]->get_sequences->[$seq->[1]];
+      my $id = $self->source . "-ext:".($Gk+1).".$group_id.".($#{$newloci->loci}+2);
+      $newloci->add_loci(Polloc::LocusI->new(
       		-type=>'extend',
 		-from=>$item->[1],
 		-to=>$item->[2],
 		-id=>(defined $id ? $id : ''),
 		-strand=>($item->[3]==-1 ? '-' : '+'),
 		# Seems complicated, but reduces clones:
-		#		    Gk:Genome	 ck:Contig
-		-seq=>$self->seqs->[$seq->[0]]->[$seq->[1]],
+		#		       Gk:Genome	 	   ck:Contig
+		-seq=>$self->genomes->[$seq->[0]]->get_sequences->[$seq->[1]],
 		-score=>$item->[4],
 		-basefeature=>$loci->loci->[0],
 		-comments=>$comments,
 		-genome=>$self->genomes->[$Gk]
       ));
    }
-   return $loci;
+   return $newloci;
 }
 
 =head2 build_bin
@@ -735,13 +739,13 @@ sub build_groups {
    
    my $groups = [[0]]; #<- this is bcs first feature is ignored in FEAT1
    my $loci = $self->get_loci;
-   my $f_max = $#$loci;
-   $self->debug("Building groups for ".($f_max)." loci");
-   $self->warn('Nothing to do, any stored loci') unless $f_max>=0;
-   FEAT1: for my $i (1 .. $f_max){
+   my $l_max = $#$loci;
+   $self->debug("Building groups for ".($l_max+1)." loci");
+   $self->warn('Nothing to do, any stored loci') unless $l_max>=0;
+   FEAT1: for my $i (1 .. $l_max){
       FEAT2: for my $j (0 .. $i-1){
          $self->debug("Evaluate [$i vs $j]");
-	 &$advance($i, $j, $f_max+1) if defined $advance;
+	 &$advance($i, $j, $l_max+1) if defined $advance;
          next FEAT2 unless $self->evaluate(
 	 	$loci->[$i],
 		$loci->[$j]
@@ -762,7 +766,7 @@ sub build_groups {
    }#FEAT1
    my $out = [];
    for my $gk (0 .. $#$groups){
-      my $group = Polloc::LociGroup->new(-id=>$gk); #+++ ToDo: Is ID ok?
+      my $group = Polloc::LociGroup->new(-name=>$gk+1); #+++ ToDo: Is ID ok?
       for my $lk (0 .. $#{$groups->[$gk]}){
          my $locus = $loci->[ $groups->[$gk]->[$lk] ];
 	 # Paranoid bugbuster:
@@ -772,8 +776,24 @@ sub build_groups {
 		unless defined $locus;
          $group->add_loci($locus);
       }
+      push @$out, $group;
    }
    return $out;
+}
+
+=head2 genomes
+
+Gets the genomes of the base group of loci.  This function is similar
+to calling C<locigroup()-E<gt>genomes()>, but is read-only.
+
+=cut
+
+sub genomes {
+   my ($self, $value) = @_;
+   $self->warn("Attempting to set the genomes from a read-only function")
+   	if defined $value;
+   return unless defined $self->locigroup;
+   return $self->locigroup->genomes;
 }
 
 =head1 INTERNAL METHODS
@@ -948,7 +968,7 @@ sub _search_aln_seqs {
    my ($self, $aln) = @_;
    my $ext = $self->{'_groupextension'};
    return unless defined $ext;
-   return unless defined $self->seqs;
+   return unless defined $self->genomes;
    my $pos = [];
    return $pos unless defined $aln; #<- For example, if zero sequences.  To gracefully exit.
    my $alg = lc $ext->{'-algorithm'};
@@ -957,10 +977,10 @@ sub _search_aln_seqs {
       unless(defined $self->{'_seqsdb'}){
 	 $self->{'_seqsdb'} = Polloc::Polloc::IO->tempdir();
 	 $self->debug("Creating DB at ".$self->{'_seqsdb'});
-	 for my $seqk (0 .. $#{$self->{'_seqs'}}){
-	    my $file = $self->{'_seqsdb'}."/$seqk";
+	 for my $genomek (0 .. $#{$self->genomes}){
+	    my $file = $self->{'_seqsdb'}."/$genomek";
 	    my $fasta = Bio::SeqIO->new(-file=>">$file", -format=>'Fasta');
-	    for my $ctg (@{$self->{'_seqs'}->[$seqk]}){ $fasta->write_seq($ctg) }
+	    for my $ctg (@{$self->genomes->[$genomek]->get_sequences}){ $fasta->write_seq($ctg) }
 	    # BLAST requires a formatdb (not only the fasta)
 	    if($alg eq 'blast'){
 	       my $run = Polloc::Polloc::IO->new(-file=>"formatdb -p F -i '$file' 2>&1 |");
@@ -988,7 +1008,7 @@ sub _search_aln_seqs {
 	 #$factory->calibrate();
       }
       # -------------------------------------------------------------------- Search
-      GENOME: for my $Gk (0 .. $#{$self->{'_seqs'}}){
+      GENOME: for my $Gk (0 .. $#{$self->genomes}){
          my $report;
 	 if($alg eq 'blast'){
 	    $factory = Bio::Tools::Run::StandAloneBlast->new(

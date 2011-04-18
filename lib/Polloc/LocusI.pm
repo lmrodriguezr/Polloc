@@ -125,11 +125,18 @@ sub type {
 
 Sets/gets the source genome as a L<Polloc::Genome> object.
 
+=head3 Throws
+
+L<Polloc::Polloc::Error> if unexpected type.
+
 =cut
 
 sub genome {
    my($self,$value) = @_;
    $self->{'_genome'} = $value if defined $value;
+   return unless defined $self->{'_genome'};
+   $self->throw("Unexpected type of genome", $self->{'_genome'})
+   	unless UNIVERSAL::can($self->{'_genome'},'isa') and $self->{'_genome'}->isa('Polloc::Genome');
    return $self->{'_genome'};
 }
 

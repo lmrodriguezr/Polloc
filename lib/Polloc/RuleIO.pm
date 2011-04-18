@@ -309,7 +309,7 @@ sub execute {
    my($self, @args) = @_;
    $self->debug("Evaluating executable rules");
    my($advance) = $self->_rearrange([qw(ADVANCE)], @args);
-   my $group = Polloc::LociGroup->new(
+   my $locigroup = Polloc::LociGroup->new(
    		-name=>'Full collection - '.time().".".rand(1000),
    		-genomes=>$self->genomes);
    for my $gk (0 .. $#{$self->genomes}){
@@ -324,17 +324,17 @@ sub execute {
 	    for my $seq (@{$genome->get_sequences}){
 	       for my $locus (@{ $rule->execute(-seq=>$seq, @args) }){
 	          $locus->genome($genome);
-	          $group->add_loci($locus);
+	          $locigroup->add_loci($locus);
 	       }
-	       &$advance($#{$group->loci}+1, $gk+1, $#{$self->genomes}+1, $rulek)
+	       &$advance($#{$locigroup->loci}+1, $gk+1, $#{$self->genomes}+1, $rulek)
 	       		if defined $advance;
 	    }
 	 }
       }
       $self->_increase_index;
    }
-   $self->debug("Got ".($#{$group->loci}+1)." loci");
-   return $group;
+   $self->debug("Got ".($#{$locigroup->loci}+1)." loci");
+   return $locigroup;
 }
 
 =head2 safe_value
@@ -427,7 +427,10 @@ A reference to an array of L<Polloc::Genome> objects.
 sub genomes {
    my($self, $value) = @_;
    $self->{'_genomes'} = $value if defined $value;
-   return wantarray ? @{$self->{'_genomes'}} : $self->{'_genomes'};
+   return unless defined $self->{'_genomes'};
+   $self->throw("Unexpected type of genomes collection", $self->{'_genomes'})
+   	unless ref($self->{'_genomes'}) and ref($self->{'_genomes'})=~m/ARRAY/i;
+   return $self->{'_genomes'};
 }
 
 =head1 INTERNAL METHODS

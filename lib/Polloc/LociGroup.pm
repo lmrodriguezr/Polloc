@@ -77,7 +77,7 @@ sub add_loci {
    }
    $self->{'_loci'} = [] unless defined $self->{'_loci'};
    for my $locus (@l){
-      $self->debug("Saving locus");
+      $self->debug("Saving locus (".($#l+1)." loci, cur:".($#{$self->{'_loci'}}+1).")");
       $self->throw('Expecting a Polloc::LocusI object', $locus)
       	unless UNIVERSAL::can($locus, 'isa') and $locus->isa('Polloc::LocusI');
       $locus->genome($self->genomes->[$space]) if defined $space;
@@ -93,8 +93,8 @@ Gets the loci
 
 sub loci {
    my $self = shift;
-   $self->{'_loci'} = [] unless defined $self->{'loci'};
-   return wantarray ? @{$self->{'_loci'}} : $self->{'_loci'};
+   $self->{'_loci'} = [] unless defined $self->{'_loci'};
+   return $self->{'_loci'};
 }
 
 =head2 structured_loci
@@ -119,10 +119,10 @@ sub structured_loci {
    my $self = shift;
    return unless defined $self->genomes;
    my $struct = [];
-   for my $locus ($self->loci){
+   for my $locus (@{$self->loci}){
       next unless defined $locus->genome;
       my $space = 0;
-      for my $genome ($self->genomes){
+      for my $genome (@{$self->genomes}){
 	 $struct->[$space] = [] unless defined $struct->[$space];
 	 if($genome->name eq $locus->genome->name){
 	    push @{ $struct->[$space] }, $locus;
@@ -130,7 +130,7 @@ sub structured_loci {
          $space++;
       }
    }
-   return wantarray ? @$struct : $struct;
+   return $struct;
 }
 
 =head2 locus
@@ -145,7 +145,7 @@ The ID of the locus (str).
 
 sub locus {
    my ($self, $id) = @_;
-   for my $locus ($self->loci){ return $locus if $locus->id eq $id }
+   for my $locus (@{$self->loci}){ return $locus if $locus->id eq $id }
    return;
 }
 
@@ -181,7 +181,10 @@ A reference to an array of L<Polloc::Genome> objects.
 sub genomes {
    my($self, $value) = @_;
    $self->{'_genomes'} = $value if defined $value;
-   return wantarray ? @{$self->{'_genomes'}} : $self->{'_genomes'};
+   return unless defined $self->{'_genomes'};
+   $self->throw("Unexpected type of genomes collection", $self->{'_genomes'})
+   	unless ref($self->{'_genomes'}) and ref($self->{'_genomes'})=~m/ARRAY/i;
+   return $self->{'_genomes'};
 }
 
 
@@ -204,7 +207,16 @@ Exports the list of loci to the specified file or file handler
 
 =head3 Arguments
 
-Any argument accepted by Polloc::Polloc::IO->new()
+Any argument accepted by Polloc::Polloc::IO->new(), or:
+
+=over
+
+=item -io L<Polloc::Polloc::IO>
+
+If set, appends the loci to the object, and does not print the
+gff header.
+
+=back
 
 =head3 Returns
 
@@ -213,14 +225,16 @@ The L<Polloc::Polloc::IO> object handling the output.
 =cut
 
 sub export_gff3 {
-   my $self = shift;
-   my $gff = Polloc::Polloc::IO->new(@_);
-   $gff->_print("##gff-version 3\n\n");
-   for my $locus ($self->loci){
-      $gff->_print($locus->gff3_line);
+   my ($self, @args) = @_;
+   my ($io) = $self->_rearrange([qw(IO)], @args);
+   my $append = defined $io;
+   $io = Polloc::Polloc::IO->new(@args) unless $append;
+   $io->_print("##gff-version 3\n\n") unless $append;
+   for my $locus (@{$self->loci}){
+      $io->_print($locus->gff3_line);
    }
-   $gff->close();
-   return $gff;
+   #$io->close();
+   return $io;
 }
 
 =head1 INTERNAL METHODS
