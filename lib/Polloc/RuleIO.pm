@@ -263,45 +263,78 @@ sub addgrouprules {
 
 =head2 execute
 
-Executes the executable rules only
+Executes the executable rules only over the whole list of genomes
 
 =head3 Arguments
 
-Any argument supported/required by the rules.  C<-seq> is always required
+Any argument supported/required by the rules, plus:
+
+=over
+
+=item -advance L<sub ref>
+
+A reference to a method to be called to report the advance
+of the execution.  The method must accept four arguments,
+namely:
+
+=over
+
+=item 1
+
+The number of loci detected so far
+
+=item 2
+
+The number of genomes scanned so far
+
+=item 3
+
+The total number of genomes to scan
+
+=item 4
+
+The ID of the running rule
+
+=back
+
+=back
 
 =head3 Returns
 
-A reference to an array of L<Polloc::LocusI> objects
+A L<Polloc::LociGroup> object.
 
 =cut
 
 sub execute {
    my($self, @args) = @_;
    $self->debug("Evaluating executable rules");
-   my($prefix) = $self->_rearrange([qw(PREFIX)], @args);
-   $self->_end_rules_loop; # A (perhaps) paranoid precaution
-   my @feats = ();
-   while ( my $rule = $self->next_rule ){
-      $self->debug("On " . $self->{'_loop_index_rules'});
-      if($rule->executable){
-         $self->debug("RUN!");
-         push @feats, @{$rule->execute(@args)};
+   my($advance) = $self->_rearrange([qw(ADVANCE)], @args);
+   my $locigroup = Polloc::LociGroup->new(
+   		-name=>'Full collection - '.time().".".rand(1000),
+   		-genomes=>$self->genomes);
+   for my $gk (0 .. $#{$self->genomes}){
+      my $genome = $self->genomes->[$gk];
+      $self->_end_rules_loop;
+      my $rulek = 0;
+      while ( my $rule = $self->next_rule ){
+         $rulek++;
+	 $self->debug("On " . $self->{'_loop_index_rules'});
+	 if($rule->executable){
+	    $self->debug("RUN! on ".($#{$genome->get_sequences}+1)." sequences");
+	    for my $seq (@{$genome->get_sequences}){
+	       for my $locus (@{ $rule->execute(-seq=>$seq, @args) }){
+	          $locus->genome($genome);
+	          $locigroup->add_loci($locus);
+	       }
+	       &$advance($#{$locigroup->loci}+1, $gk+1, $#{$self->genomes}+1, $rulek)
+	       		if defined $advance;
+	    }
+	 }
       }
+      $self->_increase_index;
    }
-   return wantarray ? @feats : \@feats;
-}
-
-=head2 increase_index
-
-=cut
-
-sub increase_index {
-   my $self = shift;
-   while ( my $rule = $self->next_rule ){
-      my $nid = $self->_next_child_id;
-      $rule->id($nid) if defined $nid;
-      $rule->restart_index;
-   }
+   $self->debug("Got ".($#{$locigroup->loci}+1)." loci");
+   return $locigroup;
 }
 
 =head2 safe_value
@@ -381,6 +414,25 @@ sub read {
    $self->throw("read",$self,"Polloc::Polloc::NotImplementedException");
 }
 
+=head2 genomes
+
+Gets/sets the genomes to be used as analysis base.
+
+=head3 Arguments
+
+A reference to an array of L<Polloc::Genome> objects.
+
+=cut
+
+sub genomes {
+   my($self, $value) = @_;
+   $self->{'_genomes'} = $value if defined $value;
+   return unless defined $self->{'_genomes'};
+   $self->throw("Unexpected type of genomes collection", $self->{'_genomes'})
+   	unless ref($self->{'_genomes'}) and ref($self->{'_genomes'})=~m/ARRAY/i;
+   return $self->{'_genomes'};
+}
+
 =head1 INTERNAL METHODS
 
 Methods intended to be used only within the scope of Polloc::*
@@ -392,6 +444,19 @@ Methods intended to be used only within the scope of Polloc::*
 sub _register_rule_parse {
    my $self = shift;
    $self->throw("_register_rule_parse",$self,"Polloc::Polloc::NotImplementedException");
+}
+
+=head2 _increase_index
+
+=cut
+
+sub _increase_index {
+   my $self = shift;
+   while ( my $rule = $self->next_rule ){
+      my $nid = $self->_next_child_id;
+      $rule->id($nid) if defined $nid;
+      $rule->restart_index;
+   }
 }
 
 =head2 _next_child_id

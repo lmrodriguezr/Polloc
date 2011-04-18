@@ -21,7 +21,7 @@ L<Polloc::Polloc::Root>
 package Polloc::LociGroup;
 
 use strict;
-
+use Polloc::Polloc::IO;
 use base qw(Polloc::Polloc::Root);
 
 =head1 PUBLIC METHODS
@@ -63,21 +63,25 @@ a L<Polloc::LocusI> object.
 
 =head3 Arguments
 
-The first argument B<MUST> be the identifier of
+The first argument B<can> be the identifier of
 the genome's space (int).  All the following are
 expected to be L<Polloc::LocusI> objects.
 
 =cut
 
 sub add_loci {
-   my $self = shift;
-   my $space = 0+shift;
+   my ($self,@l) = @_;
+   my $space;
+   if(defined $l[0] and not ref $l[0]){
+      $space = 0 + shift @l;
+   }
    $self->{'_loci'} = [] unless defined $self->{'_loci'};
-   $self->{'_loci'}->[$space] = [] unless defined $self->{'_loci'}->[$space];
-   for my $locus (@_){
+   for my $locus (@l){
+      $self->debug("Saving locus (".($#l+1)." loci, cur:".($#{$self->{'_loci'}}+1).")");
       $self->throw('Expecting a Polloc::LocusI object', $locus)
-      	unless UNIVERSAL::can($locus, 'isa') and $self->isa('Polloc::LocusI');
-      push @{ $self->{'_loci'}->[$space] }, $locus;
+      	unless UNIVERSAL::can($locus, 'isa') and $locus->isa('Polloc::LocusI');
+      $locus->genome($self->genomes->[$space]) if defined $space;
+      push @{ $self->{'_loci'} }, $locus;
    }
 }
 
@@ -89,9 +93,8 @@ Gets the loci
 
 sub loci {
    my $self = shift;
-   my @out = ();
-   for my $space ($self->structured_loci){ push @out, @$space }
-   return wantarray ? @out : \@out;
+   $self->{'_loci'} = [] unless defined $self->{'_loci'};
+   return $self->{'_loci'};
 }
 
 =head2 structured_loci
@@ -100,11 +103,34 @@ Returns a two-dimensional array where the first key corresponds
 to the number of the genome space and the second key is an
 incremental for each locus.
 
+=head3 Note
+
+This function is provided for convenience in some output formating,
+but its use should be avoided as it causes a huge processing time
+penalty.
+
+=head3 Warning
+
+Loci without defined genome will not be included in the output.
+
 =cut
 
 sub structured_loci {
    my $self = shift;
-   return $self->{'_loci'};
+   return unless defined $self->genomes;
+   my $struct = [];
+   for my $locus (@{$self->loci}){
+      next unless defined $locus->genome;
+      my $space = 0;
+      for my $genome (@{$self->genomes}){
+	 $struct->[$space] = [] unless defined $struct->[$space];
+	 if($genome->name eq $locus->genome->name){
+	    push @{ $struct->[$space] }, $locus;
+	 }
+         $space++;
+      }
+   }
+   return $struct;
 }
 
 =head2 locus
@@ -119,7 +145,7 @@ The ID of the locus (str).
 
 sub locus {
    my ($self, $id) = @_;
-   for my $locus ($self->loci){ return $locus if $locus->id eq $id }
+   for my $locus (@{$self->loci}){ return $locus if $locus->id eq $id }
    return;
 }
 
@@ -142,6 +168,26 @@ sub name {
    return $self->{'_name'};
 }
 
+=head2 genomes
+
+Gets/sets the genomes to be used as analysis base.
+
+=head3 Arguments
+
+A reference to an array of L<Polloc::Genome> objects.
+
+=cut
+
+sub genomes {
+   my($self, $value) = @_;
+   $self->{'_genomes'} = $value if defined $value;
+   return unless defined $self->{'_genomes'};
+   $self->throw("Unexpected type of genomes collection", $self->{'_genomes'})
+   	unless ref($self->{'_genomes'}) and ref($self->{'_genomes'})=~m/ARRAY/i;
+   return $self->{'_genomes'};
+}
+
+
 =head2 featurename
 
 Gets/Sets the name of the feature common to all the
@@ -155,6 +201,42 @@ sub featurename {
    return $self->{'_featurename'};
 }
 
+=head2 export_gff3
+
+Exports the list of loci to the specified file or file handler
+
+=head3 Arguments
+
+Any argument accepted by Polloc::Polloc::IO->new(), or:
+
+=over
+
+=item -io L<Polloc::Polloc::IO>
+
+If set, appends the loci to the object, and does not print the
+gff header.
+
+=back
+
+=head3 Returns
+
+The L<Polloc::Polloc::IO> object handling the output.
+
+=cut
+
+sub export_gff3 {
+   my ($self, @args) = @_;
+   my ($io) = $self->_rearrange([qw(IO)], @args);
+   my $append = defined $io;
+   $io = Polloc::Polloc::IO->new(@args) unless $append;
+   $io->_print("##gff-version 3\n\n") unless $append;
+   for my $locus (@{$self->loci}){
+      $io->_print($locus->gff3_line);
+   }
+   #$io->close();
+   return $io;
+}
+
 =head1 INTERNAL METHODS
 
 Methods intended to be used only within the scope of Polloc::*
@@ -165,9 +247,10 @@ Methods intended to be used only within the scope of Polloc::*
 
 sub _initialize {
    my ($self, @args) = @_;
-   my($name, $featurename) = $self->_rearrange([qw(NAME FEATURENAME)], @args);
+   my($name, $featurename, $genomes) = $self->_rearrange([qw(NAME FEATURENAME GENOMES)], @args);
    $self->name($name);
    $self->featurename($featurename);
+   $self->genomes($genomes);
 }
 
 1;

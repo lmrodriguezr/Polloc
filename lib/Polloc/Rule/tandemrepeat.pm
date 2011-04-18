@@ -61,6 +61,8 @@ sub execute {
    my($seq) = $self->_rearrange([qw(SEQ)], @args);
    
    $self->throw("You must provide a sequence to evaluate the rule", $seq) unless $seq;
+   $self->throw("You must provide an object as sequence", $seq)
+   		unless UNIVERSAL::can($seq,'isa');
    
    # For Bio::SeqIO objects
    if($seq->isa('Bio::SeqIO')){

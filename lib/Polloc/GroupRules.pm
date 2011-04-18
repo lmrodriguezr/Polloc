@@ -1,12 +1,12 @@
 =head1 NAME
 
-Polloc::GroupRules - Rules to group features
+Polloc::GroupRules - Rules to group loci
 
 =head1 DESCRIPTION
 
-Takes features and returns groups of features based on
-certain rules.  If defined via .bme (.cfg) files, it is
-defined in the C<[ RuleGroup ]> and C<[ GroupExtension ]>
+Takes loci and returns groups of loci based on certain
+rules.  If created via .bme (.cfg) files, it is defined
+in the C<[ RuleGroup ]> and C<[ GroupExtension ]>
 namespaces.
 
 =head1 AUTHOR - Luis M. Rodriguez-R
@@ -30,6 +30,7 @@ package Polloc::GroupRules;
 use strict;
 use List::Util qw(min max);
 use Polloc::Polloc::IO;
+use Polloc::LociGroup;
 use Bio::Tools::Run::Alignment::Muscle;
 use Bio::Seq;
 
@@ -102,17 +103,20 @@ sub target {
    return $self->{'_target'};
 }
 
-=head2 features
+=head2 locigroup
+
+Gets/sets the input L<Polloc::LociGroup> object containing
+all the loci to evaluate.
 
 =cut
 
-sub features {
+sub locigroup {
    my($self, $value) = @_;
    if(defined $value){
-      $self->{'_features'} = $value;
+      $self->{'_locigroup'} = $value;
       $self->{'_reorder'} = 1;
    }
-   return $self->{'_features'};
+   return $self->{'_locigroup'};
 }
 
 =head2 condition
@@ -125,52 +129,9 @@ sub condition {
    return $self->{'_condition'};
 }
 
-=head2 seqs
-
-Sets/Gets the sequences employed (i.e., all the tested genomes, drafts or
-target sequences).
-
-
-=head3 Arguments
-
-ref, optional.  A reference to an array of references of arrays of C<Bio::SeqI>
-objects.  The structure is like:
-
-=begin text
-
-	[ # container array
-	   [ ctg1, ctg2, ... ], # sequences of the genome 1
-	   [ ctg1, ctg2, ... ], # sequences of the genome 2
-	   ...
-	]
-
-=end text
-
-=head3 Returns
-
-ref or undef.  Like argument.
-
-=head3 Note
-
-This method is recent, and some functions work only with the target sequences
-explicitly set.  If one function does require the target sequences, but no
-means to provide it are documented, it uses the sequences stored with this method.
-
-=cut
-
-sub seqs {
-   my ($self, $value) = @_;
-   if(defined $value){
-      $self->{'_seqs'} = $value;
-      $self->{'_seqsdb'} = undef; # to force re-formatdb if BLAST is used
-   }
-   return $self->{'_seqs'};
-}
-
-
 =head2 evaluate
 
-Compares two features based on the defined conditions
+Compares two loci based on the defined conditions
 
 =head3 Parameters
 
@@ -178,11 +139,11 @@ Compares two features based on the defined conditions
 
 =item *
 
-The first feature (a L<Polloc::LocusI> object)
+The first locus (a L<Polloc::LocusI> object)
 
 =item *
 
-The second feature (a L<Polloc::LocusI> object)
+The second locus (a L<Polloc::LocusI> object)
 
 =back
 
@@ -226,63 +187,33 @@ sub evaluate {
    return $o;
 }
 
-=head2 add_features
+=head2 get_loci
 
-Adds one or more features to the evaluation set
+Gets the stored loci
 
-=head3 Parameters
+=head3 Note
 
-One or more L<Polloc::LocusI> objects
-
-=head3 Throws
-
-L<Polloc::Polloc::Error> if unexpected input
+The stored loci can also be obtained with C<$object-E<gt>locigroup-E<gt>loci>,
+but this function ensures a consistent order in the loci for its evaluation.
 
 =cut
 
-sub add_features {
-   my($self, @values) = @_;
-   $self->throw("Undefined feature") unless $#values>=0;
-   $self->{'_reorder'} = 1;
-   $self->{'_features'} = [] unless defined $self->{'_features'};
-   while(my $value = shift @values){
-      $self->throw("Illegal feature", $value) unless $value->isa('Polloc::LocusI');
-      push @{$self->{'_features'}}, $value;
-   }
-}
-
-
-=head2 add_feature
-
-Alias of L<add_features()>
-
-=cut
-
-sub add_feature { shift->add_features(@_) }
-
-
-=head2 get_features
-
-Gets the stored features
-
-=cut
-
-sub get_features {
+sub get_loci {
    my($self,@args) = @_;
+   $self->{'_features'} = $self->locigroup->loci
+   	if defined $self->locigroup and not defined $self->{'_features'};
    $self->{'_features'} = [] unless defined $self->{'_features'};
    if($self->{'_reorder'} && $self->source ne $self->target){
       my @src = ();
       my @tgt = ();
       my @oth = ();
-      for my $ft ($self->{'_features'}){
+      for my $ft (@{$self->locigroup->loci}){
       	    if($ft->family eq $self->source){ push (@src, $ft) }
 	 elsif($ft->family eq $self->target){ push (@tgt, $ft) }
 	 else{ push @oth, $ft }
       }
       $self->{'_features'} = [];
-      $self->add_features(@tgt);
-      $self->add_features(@src);
-      $self->add_features(@oth);
+      push @{$self->{'_features'}}, @tgt, @src, @oth;
       $self->{'_reorder'} = 0;
    }
    return $self->{'_features'};
@@ -303,7 +234,7 @@ A L<Polloc::LocusI> object or undef.
 
 =head3 Note
 
-This is a lazzy method, and should be used B<ONLY> after C<get_features()>
+This is a lazzy method, and should be used B<ONLY> after C<get_loci()>
 were called at least once.  Otherwise, the order might not be the expected,
 and weird results would appear.
 
@@ -458,22 +389,16 @@ Extends a group based on the arguments provided by L<Polloc::GroupRules->extensi
 
 =over
 
-=item -feats I<ref to array, mandatory>
+=item -loci I<Polloc::LociGroup>
 
-An array with all the loci from a given group (reference to array of
-L<Polloc::LocusI>)
-
-=item -index I<bool (int)>
-
-If true, treats the input references as integer indexes.
+The L<Polloc::LociGroup> containing the loci in the group to extend.
 
 =back
 
 =head3 Returns
 
-An array with all the newly detected features (reference to array of
-L<Polloc::LocusI>).  Note that this is not a simple array, but a reference
-array of reference arrays (one per genome).
+A L<Polloc::LociGroup> object containing the updated group, i.e. the
+original group PLUS the extended features.
 
 =head3 Throws
 
@@ -483,19 +408,23 @@ L<Polloc::Polloc::Error> if unexpected input or weird extension definition.
 
 sub extend {
    my ($self, @args) = @_;
-   my ($loci, $index) = $self->_rearrange([qw(FEATS INDEX)], @args);
-   $loci = $self->_feat_index2obj([$loci])->[0] if $index;
+   my ($loci) = $self->_rearrange([qw(LOCI)], @args);
    
+   # Check input
    my $ext = $self->{'_groupextension'};
    return unless defined $ext;
-   return unless defined $loci and $#$loci>=0;
-   $self->throw("First feature is not an object", $loci->[0])
-   	unless ref($loci->[0]) and UNIVERSAL::can($loci->[0],'isa');
-   $self->throw("Unexpected Locus type", $loci->[0])
-   	unless $loci->[0]->isa('Polloc::LocusI');
+   $self->throw("The loci are not into an object", $loci)
+   	unless defined $loci and ref($loci) and UNIVERSAL::can($loci,'isa');
+   $self->throw("Unexpected type for the group of loci", $loci)
+   	unless $loci->isa('Polloc::LociGroup');
+   return unless $#{$loci->loci}>=0;
+
+   # Set ID base
    my $group_id = $self->_next_group_id;
+
+   # Run
    my @new = ();
-   $self->debug("--- Extending group (based on ".($#$loci+1)." features) ---");
+   $self->debug("--- Extending group (based on ".($#{$loci->loci}+1)." loci) ---");
    if(lc($ext->{'-function'}) eq 'context'){
       my ($up_aln, $down_aln, $in_aln);
       my ($up_pos, $down_pos, $in_pos);
@@ -609,7 +538,7 @@ sub extend {
 		  next WI unless $br->[3]*$in->[1] < $br->[3]*$br->[2]
 		  		and $br->[3]*$in->[2] > $br->[3]*$br->[1];
 		  # Good!
-		  # ToDo: Should I use the features' data to sharpen borders?...
+		  # ToDo: Should I use the loci' data to sharpen borders?...
 		  $br->[4] = (2*$br->[4] + $in->[4])/3;
 		  push @new, $br;
 	       }
@@ -626,58 +555,59 @@ sub extend {
       $self->throw('Unsupported function for group extension', $ext->{'-function'});
    }
 
-   # And finally, create the detected features discarding features overlapping input features
+   # And finally, create the detected features, discarding loci overlapping input loci
    $self->debug("Found ".($#new+1)." loci, creating extend features");
-   my $out = [];
    my $comments = "Based on group $group_id: ";
-   for my $feat (@$loci) { $comments.= $feat->id . ", " if defined $feat->id }
+   for my $locus (@{$loci->loci}) { $comments.= $locus->id . ", " if defined $locus->id }
    $comments = substr $comments, 0, -2;
    
+   my $newloci = Polloc::LociGroup->new();
+   $newloci->name($loci->name."-ext") if defined $loci->name;
+   $newloci->featurename($loci->featurename) if defined $loci->featurename;
+   $newloci->genomes($loci->genomes) if defined $loci->genomes;
    NEW: for my $itemk (0 .. $#new){
       my $item = $new[$itemk];
       ($item->[1], $item->[2]) = (min($item->[1], $item->[2]), max($item->[1], $item->[2]));
       unless($ext->{'-alldetected'}){
-         OLD: for my $feat (@$loci){
-	    if($item->[1]<$feat->to and $item->[2]>$feat->from){
-	       # Not new!
-	       next NEW;
-	    }
+         OLD: for my $locus (@{$loci->loci}){
+	    # Not new! :
+	    next NEW if $item->[1]<$locus->to and $item->[2]>$locus->from;
 	 }
       }
       my $seq;
       my($Gk, $acc) = split /:/, $item->[0], 2;
       $Gk+=0;
-      $out->[$Gk] = [] unless defined $out->[$Gk];
-      for my $ck (0 .. $#{$self->seqs->[$Gk]}){
-         my $id = $self->seqs->[$Gk]->[$ck]->display_id;
+      for my $ck (0 .. $#{$self->genomes->[$Gk]->get_sequences}){
+         my $id = $self->genomes->[$Gk]->get_sequences->[$ck]->display_id;
 	 if($id eq $acc or $id =~ m/\|$acc(\.\d+)?(\||\s*$)/){
 	    $seq = [$Gk,$ck]; last;
 	 }
       }
       $self->warn('I can not find the sequence', $acc) unless defined $seq;
       $self->throw('Undefined genome-contig pair', $acc, 'UnexpectedException')
-      		unless defined $self->seqs->[$seq->[0]]->[$seq->[1]];
-      my $id = $self->source . "-ext:".($Gk+1).".$group_id.$itemk";
-      push @{$out->[$Gk]}, Polloc::LocusI->new(
+      		unless defined $self->genomes->[$seq->[0]]->get_sequences->[$seq->[1]];
+      my $id = $self->source . "-ext:".($Gk+1).".$group_id.".($#{$newloci->loci}+2);
+      $newloci->add_loci(Polloc::LocusI->new(
       		-type=>'extend',
 		-from=>$item->[1],
 		-to=>$item->[2],
 		-id=>(defined $id ? $id : ''),
 		-strand=>($item->[3]==-1 ? '-' : '+'),
 		# Seems complicated, but reduces clones:
-		#		    Gk:Genome	 ck:Contig
-		-seq=>$self->seqs->[$seq->[0]]->[$seq->[1]],
+		#		       Gk:Genome	 	   ck:Contig
+		-seq=>$self->genomes->[$seq->[0]]->get_sequences->[$seq->[1]],
 		-score=>$item->[4],
-		-basefeature=>$loci->[0],
-		-comments=>$comments
-      );
+		-basefeature=>$loci->loci->[0],
+		-comments=>$comments,
+		-genome=>$self->genomes->[$Gk]
+      ));
    }
-   return $out;
+   return $newloci;
 }
 
 =head2 build_bin
 
-Compares all the included features and returns the identity matrix
+Compares all the included loci and returns the identity matrix
 
 =head3 Arguments
 
@@ -722,7 +652,7 @@ sub build_bin {
 
 =head2 bin_build_groups
 
-Builds groups of features based on a binary matrix
+Builds groups of loci based on a binary matrix
 
 =head3 Arguments
 
@@ -730,7 +660,7 @@ A matrix as returned by L<Polloc::GroupRules::build_bin()>
 
 =head3 Returns
 
-A reference to a 2-dimensional matrix of groups
+A 2-D matrix ref.
 
 =head3 Note
 
@@ -764,17 +694,11 @@ sub bin_build_groups {
 
 =head2 build_groups
 
-This is the main method, creates groups of features.
+This is the main method, creates groups of loci.
 
 =head3 Arguments
 
 =over
-
-=item -index I<bool (int)>
-
-If true, returns a 2-dimensional matrix of integers, containing the index of
-the feature objects instead of the objects itself.  It can save resources
-(reducing I/O penalties) with large datasets and/or a distributed environment.
 
 =item -cpus I<int>
 
@@ -790,17 +714,15 @@ considerations must be addressed before using it. B<TODO>.
 =item -advance I<ref to sub>
 
 A reference to a function to call at every new pair.  The function is called
-with three arguments, the first is the index of the first feature, the second
-is the index of the second feature and the third is the total number of
-features.  Please note that this function is called BEFORE running the
-comparison.
+with three arguments, the first is the index of the first locus, the second
+is the index of the second locus and the third is the total number of loci.
+Note that this function is called B<BEFORE> running the comparison.
 
 =over
 
 =head3 Returns
 
-A 2-dimensional matrix (ref) with groups of L<Polloc::LocusI> objects.  It is,
-and array of arrays (groups) of features.
+A L<Polloc::LociGroup> object.
 
 =head3 Note
 
@@ -813,17 +735,20 @@ inspection).
 
 sub build_groups {
    my($self,@args) = @_;
-   my ($index, $cpus, $advance) = $self->_rearrange([qw(INDEX CPUS ADVANCE)], @args);
+   my ($cpus, $advance) = $self->_rearrange([qw(CPUS ADVANCE)], @args);
    
    my $groups = [[0]]; #<- this is bcs first feature is ignored in FEAT1
-   my $f_max = $#{$self->get_features};
-   FEAT1: for my $i (1 .. $f_max){
+   my $loci = $self->get_loci;
+   my $l_max = $#$loci;
+   $self->debug("Building groups for ".($l_max+1)." loci");
+   $self->warn('Nothing to do, any stored loci') unless $l_max>=0;
+   FEAT1: for my $i (1 .. $l_max){
       FEAT2: for my $j (0 .. $i-1){
          $self->debug("Evaluate [$i vs $j]");
-	 &$advance($i, $j, $f_max+1) if defined $advance;
+	 &$advance($i, $j, $l_max+1) if defined $advance;
          next FEAT2 unless $self->evaluate(
-	 	$self->get_feature($i),
-		$self->get_feature($j)
+	 	$loci->[$i],
+		$loci->[$j]
 	 );
 	 # --> If I am here, FEAT1 ~ FEAT2 <--
 	 GROUP: for my $g (0 .. $#{$groups}){
@@ -839,7 +764,36 @@ sub build_groups {
       # --> If I am here, FEAT1 belongs to a new group <--
       push @{$groups}, [$i];
    }#FEAT1
-   return $index ? $groups : $self->_feat_index2obj($groups);
+   my $out = [];
+   for my $gk (0 .. $#$groups){
+      my $group = Polloc::LociGroup->new(-name=>$gk+1); #+++ ToDo: Is ID ok?
+      for my $lk (0 .. $#{$groups->[$gk]}){
+         my $locus = $loci->[ $groups->[$gk]->[$lk] ];
+	 # Paranoid bugbuster:
+	 $self->throw('Impossible to gather the locus back:'.
+	 	' $groups->['.$gk.']->['.$lk.']: '.$groups->[$gk]->[$lk],
+	 	$loci, 'Polloc::Polloc::UnexpectedException')
+		unless defined $locus;
+         $group->add_loci($locus);
+      }
+      push @$out, $group;
+   }
+   return $out;
+}
+
+=head2 genomes
+
+Gets the genomes of the base group of loci.  This function is similar
+to calling C<locigroup()-E<gt>genomes()>, but is read-only.
+
+=cut
+
+sub genomes {
+   my ($self, $value) = @_;
+   $self->warn("Attempting to set the genomes from a read-only function")
+   	if defined $value;
+   return unless defined $self->locigroup;
+   return $self->locigroup->genomes;
 }
 
 =head1 INTERNAL METHODS
@@ -913,27 +867,42 @@ sub _build_subseq {
 
 =head2 _detectstrand_context
 
+=head3 Arguments
+
+=over
+
+=item 1
+
+Loci: A L<Polloc::LociGroup> object, base group
+
+=item 2
+
+Size: Int, context size
+
+=back
+
 =cut
 
 sub _detectstrand_context {
-   my ($self, $feats, $size) = @_;
-   return unless defined $feats;
+   my ($self, $loci, $size) = @_;
+   return unless defined $loci;
+   my $feats = $loci->loci;
    return unless $#$feats>0; # No need to check
    my $factory = Bio::Tools::Run::Alignment::Muscle->new();
    $factory->quiet(1);
    
    # Find a suitable reference
    my $ref = [undef, undef];
-   FEATURE: for my $k (1 .. $#$feats){
+   FEATURE: for my $lk (1 .. $#$feats){
       my $ref_test = [
       		$self->_build_subseq(
-				$feats->[$k]->seq,
-				$feats->[$k]->from - $size,
-				$feats->[$k]->from),
+				$feats->[$lk]->seq,
+				$feats->[$lk]->from - $size,
+				$feats->[$lk]->from),
       		$self->_build_subseq(
-				$feats->[$k]->seq,
-				$feats->[$k]->to,
-				$feats->[$k]->to + $size)
+				$feats->[$lk]->seq,
+				$feats->[$lk]->to,
+				$feats->[$lk]->to + $size)
 		];
       if(defined $ref->[0] and defined $ref->[1]){
          $ref = $ref_test
@@ -999,7 +968,7 @@ sub _search_aln_seqs {
    my ($self, $aln) = @_;
    my $ext = $self->{'_groupextension'};
    return unless defined $ext;
-   return unless defined $self->seqs;
+   return unless defined $self->genomes;
    my $pos = [];
    return $pos unless defined $aln; #<- For example, if zero sequences.  To gracefully exit.
    my $alg = lc $ext->{'-algorithm'};
@@ -1008,10 +977,10 @@ sub _search_aln_seqs {
       unless(defined $self->{'_seqsdb'}){
 	 $self->{'_seqsdb'} = Polloc::Polloc::IO->tempdir();
 	 $self->debug("Creating DB at ".$self->{'_seqsdb'});
-	 for my $Gk (0 .. $#{$self->{'_seqs'}}){
-	    my $file = $self->{'_seqsdb'}."/$Gk";
+	 for my $genomek (0 .. $#{$self->genomes}){
+	    my $file = $self->{'_seqsdb'}."/$genomek";
 	    my $fasta = Bio::SeqIO->new(-file=>">$file", -format=>'Fasta');
-	    for my $ctg (@{$self->{'_seqs'}->[$Gk]}){ $fasta->write_seq($ctg) }
+	    for my $ctg (@{$self->genomes->[$genomek]->get_sequences}){ $fasta->write_seq($ctg) }
 	    # BLAST requires a formatdb (not only the fasta)
 	    if($alg eq 'blast'){
 	       my $run = Polloc::Polloc::IO->new(-file=>"formatdb -p F -i '$file' 2>&1 |");
@@ -1039,7 +1008,7 @@ sub _search_aln_seqs {
 	 #$factory->calibrate();
       }
       # -------------------------------------------------------------------- Search
-      GENOME: for my $Gk (0 .. $#{$self->{'_seqs'}}){
+      GENOME: for my $Gk (0 .. $#{$self->genomes}){
          my $report;
 	 if($alg eq 'blast'){
 	    $factory = Bio::Tools::Run::StandAloneBlast->new(
@@ -1086,10 +1055,32 @@ sub _search_aln_seqs {
 
 =head2 _align_feat_context
 
+=head3 Arguments
+
+=over
+
+=item 1
+
+Loci: A L<Polloc::LociGroup> object with the base loci.
+
+=item 2
+
+Ref: Int, reference position.
+
+=item 3
+
+From: Int, the I<from> position.
+
+=item 4
+
+To: Int, the I<to> position.
+
+=back
+
 =cut
 
 sub _align_feat_context {
-   my ($self, $feats, $ref, $from, $to) = @_;
+   my ($self, $loci, $ref, $from, $to) = @_;
    my $ext = $self->{'_groupextension'};
    return unless defined $ext;
    $from+=0; $to+=0; $ref+=0;
@@ -1098,6 +1089,7 @@ sub _align_feat_context {
    my $factory = Bio::Tools::Run::Alignment::Muscle->new();
    $factory->quiet(1);
    my @seqs = ();
+   my $feats = $loci->loci;
    for my $feat (@$feats){
       # Get the sequence
       my $seq = $self->_extract_context($feat, $ref, $from, $to);
@@ -1418,10 +1410,13 @@ sub _operate_bool {
 
 sub _initialize {
    my($self, @args) = @_;
-   my($source, $target, $features) = $self->_rearrange([qw(SOURCE TARGET FEATURES)], @args);
+   my($source, $target, $features, $loci) =
+   	$self->_rearrange([qw(SOURCE TARGET FEATURES LOCI)], @args);
+   # $self->throw('Discouraged use of -features flag, use -loci instead');
    $self->source($source);
    $self->target($target);
-   $self->features($features);
+   $loci = $features if defined $features and not defined $loci;
+   $self->locigroup($loci);
 }
 
 

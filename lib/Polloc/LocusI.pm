@@ -63,9 +63,9 @@ sub new {
       if($load){
          my $self = $load->SUPER::new(@args);
 	 $self->debug("Got the LocusI class $load");
-	 my($from,$to,$strand,$name,$rule,$seq,$id, $family, $source, $comments) =
+	 my($from,$to,$strand,$name,$rule,$seq,$id, $family, $source, $comments, $genome) =
 	 	$self->_rearrange(
-	 		[qw(FROM TO STRAND NAME RULE SEQ ID FAMILY SOURCE COMMENTS)], @args);
+	 		[qw(FROM TO STRAND NAME RULE SEQ ID FAMILY SOURCE COMMENTS GENOME)], @args);
 	 $self->from($from);
 	 $self->to($to);
 	 $self->strand($strand);
@@ -76,6 +76,7 @@ sub new {
 	 $self->family($family);
 	 $self->source($source);
 	 $self->comments($comments);
+	 $self->genome($genome);
          $self->_initialize(@args);
          return $self;
          
@@ -118,6 +119,25 @@ sub type {
       $self->{'_type'} = $v;
    }
    return $self->{'_type'};
+}
+
+=head2 genome
+
+Sets/gets the source genome as a L<Polloc::Genome> object.
+
+=head3 Throws
+
+L<Polloc::Polloc::Error> if unexpected type.
+
+=cut
+
+sub genome {
+   my($self,$value) = @_;
+   $self->{'_genome'} = $value if defined $value;
+   return unless defined $self->{'_genome'};
+   $self->throw("Unexpected type of genome", $self->{'_genome'})
+   	unless UNIVERSAL::can($self->{'_genome'},'isa') and $self->{'_genome'}->isa('Polloc::Genome');
+   return $self->{'_genome'};
 }
 
 =head2 name
