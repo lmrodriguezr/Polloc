@@ -23,6 +23,7 @@ package Polloc::LocusI;
 use strict;
 use Polloc::RuleI;
 use Polloc::Polloc::IO;
+use List::Util qw(min max);
 
 use base qw(Polloc::Polloc::Root);
 
@@ -748,6 +749,82 @@ sub read_gff3 {
    }
    return @feats;
 }
+
+=head2 context_seq
+
+Extracts a sequence from the context of the locus
+
+=head3 Arguments
+
+All the following arguments are mandatory, and must be passed in that order:
+
+=over
+
+=item *
+
+ref I<int> :
+  -1 to use the start as reference (useful for upstream sequences),
+  +1 to use the end as reference (useful for downstream sequences),
+   0 to use the start as start reference and the end as end reference
+
+=item *
+
+from I<int> : The relative start position.
+
+=item *
+
+to I<int> : The relative end position.
+
+=back
+
+=head3 Returns
+
+A L<Bio::Seq> object.
+
+=cut
+
+sub context_seq {
+   my ($self, $ref, $from, $to) = @_;
+   $self->_load_module('Polloc::GroupRules');
+   return unless defined $self->seq and defined $self->from and defined $self->to;
+   my $seq;
+   my ($start, $end);
+   my $revcom = 0;
+   if($ref < 0){
+      if($self->strand eq '?' or $self->strand eq '+'){
+	 # (500..0)--------------->*[* >> ft >> ]
+	 $start = $self->from - $from;	$end = $self->from - $to;
+      }else{
+	 # [ << ft << *]*<-----------------(500..0)
+	 $start = $self->to + $to;	$end = $self->to + $from;	$revcom = !$revcom;
+      }
+   }elsif($ref > 0){
+      if($self->strand eq '?' or $self->strand eq '+'){
+	 # [ >> ft >> *]*<-----------------(500..0)
+	 $start = $self->to + $to;	$end = $self->to + $from;	$revcom = !$revcom;
+      }else{
+	 # (500..0)--------------->*[* << ft << ]
+	 $start = $self->from - $from;		$end = $self->from - $to;
+      }
+   }else{
+      if($self->strand eq '?' or $self->strand eq '+'){
+	 $start = $self->from + $from;	$end = $self->to + $from;
+      }else{
+	 $start = $self->to - $from;	$end = $self->from - $to;
+      }
+   }
+   $start = max(1, $start);
+   $end = min($self->seq->length, $end);
+   $self->debug("Extracting context ".
+   		(defined $self->seq->display_id?$self->seq->display_id:'').
+		"[$start..$end] ".($revcom?"-":"+"));
+   $seq = Polloc::GroupRules->_build_subseq($self->seq, $start, $end);
+   return unless defined $seq;
+   $seq = $seq->revcom if $revcom;
+   return $seq;
+}
+
+
 
 =head1 INTERNAL METHODS
 
