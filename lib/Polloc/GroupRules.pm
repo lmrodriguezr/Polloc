@@ -1204,12 +1204,32 @@ sub _operate_bool {
    else { $self->throw("Unknown boolean operation", $var) }
 }
 
+=head _grouprules_cleanup
+
+=cut
+
+# Issue #7
+sub _grouprules_cleanup {
+   my $self = shift;
+   if(defined $self->{'_seqsdb'}) {
+      my $tmp = $self->{'_seqsdb'};
+      for my $k (0 .. $#{$self->genomes}){
+         while(<$tmp/$k.*>){
+	    unlink $_ or $self->throw("Impossible to delete '$_'", $!);
+	 }
+	 unlink "$tmp/$k" or $self->throw("Impossible to delete '$tmp/$k'", $!);
+      }
+      rmdir $tmp;
+   }
+}
+
 =head2 _initialize
 
 =cut
 
 sub _initialize {
    my($self, @args) = @_;
+   $self->_register_cleanup_method(\&_grouprules_cleanup);
    my($source, $target, $features, $loci) =
    	$self->_rearrange([qw(SOURCE TARGET FEATURES LOCI)], @args);
    # $self->throw('Discouraged use of -features flag, use -loci instead');
