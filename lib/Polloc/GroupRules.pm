@@ -33,6 +33,7 @@ use Polloc::Polloc::IO;
 use Polloc::LociGroup;
 use Bio::Tools::Run::Alignment::Muscle;
 use Bio::Seq;
+use Error qw(:try);
 
 use base qw(Polloc::Polloc::Root);
 
@@ -1014,10 +1015,21 @@ sub _search_aln_seqs {
       GENOME: for my $Gk (0 .. $#{$self->genomes}){
          my $report;
 	 if($alg eq 'blast'){
+	    next GENOME if ($query->seq =~ tr/N//) > 0.25*$query->length; # issue#14
 	    $factory = Bio::Tools::Run::StandAloneBlast->new(
 	 	'-e'=>$ext->{'-e'}, '-program'=>$ext->{'-p'},
 		'-db'=>$self->{'_seqsdb'}."/$Gk" );
-	    $report = $factory->blastall($query);
+	    # Try to handle issue#14 and possible undocumented related issues:
+	    # (still causing some problems in the STDERR output)
+	    try { $report = $factory->blastall($query); }
+	    catch Error with {
+	       $self->debug("Launch BLAST with query: ".$query->seq());
+	       $self->warn("BLAST failed, skipping query and attempting to continue");
+	       next GENOME;
+	    }
+	    otherwise {
+	       $self->throw("BLAST failed", $_, 'Polloc::Polloc::UnexpectedException');
+	    };
 	 }elsif($alg eq 'hmmer'){
 	    $factory->program('hmmsearch');
 	    $report = $factory->run($self->{'_seqsdb'}."/$Gk");
