@@ -275,6 +275,149 @@ sub avg_length {
    return wantarray ? ($len_avg, $len_sd) : $len_avg;
 }
 
+=head2 align_context
+
+=head3 Arguments
+
+Arguments work in the same way L<Polloc::LocusI-E<gt>context_seq()>
+arguments do.
+
+=over
+
+=item 1
+
+Ref: Int, reference position.
+
+=item 2
+
+From: Int, the I<from> position.
+
+=item 3
+
+To: Int, the I<to> position.
+
+=back
+
+=cut
+
+sub align_context {
+   my ($self, $ref, $from, $to) = @_;
+   $from+=0; $to+=0; $ref+=0;
+   return if $from == $to and $ref!=0;
+   
+   my $factory = Bio::Tools::Run::Alignment::Muscle->new();
+   $factory->quiet(1);
+   my @seqs = ();
+   LOCUS: for my $locus (@{$self->loci}){
+      # Get the sequence
+      my $seq = $locus->context_seq($ref, $from, $to);
+      next LOCUS unless defined $seq;
+      $seq->display_id($locus->id) if defined $locus->id;
+      push @seqs, $seq;
+   } #LOCUS
+   return unless $#seqs>-1; # Impossible without sequences
+   # small trick to build an alignment, even if there is only one sequence:
+   push @seqs, Bio::Seq->new(-seq=>$seqs[0]->seq, -id=>'dup-seq') unless $#seqs>0;
+   $self->debug("Aligning context sequences");
+   return $factory->align(\@seqs);
+}
+
+=head fix_strands
+
+Fixes the strand of the loci based on the flanking regions, to have all the
+loci in the group with the same orientation.
+
+=head3 Arguments
+
+=over
+
+=item -size I<int>
+
+Context size (500 by default)
+
+=item -force I<bool (int)>
+
+Force the detection, even if it was previously detected.
+
+=back
+
+=cut
+
+sub fix_strands {
+   my ($self, @args) = @_;
+   my ($size, $force) = $self->_rearrange([qw(SIZE FORCE)], @args);
+   return if not $force and defined $self->{'_fixed_strands'} and $self->{'_fixed_strands'} == $#{$self->loci};
+   $self->{'_fixed_strands'} = $#{$self->loci};
+   $self->_load_module('Polloc::GroupRules');
+   return unless $#{$self->loci}>0; # No need to check
+   $size ||= 500;
+   
+   my $factory = Bio::Tools::Run::Alignment::Muscle->new();
+   $factory->quiet(1);
+   
+   # Find a suitable reference
+   my $ref = [undef, undef];
+   LOCUS: for my $lk (1 .. $#{$self->loci}){
+      my $ref_test = [
+      		Polloc::GroupRules->_build_subseq(
+				$self->loci->[$lk]->seq,
+				$self->loci->[$lk]->from - $size,
+				$self->loci->[$lk]->from),
+      		Polloc::GroupRules->_build_subseq(
+				$self->loci->[$lk]->seq,
+				$self->loci->[$lk]->to,
+				$self->loci->[$lk]->to + $size)
+		];
+      if(defined $ref->[0] and defined $ref->[1]){
+         # Longer pair:
+	 $ref = $ref_test
+	 	if  defined $ref_test->[0] and defined $ref_test->[1]
+		and $ref_test->[0]->length >= $ref->[0]->length
+		and $ref_test->[1]->length >= $ref->[1]->length;
+      }elsif(defined $ref->[0] or defined $ref->[1]){
+         # Both sequences defined:
+	 $ref = $ref_test if defined $ref_test->[0] and defined $ref_test->[1];
+      }else{
+         # At least one sequence defined:
+	 $ref = $ref_test if defined $ref_test->[0] or defined $ref_test->[1];
+      }
+   }
+   unless(defined $ref->[0] or defined $ref->[1]){
+      $self->debug('Impossible to find a suitable reference');
+      return;
+   }
+   $ref = defined $ref->[0] ?
+   		( defined $ref->[1] ?
+			Bio::Seq->new(-seq=>$ref->[0]->seq . ("N"x20) . $ref->[1]->seq)
+			: $ref->[0]
+		) : $ref->[1];
+   
+   $ref->id('ref');
+   $self->loci->[0]->strand('+');
+   
+   # Compare
+   LOCUS: for my $k (0 .. $#{$self->loci}){
+      my $tgt = Polloc::GroupRules->_build_subseq(
+      		$self->loci->[$k]->seq,
+		$self->loci->[$k]->from-$size,
+		$self->loci->[$k]->to+$size);
+      next LOCUS unless $tgt; # <- This may be way too paranoic!
+      $tgt->id('tgt');
+      my $tgtrc = $tgt->revcom;
+      $self->debug("Setting strand for ".$self->loci->[$k]->id) if defined $self->loci->[$k]->id;
+      my $eval_fun = 'average_percentage_identity';
+      #$eval_fun = 'overall_percentage_identity';
+      if($factory->align([$ref, $tgt])->$eval_fun
+      		< $factory->align([$ref,$tgtrc])->$eval_fun){
+         $self->debug("Assuming negative strand, setting locus orientation");
+	 $self->loci->[$k]->strand('-');
+      }else{
+         $self->debug("Assuming positive strand, setting locus orientation");
+         $self->loci->[$k]->strand('+');
+      }
+   } # LOCUS
+}
+
 =head1 INTERNAL METHODS
 
 Methods intended to be used only within the scope of Polloc::*

@@ -439,27 +439,27 @@ sub extend {
 	 my $upsize = $ext->{'-upstream'};
 	 $downsize ||= 0;
 	 $upsize ||= 0;
-	 $loci = $self->_detectstrand_context($loci, max($downsize, $upsize));
+	 $loci->fix_strands(max($downsize, $upsize));
       }
       
       # Search
       if(defined $ext->{'-upstream'} and $ext->{'-upstream'}+0){
 	 $self->debug("Searching upstream sequences");
-	 $up_aln = $self->_align_feat_context($loci, -1, $ext->{'-upstream'}, 0);
+	 $up_aln = $loci->align_context(-1, $ext->{'-upstream'}, 0);
 	 $up_pos = $self->_search_aln_seqs($up_aln);
 	 $eval_border = 0;
 	 $self->debug(($#$up_pos+1)." results");
       }
       if(defined $ext->{'-downstream'} and $ext->{'-downstream'}+0){
          $self->debug("Searching downstream sequences");
-	 $down_aln = $self->_align_feat_context($loci, 1, $ext->{'-downstream'}, 0);
+	 $down_aln = $loci->align_context(1, $ext->{'-downstream'}, 0);
 	 $down_pos = $self->_search_aln_seqs($down_aln);
 	 $eval_border = 1 if defined $eval_border;
 	 $self->debug(($#$down_pos+1)." results");
       }
       if(defined $ext->{'-feature'} and $ext->{'-feature'}+0){
          $self->debug("Searching in-feature sequences");
-	 $in_aln = $self->_align_feat_context($loci, 0, 0, 0);
+	 $in_aln = $loci->align_context(0, 0, 0);
 	 $in_pos = $self->_search_aln_seqs($in_aln);
 	 $eval_feature = 1;
 	 $self->debug(($#$in_pos+1)." results");
@@ -862,104 +862,9 @@ sub _build_subseq {
    return $subseq;
 }
 
-
-=head2 _detectstrand_context
-
-=head3 Arguments
-
-=over
-
-=item 1
-
-Loci: A L<Polloc::LociGroup> object, base group
-
-=item 2
-
-Size: Int, context size
-
-=back
-
-=head3 Returns
-
-Fixed loci: A L<Polloc::LociGroup> object.
-
-=cut
-
-sub _detectstrand_context {
-   my ($self, $loci, $size) = @_;
-   return $loci unless defined $loci;
-   return $loci unless $#{$loci->loci}>0; # No need to check
-   my $factory = Bio::Tools::Run::Alignment::Muscle->new();
-   $factory->quiet(1);
-   
-   # Find a suitable reference
-   my $ref = [undef, undef];
-   LOCUS: for my $lk (1 .. $#{$loci->loci}){
-      my $ref_test = [
-      		Polloc::GroupRules->_build_subseq(
-				$loci->loci->[$lk]->seq,
-				$loci->loci->[$lk]->from - $size,
-				$loci->loci->[$lk]->from),
-      		Polloc::GroupRules->_build_subseq(
-				$loci->loci->[$lk]->seq,
-				$loci->loci->[$lk]->to,
-				$loci->loci->[$lk]->to + $size)
-		];
-      if(defined $ref->[0] and defined $ref->[1]){
-         # Longer pair:
-	 $ref = $ref_test
-	 	if  defined $ref_test->[0] and defined $ref_test->[1]
-		and $ref_test->[0]->length >= $ref->[0]->length
-		and $ref_test->[1]->length >= $ref->[1]->length;
-      }elsif(defined $ref->[0] or defined $ref->[1]){
-         # Both sequences defined:
-	 $ref = $ref_test if defined $ref_test->[0] and defined $ref_test->[1];
-      }else{
-         # At least one sequence defined:
-	 $ref = $ref_test if defined $ref_test->[0] or defined $ref_test->[1];
-      }
-   }
-   unless(defined $ref->[0] or defined $ref->[1]){
-      $self->debug('Impossible to find a suitable reference');
-      return $loci;
-   }
-   $ref = defined $ref->[0] ?
-   		( defined $ref->[1] ?
-			Bio::Seq->new(-seq=>$ref->[0]->seq . ("N"x20) . $ref->[1]->seq)
-			: $ref->[0]
-		) : $ref->[1];
-   
-   $ref->id('ref');
-   $loci->loci->[0]->strand('+');
-   
-   # Compare
-   LOCUS: for my $k (0 .. $#{$loci->loci}){
-      my $tgt = Polloc::GroupRules->_build_subseq(
-      		$loci->loci->[$k]->seq,
-		$loci->loci->[$k]->from-$size,
-		$loci->loci->[$k]->to+$size);
-      next LOCUS unless $tgt; # <- This may be way too paranoic!
-      $tgt->id('tgt');
-      my $tgtrc = $tgt->revcom;
-      $self->debug("Setting strand for ".$loci->loci->[$k]->id) if defined $loci->loci->[$k]->id;
-      my $eval_fun = 'average_percentage_identity';
-      #$eval_fun = 'overall_percentage_identity';
-      if($factory->align([$ref, $tgt])->$eval_fun
-      		< $factory->align([$ref,$tgtrc])->$eval_fun){
-         $self->debug("Assuming negative strand, setting locus orientation");
-	 $loci->loci->[$k]->strand('-');
-      }else{
-         $self->debug("Assuming positive strand, setting locus orientation");
-         $loci->loci->[$k]->strand('+');
-      }
-   } # LOCUS
-   return $loci;
-}
-
-
 =head2 _search_aln_seqs
 
-Uses an alignment to search in a sequence
+Uses an alignment to search in the sequences of the collection of genomes
 
 =head3 Arguments
 
@@ -1076,134 +981,6 @@ sub _search_aln_seqs {
    }
    return $pos;
 }
-
-=head2 _align_feat_context
-
-=head3 Arguments
-
-=over
-
-=item 1
-
-Loci: A L<Polloc::LociGroup> object with the base loci.
-
-=item 2
-
-Ref: Int, reference position.
-
-=item 3
-
-From: Int, the I<from> position.
-
-=item 4
-
-To: Int, the I<to> position.
-
-=back
-
-=cut
-
-sub _align_feat_context {
-   my ($self, $loci, $ref, $from, $to) = @_;
-   $from+=0; $to+=0; $ref+=0;
-   return if $from == $to and $ref!=0;
-   
-   my $factory = Bio::Tools::Run::Alignment::Muscle->new();
-   $factory->quiet(1);
-   my @seqs = ();
-   LOCUS: for my $locus (@{$loci->loci}){
-      # Get the sequence
-      my $seq = $self->_extract_context($locus, $ref, $from, $to);
-      next LOCUS unless defined $seq;
-      $seq->display_id($locus->id) if defined $locus->id;
-      push @seqs, $seq;
-   } #LOCUS
-   return unless $#seqs>-1; # Impossible without sequences
-   # small trick to build an alignment, even if there is only one sequence:
-   push @seqs, Bio::Seq->new(-seq=>$seqs[0]->seq, -id=>'dup-seq') unless $#seqs>0;
-   $self->debug("Aligning context sequences");
-   return $factory->align(\@seqs);
-}
-
-
-=head2 _extract_context
-
-Extracts a sequence from the context of the feature
-
-=head3 Arguments
-
-All the following arguments are mandatory, and must be passed in that order:
-
-=over
-
-=item *
-
-feat I<Polloc::LocusI> : The object which context is going to be extracted
-
-=item *
-
-ref I<int> :
-  -1 to use the start as reference (useful for upstream sequences),
-  +1 to use the end as reference (useful for downstream sequences),
-   0 to use the start as start reference and the end as end reference
-
-=item *
-
-from I<int> : The relative start position.
-
-=item *
-
-to I<int> : The relative end position.
-
-=back
-
-=head3 Returns
-
-A Bio::Seq object
-
-=cut
-
-sub _extract_context {
-   my ($self, $feat, $ref, $from, $to) = @_;
-   return unless defined $feat->seq and defined $feat->from and defined $feat->to;
-   my $seq;
-   my ($start, $end);
-   my $revcom = 0;
-   if($ref < 0){
-      if($feat->strand eq '?' or $feat->strand eq '+'){
-	 # (500..0)--------------->*[* >> ft >> ]
-	 $start = $feat->from - $from;	$end = $feat->from - $to;
-      }else{
-	 # [ << ft << *]*<-----------------(500..0)
-	 $start = $feat->to + $to;	$end = $feat->to + $from;	$revcom = !$revcom;
-      }
-   }elsif($ref > 0){
-      if($feat->strand eq '?' or $feat->strand eq '+'){
-	 # [ >> ft >> *]*<-----------------(500..0)
-	 $start = $feat->to + $to;	$end = $feat->to + $from;	$revcom = !$revcom;
-      }else{
-	 # (500..0)--------------->*[* << ft << ]
-	 $start = $feat->from - $from;		$end = $feat->from - $to;
-      }
-   }else{
-      if($feat->strand eq '?' or $feat->strand eq '+'){
-	 $start = $feat->from + $from;	$end = $feat->to + $from;	
-      }else{
-	 $start = $feat->to - $from;	$end = $feat->from - $to;	$revcom = !$revcom;
-      }
-   }
-   $start = max(1, $start);
-   $end = min($feat->seq->length, $end);
-   $self->debug("Extracting context ".
-   		(defined $feat->seq->display_id?$feat->seq->display_id:'').
-		"[$start..$end] ".($revcom?"-":"+"));
-   #$seq = Bio::Seq->new(-seq=>$feat->seq->subseq($start, $end));
-   $seq = Polloc::GroupRules->_build_subseq($feat->seq, $start, $end);
-   return unless defined $seq;
-   $seq = $seq->revcom if $revcom;
-   return $seq;
-}
-
 
 =head2 _feat_index2obj
 
