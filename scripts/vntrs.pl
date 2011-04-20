@@ -1,0 +1,248 @@
+#!/usr/bin/perl
+
+use strict;
+use Polloc::RuleIO;
+use Polloc::Genome;
+use Bio::SeqIO;
+use List::Util qw(min max);
+
+# ------------------------------------------------- METHODS
+# Output methods
+sub csv_header();
+sub csv_line($$);
+# Advance methods
+sub _advance_proto($$); # file, msg
+sub advance_detection($$$$); # loci, genomes, Ngenomes, rule
+sub advance_group($$$); # locus1, locus2, Nloci
+sub advance_extension($$); # group, Ngroups
+
+# ------------------------------------------------- FILES
+my $cnf = shift @ARGV;
+our $out = shift @ARGV;
+my $buildgroups = shift @ARGV;
+my $extendgroups = shift @ARGV;
+my $summarizegroups = shift @ARGV;
+my @names = split ":", shift @ARGV;
+my @inseqs = @ARGV;
+my $csv = "$out.csv";
+my $groupcsv = "$out.group.csv";
+
+open LOG, ">", "$out.log" or die "I can not create the '$out.log' file: $!\n";
+Polloc::Polloc::Root->DEBUGLOG(-fh=>\*LOG);
+Polloc::Polloc::Root->VERBOSITY(4);
+
+open CSV, ">", $csv or die "I can not create the CSV file '$csv': $!\n";
+
+print CSV &csv_header();
+
+
+# ------------------------------------------------- READ INPUT
+# Configuration
+my $ruleIO = Polloc::RuleIO->new(-format=>'Config', -file=>$cnf);
+my $genomes = [];
+# Sequences
+for my $G (0 .. $#inseqs){
+   push @$genomes, Polloc::Genome->new(-file=>$inseqs[$G], -name=>$names[$G], -id=>$G) }
+$ruleIO->genomes($genomes);
+
+# ------------------------------------------------- DETECT VNTRs
+my $all_loci = $ruleIO->execute(-advance=>\&advance_detection);
+my $gff3_io = $all_loci->export_gff3(-file=>">$out.gff");
+my $struct = $all_loci->structured_loci; # <- expensive function, call it only once.
+for my $gk (0 .. $#$struct){
+   for my $locus (@{$struct->[$gk]}){
+      print CSV &csv_line($locus, $ruleIO->genomes->[$gk]->name);
+   }
+}
+
+# ------------------------------------------------- GROUP LOCI
+if($buildgroups){
+  &_advance_proto("$out.grouping", "grouping");
+  print CSV "# Extended features\n" if $extendgroups;
+  my $grule = shift @{$ruleIO->grouprules}; # The .bme file only defines 1 GroupRules entity
+  open GCSV, ">", $groupcsv or die "I can not create the group CSV file '$groupcsv': $!\n";
+  print GCSV "ID";
+  print GCSV "\t", $_->name for @{$ruleIO->genomes};
+  print GCSV "\tUpstream consensus\tDownstream consensus\tLocus size (Avg/SD) <2>" if $summarizegroups;
+  print GCSV "\n";
+  $grule->locigroup($all_loci);
+  my $groups = $grule->build_groups(-advance=>\&advance_group);
+  die "Unable to build groups" unless defined $groups;
+  die "Empty groups" unless $#$groups >= 0;
+  
+  &_advance_proto("$out.extending","extending") if $extendgroups;
+  my $procGroups = 0;
+  GROUP: for my $group (@$groups){
+     print GCSV "Group-".$group->name;
+# ------------------------------------------------- EXTEND GROUPS
+     if($extendgroups){
+	my $ext = $grule->extend($group);
+	$ext->export_gff3(-io=>$gff3_io);
+	print CSV &csv_line($_, $_->genome->name) for @{$ext->loci};
+	$group->add_loci(@{$ext->loci});
+	&advance_extension($procGroups+1, $#$groups+1);
+     }
+# ------------------------------------------------- REPORT GROUPS
+     GENOME: for my $genome (@{$ruleIO->genomes}){
+	print GCSV "\t";
+        MEMBER: for my $member (@{$group->loci}){
+	   print GCSV $member->id." " if $genome->name eq $member->genome->name;
+	}
+     }
+# ------------------------------------------------- SUMMARIZE GROUPS
+     if($summarizegroups){
+        # Within the table
+	$grule->{'_groupextension'} ||= {};
+	my $context_size = $grule->{'_groupextension'}->{'-upstream'} || 500;
+	my $cons_perc = $grule->{'_groupextension'}->{'-consensusperc'} || 0.8;
+	my ($len, $sd) = $group->avg_length;
+	$group->fix_strands(-size=>$context_size);
+	my $left_aln = $group->align_context(-1, $context_size, 0);
+	my $right_aln = $group->align_context(1, $context_size, 0);
+	my $within_aln = $group->align_context(0, 0, 0);
+	my $left_cons = defined $left_aln ? $left_aln->consensus_string($cons_perc) : '';
+	my $right_cons = defined $right_aln ? $right_aln->consensus_string($cons_perc) : '';
+	print GCSV "\t$left_cons\t$right_cons\t$len\t$sd";
+	# Extra data
+	my $sumfile = "$out.Group-".$group->name.".extra";
+	open SUM, ">", $sumfile or die "I can not open '$sumfile': $!\n";
+	print SUM "ID: Group-".$group->name."\nLoci (".($#{$group->loci}+1)."):";
+	print SUM " ", $_->id."(".$_->strand.")" for @{$group->loci};
+	print SUM "\nLoci length average: $len\nLoci length standard deviation: $sd\n";
+	print SUM "\nUpstream alignment:\n";
+	my $alnO = Bio::AlignIO->new(-fh => \*SUM, -format=>'clustalw');
+	$alnO->write_aln($left_aln) if defined $left_aln;
+	print SUM "\nDownstream alignment:\n";
+	$alnO->write_aln($right_aln) if defined $right_aln;
+	print SUM "\nLocus alignment:\n";
+	$alnO->write_aln($within_aln) if defined $within_aln;
+	close SUM;
+     }
+     $procGroups++;
+     print GCSV "\n";
+  }
+  close GCSV;
+}
+
+&_advance_proto("$csv.done","done");
+
+
+# ------------------------------------------------- SUB-ROUTINES
+sub advance_detection($$$$){
+   my($loci, $gF, $gN, $rk) = @_;
+   our $out;
+   &_advance_proto("$out.nfeats", $loci);
+   &_advance_proto("$out.nseqs", "$gF/$gN");
+}
+
+sub advance_group($$$){
+   my($i,$j,$n) = @_;
+   our $out;
+   &_advance_proto("$out.ngroups", $i+1);
+}
+
+sub advance_extension($$){
+   my($i, $n) = @_;
+   our $out;
+   &_advance_proto("$out.next", "$i/$n");
+}
+
+sub _advance_proto($$) {
+   my($file, $msg) = @_;
+   open ADV, ">", $file or die "I can not open the '$file' file: $!\n";
+   print ADV $msg;
+   close ADV;
+}
+
+sub csv_header() {
+   return "ID\tGenome\tSeq\tFrom\tTo\tUnit length\tCopy number\tMismatch percent\tScore\t".
+		"Left 500bp\tRight 500bp (rc)\tRepeats\tConsensus/Notes\n";
+}
+sub csv_line($$) {
+   my $f = shift;
+   my $n = shift;
+   $n||= '';
+   my $left = $f->seq->subseq(max(1, $f->from-500), $f->from);
+   my $right = Bio::Seq->new(-seq=>$f->seq->subseq($f->to, min($f->seq->length, $f->to+500)));
+   $right = $right->revcom->seq;
+   my $seq;
+   $seq = $f->repeats if $f->can('repeats');
+   $seq = $f->seq->subseq($f->from, $f->to) unless defined $seq;
+   if(defined $seq and $f->strand eq '-'){
+      my $seqI = Bio::Seq->new(-seq=>$seq);
+      $seq = $seqI->revcom->seq;
+   }
+   my $notes = '';
+   if($f->can('consensus')){
+      $notes = $f->consensus;
+   }else{
+      $notes = $f->comments if $f->type eq 'extend';
+      $notes =~ s/\s*Extended feature\s*/ /i; # <- not really clean, but works ;)
+   }
+   $notes =~ s/[\n\r]+/ /g;
+   return sprintf(
+   		"\%s\t\%s\t\%s\t\%d\t\%d\t%.2f\t%.2f\t%.0f%%\t%.2f\t\%s\t\%s\t\%s\t\%s\n",
+   		(defined $f->id ? $f->id : ''), $n, $f->seq->display_id,
+		$f->from, $f->to, ($f->can('period') ? $f->period : 0),
+		($f->can('exponent') ? $f->exponent : 0),
+		($f->can('error') ? $f->error : 0), $f->score,
+   		$left, $right, $seq, $notes);
+}
+
+close CSV;
+close LOG;
+
+__END__
+
+=pod
+
+=head1 AUTHOR
+
+Luis M. Rodriguez-R < lmrodriguezr at gmail dot com >
+
+=head1 LICENSE
+
+This script is distributed under the terms of
+I<The Artistic License>.  See LICENSE.txt for details.
+
+=head1 SYNOPSIS
+
+C<perl> C<polloc_vntrs.pl> B<arguments>
+
+The arguments must be in the following order:
+
+=over
+
+=item 1
+
+The configuration file (a .bme file).
+
+=item 2
+
+Output base, a path to the prefix of the files to be created.
+
+=item 3
+
+Extend groups: Any non-empty string to extend the groups, or
+empty string to avoid extension.
+
+=item 4
+
+Summarize groups: Any non-empty string to produce additional
+summaries per group, or empty string to avoid summaries.
+
+=item 5
+
+The identifiers (names) of the input genomes in a single string
+separated by colons (:).
+
+=item 6
+
+All the following arguments will be treated as input files.  Each
+file is assumed to contain a genome (that can contain one or more
+sequence) in [multi-]fasta format.
+
+=back
+
+=cut
+
