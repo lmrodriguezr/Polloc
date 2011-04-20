@@ -47,6 +47,8 @@ modules:
 
 * `File::Temp`
 
+* `List::Util`
+
 * `Symbol`
 
 ### Other requirements
