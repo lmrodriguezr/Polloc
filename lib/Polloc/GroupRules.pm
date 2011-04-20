@@ -439,7 +439,7 @@ sub extend {
 	 my $upsize = $ext->{'-upstream'};
 	 $downsize ||= 0;
 	 $upsize ||= 0;
-	 $self->_detectstrand_context($loci, max($downsize, $upsize));
+	 $loci = $self->_detectstrand_context($loci, max($downsize, $upsize));
       }
       
       # Search
@@ -879,43 +879,49 @@ Size: Int, context size
 
 =back
 
+=head3 Returns
+
+Fixed loci: A L<Polloc::LociGroup> object.
+
 =cut
 
 sub _detectstrand_context {
    my ($self, $loci, $size) = @_;
-   return unless defined $loci;
-   my $feats = $loci->loci;
-   return unless $#$feats>0; # No need to check
+   return $loci unless defined $loci;
+   return $loci unless $#{$loci->loci}>0; # No need to check
    my $factory = Bio::Tools::Run::Alignment::Muscle->new();
    $factory->quiet(1);
    
    # Find a suitable reference
    my $ref = [undef, undef];
-   FEATURE: for my $lk (1 .. $#$feats){
+   LOCUS: for my $lk (1 .. $#{$loci->loci}){
       my $ref_test = [
       		Polloc::GroupRules->_build_subseq(
-				$feats->[$lk]->seq,
-				$feats->[$lk]->from - $size,
-				$feats->[$lk]->from),
+				$loci->loci->[$lk]->seq,
+				$loci->loci->[$lk]->from - $size,
+				$loci->loci->[$lk]->from),
       		Polloc::GroupRules->_build_subseq(
-				$feats->[$lk]->seq,
-				$feats->[$lk]->to,
-				$feats->[$lk]->to + $size)
+				$loci->loci->[$lk]->seq,
+				$loci->loci->[$lk]->to,
+				$loci->loci->[$lk]->to + $size)
 		];
       if(defined $ref->[0] and defined $ref->[1]){
-         $ref = $ref_test
+         # Longer pair:
+	 $ref = $ref_test
 	 	if  defined $ref_test->[0] and defined $ref_test->[1]
 		and $ref_test->[0]->length >= $ref->[0]->length
 		and $ref_test->[1]->length >= $ref->[1]->length;
       }elsif(defined $ref->[0] or defined $ref->[1]){
-         $ref = $ref_test if defined $ref_test->[0] and defined $ref_test->[1];
+         # Both sequences defined:
+	 $ref = $ref_test if defined $ref_test->[0] and defined $ref_test->[1];
       }else{
-         $ref = $ref_test if defined $ref_test->[0] or defined $ref_test->[1];
+         # At least one sequence defined:
+	 $ref = $ref_test if defined $ref_test->[0] or defined $ref_test->[1];
       }
    }
    unless(defined $ref->[0] or defined $ref->[1]){
       $self->debug('Impossible to find a suitable reference');
-      return;
+      return $loci;
    }
    $ref = defined $ref->[0] ?
    		( defined $ref->[1] ?
@@ -927,26 +933,27 @@ sub _detectstrand_context {
    $loci->loci->[0]->strand('+');
    
    # Compare
-   LOCUS: for my $k (1 .. $#$feats){
+   LOCUS: for my $k (0 .. $#{$loci->loci}){
       my $tgt = Polloc::GroupRules->_build_subseq(
-      		$feats->[$k]->seq,
-		$feats->[$k]->from-$size,
-		$feats->[$k]->to+$size);
+      		$loci->loci->[$k]->seq,
+		$loci->loci->[$k]->from-$size,
+		$loci->loci->[$k]->to+$size);
       next LOCUS unless $tgt; # <- This may be way too paranoic!
       $tgt->id('tgt');
       my $tgtrc = $tgt->revcom;
-      $self->debug("Setting strand for ".$feats->[$k]->id) if defined $feats->[$k]->id;
+      $self->debug("Setting strand for ".$loci->loci->[$k]->id) if defined $loci->loci->[$k]->id;
       my $eval_fun = 'average_percentage_identity';
       #$eval_fun = 'overall_percentage_identity';
       if($factory->align([$ref, $tgt])->$eval_fun
       		< $factory->align([$ref,$tgtrc])->$eval_fun){
-         $self->debug("Assuming negative strand, setting feature orientation");
+         $self->debug("Assuming negative strand, setting locus orientation");
 	 $loci->loci->[$k]->strand('-');
       }else{
-         $self->debug("Assuming positive strand, setting feature orientation");
+         $self->debug("Assuming positive strand, setting locus orientation");
          $loci->loci->[$k]->strand('+');
       }
    } # LOCUS
+   return $loci;
 }
 
 
@@ -1099,7 +1106,7 @@ To: Int, the I<to> position.
 sub _align_feat_context {
    my ($self, $loci, $ref, $from, $to) = @_;
    $from+=0; $to+=0; $ref+=0;
-   return if $from == $to;
+   return if $from == $to and $ref!=0;
    
    my $factory = Bio::Tools::Run::Alignment::Muscle->new();
    $factory->quiet(1);
@@ -1142,11 +1149,11 @@ ref I<int> :
 
 =item *
 
-from I<int> : The start position.
+from I<int> : The relative start position.
 
 =item *
 
-to I<int> : The end position.
+to I<int> : The relative end position.
 
 =back
 
