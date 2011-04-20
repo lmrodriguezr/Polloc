@@ -220,9 +220,9 @@ sub get_loci {
 }
 
 
-=head2 get_feature
+=head2 get_locus
 
-Get the feature with the specified index.
+Get the locus with the specified index.
 
 =head3 Arguments
 
@@ -240,7 +240,7 @@ and weird results would appear.
 
 =cut
 
-sub get_feature {
+sub get_locus {
    my($self, $index) = @_;
    return unless defined $index;
    return unless defined $self->{'_features'};
@@ -467,18 +467,9 @@ sub extend {
       # Determine maximum size
       my $max_len = $ext->{'-maxlen'};
       unless($max_len){
-	 my $len_avg = 0;
-	 my $len_sd = 0;
-	 my $ff = $self->get_features;
-	 if($#$ff >= 1){
-	    for my $ft (@$ff){ $len_avg+= abs($ft->from - $ft->to) }
-	    $len_avg = $len_avg/($#$ff+1);
-	    for my $ft (@$ff){ $len_sd+= (abs($ft->from - $ft->to) - $len_avg)**2 }
-	    $len_sd = sqrt($len_sd/$#$ff); # n-1, not n (unbiased SD)
-	 }elsif($#$ff==1){
-	    $self->warn("Building size constrains based in one sequence only");
-	    $len_avg = abs($ff->[0]->from - $ff->[0]->to);
-	 }
+	 my($len_avg, $len_sd) = $self->locigroup->avg_length;
+	 $self->warn("Building size constrains based in one sequence only")
+	 	if $#{$self->locigroup->loci}<1;
 	 $max_len = $len_avg + $len_sd*$ext->{'-lensd'};
       }
       $self->debug("Comparing results with maximum feature's length of $max_len");
@@ -592,7 +583,7 @@ sub extend {
 		-from=>$item->[1],
 		-to=>$item->[2],
 		-id=>(defined $id ? $id : ''),
-		-strand=>($item->[3]==-1 ? '-' : '+'),
+		-strand=>($item->[3]==-1 ? '+' : '-'),
 		# Seems complicated, but reduces clones:
 		#		       Gk:Genome	 	   ck:Contig
 		-seq=>$self->genomes->[$seq->[0]]->get_sequences->[$seq->[1]],
@@ -626,7 +617,7 @@ A reference to a boolean 2-dimensional array (only left-down triangle)
 =head3 Note
 
 B<WARNING!>  The order of the output is not allways the same of the input.
-Please use C<get_features()> instead, as source features B<MUST> be after
+Please use C<get_loci()> instead, as source features B<MUST> be after
 target features in the array.  Otherwise, it is not possible to have the
 full picture without building the full matrix (instead of half).
 
@@ -636,13 +627,13 @@ sub build_bin {
    my($self,@args) = @_;
    my $bin = [];
    my($complete) = $self->_rearrange([qw(COMPLETE)], @args);
-   for my $i (0 .. $#{$self->get_features}){
+   for my $i (0 .. $#{$self->get_loci}){
       $bin->[$i] = [];
-      my $lim = $complete ? $#{$self->get_features} : $i;
+      my $lim = $complete ? $#{$self->get_loci} : $i;
       for my $j (0 .. $lim){
 	 $bin->[$i]->[$j] = $self->evaluate(
-	 	$self->get_features->[$i],
-		$self->get_features->[$j]
+	 	$self->get_loci->[$i],
+		$self->get_loci->[$j]
 	 );
       }
    }
@@ -676,7 +667,7 @@ examine all the paired comparisons and even write your own grouping function.
 sub bin_build_groups {
    my($self,$bin) = @_;
    my $groups = [];
-   FEAT: for my $f (0 .. $#{$self->get_features}){
+   FEAT: for my $f (0 .. $#{$self->get_loci}){
       GROUP: for my $g (0 .. $#{$groups}){
          MEMBER: for my $m (0 .. $#{$groups->[$g]}){
 	    if($bin->[$f]->[$groups->[$g]->[$m]] ){
@@ -842,9 +833,15 @@ The B<to> position
 
 =back
 
+=head3 Returns
+
+A L<Bio::Seq> object.
+
 =head3 Comments
 
-This method should be located at a higher hierarchy module (Root?)
+This method should be located at a higher hierarchy module (Root?).
+
+This method is static.
 
 =cut
 
@@ -895,11 +892,11 @@ sub _detectstrand_context {
    my $ref = [undef, undef];
    FEATURE: for my $lk (1 .. $#$feats){
       my $ref_test = [
-      		$self->_build_subseq(
+      		Polloc::GroupRules->_build_subseq(
 				$feats->[$lk]->seq,
 				$feats->[$lk]->from - $size,
 				$feats->[$lk]->from),
-      		$self->_build_subseq(
+      		Polloc::GroupRules->_build_subseq(
 				$feats->[$lk]->seq,
 				$feats->[$lk]->to,
 				$feats->[$lk]->to + $size)
@@ -926,26 +923,29 @@ sub _detectstrand_context {
 		) : $ref->[1];
    
    $ref->id('ref');
-   $feats->[0]->strand('+');
+   $loci->loci->[0]->strand('+');
    
    # Compare
-   FEATURE: for my $k (1 .. $#$feats){
-      my $tgt = $self->_build_subseq(
+   LOCUS: for my $k (1 .. $#$feats){
+      my $tgt = Polloc::GroupRules->_build_subseq(
       		$feats->[$k]->seq,
 		$feats->[$k]->from-$size,
 		$feats->[$k]->to+$size);
-      next FEATURE unless $tgt; # This is way too paranoic!
+      next LOCUS unless $tgt; # <- This may be way too paranoic!
       $tgt->id('tgt');
       my $tgtrc = $tgt->revcom;
-      if($factory->align([$ref, $tgt])->average_percentage_identity
-      		< $factory->align([$ref,$tgtrc])->average_percentage_identity){
+      $self->debug("Setting strand for ".$feats->[$k]->id) if defined $feats->[$k]->id;
+      my $eval_fun = 'average_percentage_identity';
+      #$eval_fun = 'overall_percentage_identity';
+      if($factory->align([$ref, $tgt])->$eval_fun
+      		< $factory->align([$ref,$tgtrc])->$eval_fun){
          $self->debug("Assuming negative strand, setting feature orientation");
-	 $feats->[$k]->strand('-');
+	 $loci->loci->[$k]->strand('-');
       }else{
          $self->debug("Assuming positive strand, setting feature orientation");
-         $feats->[$k]->strand('+');
+         $loci->loci->[$k]->strand('+');
       }
-   } # FEATURE
+   } # LOCUS
 }
 
 
@@ -994,7 +994,9 @@ sub _search_aln_seqs {
       my $query;
       if($alg eq 'blast'){
          require Bio::Tools::Run::StandAloneBlast;
-         $query = Bio::Seq->new(-seq=>$aln->consensus_string($ext->{'-consensusperc'}));
+	 my $cons_seq = $aln->consensus_string($ext->{'-consensusperc'});
+	 $cons_seq =~ s/\?/N/g;
+         $query = Bio::Seq->new(-seq=>$cons_seq);
       }elsif($alg eq 'hmmer'){
 	 require Bio::Tools::Run::Hmmer;
 	 my $tmpio = Polloc::Polloc::IO->new();
@@ -1008,6 +1010,7 @@ sub _search_aln_seqs {
 	 #$factory->calibrate();
       }
       # -------------------------------------------------------------------- Search
+      $self->debug("Searching... alg:$alg, sim:".$ext->{'-similarity'}." score:".$ext->{'-score'}." e:".$ext->{'-e'});
       GENOME: for my $Gk (0 .. $#{$self->genomes}){
          my $report;
 	 if($alg eq 'blast'){
@@ -1033,6 +1036,8 @@ sub _search_aln_seqs {
 				and $hsp->evalue <= $ext->{'-e'})
 		  ){
 			# -------------------------------------------------- Save result
+			$self->debug("Found: sim:".$hsp->frac_identical('query').", score:".
+				$hsp->score.", e:".$hsp->evalue);
 			my $r_pos = ["$Gk:".$hit->accession,
 				$hsp->strand('hit')!=$hsp->strand('query')?
 						$hsp->start('hit'):$hsp->end('hit'),
@@ -1081,20 +1086,19 @@ To: Int, the I<to> position.
 
 sub _align_feat_context {
    my ($self, $loci, $ref, $from, $to) = @_;
-   my $ext = $self->{'_groupextension'};
-   return unless defined $ext;
    $from+=0; $to+=0; $ref+=0;
    return if $from == $to;
    
    my $factory = Bio::Tools::Run::Alignment::Muscle->new();
    $factory->quiet(1);
    my @seqs = ();
-   my $feats = $loci->loci;
-   for my $feat (@$feats){
+   LOCUS: for my $locus (@{$loci->loci}){
       # Get the sequence
-      my $seq = $self->_extract_context($feat, $ref, $from, $to);
-      push @seqs, $seq if defined $seq;
-   }
+      my $seq = $self->_extract_context($locus, $ref, $from, $to);
+      next LOCUS unless defined $seq;
+      $seq->display_id($locus->id) if defined $locus->id;
+      push @seqs, $seq;
+   } #LOCUS
    return unless $#seqs>-1; # Impossible without sequences
    # small trick to build an alignment, even if there is only one sequence:
    push @seqs, Bio::Seq->new(-seq=>$seqs[0]->seq, -id=>'dup-seq') unless $#seqs>0;
@@ -1175,7 +1179,7 @@ sub _extract_context {
    		(defined $feat->seq->display_id?$feat->seq->display_id:'').
 		"[$start..$end] ".($revcom?"-":"+"));
    #$seq = Bio::Seq->new(-seq=>$feat->seq->subseq($start, $end));
-   $seq = $self->_build_subseq($feat->seq, $start, $end);
+   $seq = Polloc::GroupRules->_build_subseq($feat->seq, $start, $end);
    return unless defined $seq;
    $seq = $seq->revcom if $revcom;
    return $seq;
@@ -1200,7 +1204,7 @@ sub _feat_index2obj{
    my($self,$groups) = @_;
    for my $g (0 .. $#{$groups}){
       for my $m (0 .. $#{$groups->[$g]}){
-         $groups->[$g]->[$m] = $self->get_feature($groups->[$g]->[$m]);
+         $groups->[$g]->[$m] = $self->get_locus($groups->[$g]->[$m]);
       }
    }
    return $groups;

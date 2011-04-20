@@ -237,6 +237,44 @@ sub export_gff3 {
    return $io;
 }
 
+=head2 avg_length
+
+Gets the average length of the stored loci.
+
+=head3 Returns
+
+The average length (float) or an array containing the
+average length (float) and the standard deviation (float),
+depending on the expected output.
+
+=head3 Syntax
+
+    my $len = $locigroup->length;
+
+Or,
+
+    my($len, $sd) = $locigroup->length;
+
+=cut
+
+sub avg_length {
+   my $self = shift;
+   my $len_avg = 0;
+   my $len_sd = 0;
+   if($#{$self->loci} >= 1){
+      # AVG
+      $len_avg+= abs($_->from - $_->to) for @{$self->loci};
+      $len_avg = $len_avg/($#{$self->loci}+1);
+      return $len_avg unless wantarray;
+      # SD
+      $len_sd+= (abs($_->from - $_->to) - $len_avg)**2 for @{$self->loci};
+      $len_sd = sqrt($len_sd/$#{$self->loci}); # n-1, not n (unbiased SD)
+   }elsif($#{$self->loci}==0){
+      $len_avg = abs($self->loci->[0]->from - $self->loci->[0]->to);
+   }
+   return wantarray ? ($len_avg, $len_sd) : $len_avg;
+}
+
 =head1 INTERNAL METHODS
 
 Methods intended to be used only within the scope of Polloc::*
