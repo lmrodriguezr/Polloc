@@ -118,10 +118,10 @@ Installation
 3.  **Use the package**.  See the following section (Usage) for
     some examples.
 
-4.  Familiar enough?  We are glad to listen than, **start developing**.
-    You can check the documentation within the modules using perldoc
-    (or any other Pod interpreter), or contact us at for questions and
-    features requests.
+4.  Familiar enough?  We are glad to listen than, then you could
+    **start developing**.  You can check the documentation within the
+    modules using perldoc (or any other Pod interpreter), or contact
+    us for questions and features requests.
 
 
 Usage
@@ -131,4 +131,5 @@ Usage
 
 
 ### Writing new scripts
+
 
