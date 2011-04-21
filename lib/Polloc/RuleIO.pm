@@ -224,11 +224,11 @@ Sets/gets the grouprules objects.
 
 =head3 Arguments
 
-A L<Polloc::GroupRules> array ref (optional)
+A L<Polloc::GroupCriteria> array ref (optional)
 
 =head3 Returns
 
-A L<Polloc::GroupRules> array ref or undef
+A L<Polloc::GroupCriteria> array ref or undef
 
 =cut
 
@@ -244,7 +244,7 @@ Adds a grouprules object
 
 =head3 Arguments
 
-A L<Polloc::GroupRules> object
+A L<Polloc::GroupCriteria> object
 
 =head3 Throws
 
@@ -254,7 +254,7 @@ A L<Polloc::Polloc::Error> if not a proper object
 
 sub addgrouprules {
    my($self,$value) = @_;
-   $self->throw("Illegal grouprules object",$value) unless $value->isa("Polloc::GroupRules");
+   $self->throw("Illegal grouprules object",$value) unless $value->isa("Polloc::GroupCriteria");
    $self->{'_grouprules'} = [] unless defined $self->{'_grouprules'};
    push @{$self->{'_grouprules'}}, $value;
 }

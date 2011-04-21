@@ -3,7 +3,7 @@ package Polloc::RuleSet::cfg;
 use strict;
 use Polloc::Polloc::Config;
 use Polloc::RuleI;
-use Polloc::GroupRules;
+use Polloc::GroupCriteria;
 use Bio::Seq;
 
 use base qw(Polloc::RuleIO);
@@ -184,7 +184,7 @@ sub _parse_group_eval {
    return unless defined $self->{'_rulegroup'};
    defined $self->{'_rulegroup'}->{$body} or
       $self->throw("Impossible to evaluate an undefined variable", $body);
-   my $group = new Polloc::GroupRules(
+   my $group = new Polloc::GroupCriteria(
    	-source=>$self->safe_value("source"),
 	-target=>$self->safe_value("target"));
    $group->condition($self->_parse_group_operation($body, $defaults));

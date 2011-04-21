@@ -785,7 +785,7 @@ A L<Bio::Seq> object.
 
 sub context_seq {
    my ($self, $ref, $from, $to) = @_;
-   $self->_load_module('Polloc::GroupRules');
+   $self->_load_module('Polloc::GroupCriteria');
    return unless defined $self->seq and defined $self->from and defined $self->to;
    my $seq;
    my ($start, $end);
@@ -818,7 +818,7 @@ sub context_seq {
    $self->debug("Extracting context ".
    		(defined $self->seq->display_id?$self->seq->display_id:'').
 		"[$start..$end] ".($revcom?"-":"+"));
-   $seq = Polloc::GroupRules->_build_subseq($self->seq, $start, $end);
+   $seq = Polloc::GroupCriteria->_build_subseq($self->seq, $start, $end);
    return unless defined $seq;
    $seq = $seq->revcom if $revcom;
    return $seq;

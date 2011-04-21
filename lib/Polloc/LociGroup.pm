@@ -348,7 +348,7 @@ sub fix_strands {
    my ($size, $force) = $self->_rearrange([qw(SIZE FORCE)], @args);
    return if not $force and defined $self->{'_fixed_strands'} and $self->{'_fixed_strands'} == $#{$self->loci};
    $self->{'_fixed_strands'} = $#{$self->loci};
-   $self->_load_module('Polloc::GroupRules');
+   $self->_load_module('Polloc::GroupCriteria');
    return unless $#{$self->loci}>0; # No need to check
    $size ||= 500;
    
@@ -359,11 +359,11 @@ sub fix_strands {
    my $ref = [undef, undef];
    LOCUS: for my $lk (1 .. $#{$self->loci}){
       my $ref_test = [
-      		Polloc::GroupRules->_build_subseq(
+      		Polloc::GroupCriteria->_build_subseq(
 				$self->loci->[$lk]->seq,
 				$self->loci->[$lk]->from - $size,
 				$self->loci->[$lk]->from),
-      		Polloc::GroupRules->_build_subseq(
+      		Polloc::GroupCriteria->_build_subseq(
 				$self->loci->[$lk]->seq,
 				$self->loci->[$lk]->to,
 				$self->loci->[$lk]->to + $size)
@@ -397,7 +397,7 @@ sub fix_strands {
    
    # Compare
    LOCUS: for my $k (0 .. $#{$self->loci}){
-      my $tgt = Polloc::GroupRules->_build_subseq(
+      my $tgt = Polloc::GroupCriteria->_build_subseq(
       		$self->loci->[$k]->seq,
 		$self->loci->[$k]->from-$size,
 		$self->loci->[$k]->to+$size);

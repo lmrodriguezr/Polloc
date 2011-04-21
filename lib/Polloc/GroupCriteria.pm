@@ -1,6 +1,6 @@
 =head1 NAME
 
-Polloc::GroupRules - Rules to group loci
+Polloc::GroupCriteria - Rules to group loci
 
 =head1 DESCRIPTION
 
@@ -25,7 +25,7 @@ L<Polloc::Polloc::Root>
 
 =cut
 
-package Polloc::GroupRules;
+package Polloc::GroupCriteria;
 
 use strict;
 use List::Util qw(min max);
@@ -384,7 +384,7 @@ my ($self, @args) = @_;
 
 =head2 extend
 
-Extends a group based on the arguments provided by L<Polloc::GroupRules->extension()>.
+Extends a group based on the arguments provided by L<Polloc::GroupCriteria->extension()>.
 
 =head3 Arguments
 
@@ -648,7 +648,7 @@ Builds groups of loci based on a binary matrix
 
 =head3 Arguments
 
-A matrix as returned by L<Polloc::GroupRules::build_bin()>
+A matrix as returned by L<Polloc::GroupCriteria::build_bin()>
 
 =head3 Returns
 
@@ -658,7 +658,7 @@ A 2-D matrix ref.
 
 This method is intended to build groups providing information on all-vs-all
 comparisons.  If you do not need this information, use the much more
-efficient L<Polloc::GroupRules::build_groups()> method, that relies on
+efficient L<Polloc::GroupCriteria::build_groups()> method, that relies on
 transitive property of groups to avoid unnecessary comparisons.  Please note
 that this function also relies on transitivity, but gives you the option to
 examine all the paired comparisons and even write your own grouping function.
