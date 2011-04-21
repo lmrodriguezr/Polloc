@@ -107,11 +107,13 @@ Installation
 2.  **Download** the library.  There are several alternatives,
     but we love git:
 
+    ```bash
         mkdir Polloc
         cd Polloc
         git init
         git clone git://github.com/lmrodriguezr/Polloc
         cp -r lib/Polloc <perl-libraries-location> # For example /usr/lib/perl5/site_perl
+    ```
 
 3.  **Use the package**.  See the following section (Usage) for
     some examples.
