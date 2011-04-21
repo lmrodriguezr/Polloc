@@ -31,19 +31,27 @@ sub new {
    return $self;
 }
 
-sub _initialize {
-   my($self,@args) = @_;
-   $self->type('boolean');
-}
-
-
 =head2 execute
 
- Description	: 
- Parameters	: -seq, a Bio::Seq or Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Locus::* objects
- Throws		: Polloc::Polloc::UnexpectedException if the operator is not supported
- 		  Polloc::Polloc::Error if the rule is not within a rule set
+=head3 Arguments
+
+=over
+
+=item -seq I<Bio::Seq or Bio::SeqIO object>
+
+The input sequence(s).
+
+=back
+
+=head3 Returns
+
+An array reference populated with Polloc::Locus::* objects
+
+=head3 Throws
+
+L<Polloc::Polloc::UnexpectedException> if the operator is not supported or
+L<Polloc::Polloc::Error> if the rule is not within a rule set (a
+L<Polloc::RuleIO> object).
 
 =cut
 
@@ -118,9 +126,15 @@ sub execute {
 
 =head2 rule1
 
- Description	: Gets/sets the first rule
- Arguments	: A Polloc::RuleI object (optional)
- Returns	: Polloc::RuleI object or undef
+Gets/sets the first rule
+
+=head2 Arguments
+
+A L<Polloc::RuleI> object (optional)
+
+=head2 Returns
+
+L<Polloc::RuleI> object or C<undef>.
 
 =cut
 
@@ -134,9 +148,15 @@ sub rule1 {
 
 =head2 operator
 
- Description	: Gets/sets the operator
- Arguments	: A string with the operator
- Returns	: string 'and', 'or', 'not' or undef
+Gets/sets the operator
+
+=head2 Arguments
+
+A string with the operator.
+
+=head2 Returns
+
+String 'and', 'or', 'not' or C<undef>.
 
 =cut
 
@@ -172,9 +192,15 @@ sub operator {
 
 =head2 rule2
 
- Description	: Gets/sets the second rule
- Arguments	: A Polloc::RuleI object (optional)
- Returns	: Polloc::RuleI object or undef
+Gets/sets the second rule
+
+=head2 Arguments
+
+A L<Polloc::RuleI> object (optional).
+
+=head2 Returns
+
+L<Polloc::RuleI> object or C<undef>.
 
 =cut
 
@@ -185,6 +211,8 @@ sub rule2 {
    return $self->{'_rule2'};
 }
 
+
+# Overrides function from Polloc::RuleI
 sub stringify_value {
    my ($self,@args) = @_;
    my $out = "";
@@ -195,21 +223,44 @@ sub stringify_value {
    return $out;
 }
 
+=head1 INTERNAL METHODS
+
+Methods intended to be used only within the scope of Polloc::*
 
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the Polloc::RuleI interface
- Arguments	: Anything, the operation should be set using the
- 		  L<Polloc::Rule::boolean::rule1()>, L<Polloc::Rule::boolean::operator()>
-		  and L<Polloc::Rule::boolean::rule2()> functions
- Return		: The received value.
- Note		: Do not call L<Polloc::RuleI::value()> with an undefined value, it is
- 		  the only way to make it crash for booleans
+Implements the C<_qualify_value()> method from the L<Polloc::RuleI> interface.
+
+=head2 Arguments
+
+None, the operation should be set using the L<Polloc::Rule::boolean::rule1()>,
+L<Polloc::Rule::boolean::operator()> and L<Polloc::Rule::boolean::rule2()>
+functions.
+
+=head2 Return
+
+The received value.
+
+=head2 Note
+
+Do not call L<Polloc::RuleI::value()> with an undefined value, it is the only
+way to make it crash for booleans.
 
 =cut
 
 sub _qualify_value {
    return $_[1];
 }
+
+=head2 _initialize
+
+=cut
+
+sub _initialize {
+   my($self,@args) = @_;
+   $self->type('boolean');
+}
+
+
 
 1;
