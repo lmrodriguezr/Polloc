@@ -29,6 +29,8 @@ License*. See LICENSE.txt.
 Description
 -----------
 
+A perl package for detecting, comparing, grouping, extending and
+summarizing polymorphic loci in bacterial genomes.
 
 
 Requirements
