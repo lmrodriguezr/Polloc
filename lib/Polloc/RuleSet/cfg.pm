@@ -26,7 +26,7 @@ sub _parse_cfg {
    my($self,@args) = @_;
    $self->_cfg( Polloc::Polloc::Config->new(-noparse=>1, @args) );
    $self->_cfg->spaces(".rule");
-   $self->_cfg->spaces(".rulegroup");
+   $self->_cfg->spaces(".groupcriteria");
    $self->_cfg->spaces(".groupextension");
    $self->read(@args);
 }
@@ -53,15 +53,15 @@ sub read {
    $self->_cfg->_register_handle_function(
    		-obj=>$self,
 		-fun=>"_parse_glob",
-		-token=>".rulegroup.glob");
+		-token=>".groupcriteria.glob");
    $self->_cfg->_register_handle_function(
    		-obj=>$self,
 		-fun=>"_parse_group_var",
-		-token=>".rulegroup.var");
+		-token=>".groupcriteria.var");
    $self->_cfg->_register_handle_function(
    		-obj=>$self,
 		-fun=>"_parse_group_eval",
-		-token=>".rulegroup.eval");
+		-token=>".groupcriteria.eval");
    $self->_cfg->_register_handle_function(
    		-obj=>$self,
 		-fun=>"_parse_ext_eval",
@@ -167,22 +167,21 @@ sub _parse_glob {
 
 sub _parse_group_var {
    my($self,$body,$defaults) = @_;
-   $body or $self->throw("Empty body for .rulegroup.var", $body);
+   $body or $self->throw("Empty body for .groupcriteria.var", $body);
    $body =~ m/^([^\s]+)\s+([^\s=]+)\s*=\s*(.*)\s*/i or
    	$self->throw("Bad format for the body of .rule.glob, ".
 			"expecting type name = operation...", $body);
-    #my %rulegroup = (-type=>lc($1), -name=>$2, -operation=>$3, -source=>$self->safe_value("source"));
-    my %rulegroup = (-type=>lc($1), -operation=>$3);
-    $self->{'_rulegroup'} = {} unless defined $self->{'_rulegroup'};
+    my %groupcriteria = (-type=>lc($1), -operation=>$3);
+    $self->{'_groupcriteria'} = {} unless defined $self->{'_groupcriteria'};
     $self->debug("Saving '$2'");
-    $self->{'_rulegroup'}->{$2} = \%rulegroup;
+    $self->{'_groupcriteria'}->{$2} = \%groupcriteria;
 }
 
 
 sub _parse_group_eval {
    my($self, $body,$defaults) = @_;
-   return unless defined $self->{'_rulegroup'};
-   defined $self->{'_rulegroup'}->{$body} or
+   return unless defined $self->{'_groupcriteria'};
+   defined $self->{'_groupcriteria'}->{$body} or
       $self->throw("Impossible to evaluate an undefined variable", $body);
    my $group = new Polloc::GroupCriteria(
    	-source=>$self->safe_value("source"),
@@ -194,7 +193,7 @@ sub _parse_group_eval {
 
 sub _parse_ext_eval {
    my($self, $body, $defaults) = @_;
-   defined $self->{'_rulegroup'}
+   defined $self->{'_groupcriteria'}
    	or $self->throw("Defining group extension but no grouping rule defined", $body);
    my @groups = @{$self->grouprules};
    my $group = $groups[$#groups];
@@ -204,7 +203,7 @@ sub _parse_ext_eval {
 sub _parse_group_operation {
    my($self,$name,$defaults) = @_;
    return {-type=>'cons', -operation=>$name, -name=>$name} if defined $name and $name =~ /^FEAT[12]$/;
-   my $body = $self->{'_rulegroup'}->{$name};
+   my $body = $self->{'_groupcriteria'}->{$name};
    defined $body or $self->throw("Impossible to locate the variable $name", $body);
    my $t = $body->{'-type'};
    my $o = $body->{'-operation'};
