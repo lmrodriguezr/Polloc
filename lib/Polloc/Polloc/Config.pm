@@ -6,6 +6,11 @@ Polloc::Polloc::Config - Handles .cfg files
 
 Email lmrodriguezr at gmail dot com
 
+=head1 DESCRIPTION
+
+See the scripts folder (.bme files) for examples of the expected
+syntaxis.
+
 =cut
 
 package Polloc::Polloc::Config;
