@@ -93,7 +93,7 @@ groups extension.
 in features detection and grouping, as well as context-based
 groups extension.
 
-* [HMMER](http://http://hmmer.janelia.org/), for
+* [HMMER](http://hmmer.janelia.org/), for
 profiles-based features detection and as alternative to
 BLAST in context-based groups extension.
 
@@ -102,7 +102,7 @@ Installation
 ------------
 
 1.  **Install the requirements**.  Remember, you can
-    find the Perl modules in [CPAN](cpan.org).
+    find the Perl modules in [CPAN](http://cpan.org).
 
 2.  **Download** the library.  There are several alternatives,
     but we love git:
