@@ -20,17 +20,41 @@ use base qw(Polloc::LocusI);
 
 =head1 APPENDIX
 
- Methods provided by the package
+Methods provided by the package
 
 =head2 new
 
- Description	: Creates a B<Polloc::Locus::repeat> object
- Arguments	: -period : (float) The period of the repeat (units length)
- 		  -exponent: (float) The exponent (No of units)
-		  -error : (float) Mismatches percentage
-		  -repeats : (str) Repetitive sequences, repeats space-separated
-		  -consensus : (str) Repeats consensus
- Returns	: A B<Polloc::Locus::repeat> object
+Creates a B<Polloc::Locus::repeat> object.
+
+=head3 Arguments
+
+=over
+
+=item -period I<float>
+
+The period of the repeat (units length).
+
+=item -exponent I<float>
+
+The exponent (No of units).
+
+=item -error I<float>
+
+Mismatches percentage.
+
+=item -repeats I<str>
+
+Repetitive sequences, repeats space-separated.
+
+=item -consensus I<str>
+
+Repeats consensus.
+
+=back
+
+=head3 Returns
+
+A L<Polloc::Locus::repeat> object.
 
 =cut
 
@@ -44,10 +68,15 @@ sub new {
 
 =head2 period
 
- Purpose	: Gets/sets the period of the repeat.  I.e., the
- 		  size of each repeat.
- Arguments	: The period (int)
- Returns	: The period (int or undef)
+Gets/sets the period of the repeat.  I<I.e.>, the size of each repeat.
+
+=head3 Arguments
+
+The period (int, optional).
+
+=head3 Returns
+
+The period (int or undef)
 
 =cut
 
@@ -60,10 +89,16 @@ sub period {
 
 =head2 exponent
 
- Purpose	: Gets/sets the exponent of the repeat.  I.e., the
- 		  number of times the repeat is repeated.
- Arguments	: The exponent (int)
- Returns	: The exponent (int or undef)
+Gets/sets the exponent of the repeat.  I<I.e.>, the number of times the repeat
+is repeated.
+
+=head3 Arguments
+
+The exponent (int, optional).
+
+=head3 Returns
+
+The exponent (int or undef).
 
 =cut
 
@@ -76,9 +111,15 @@ sub exponent {
 
 =head2 repeats
 
- Description	: Sets/gets the repetitive sequence (each repeat separated by spaces)
- Arguments	: The repetitive sequence (str, optional)
- Returns	: The repetitive sequence (str or undef)
+Sets/gets the repetitive sequence (each repeat separated by spaces).
+
+=head3 Arguments
+
+The repetitive sequence (str, optional).
+
+=head3 Returns
+
+The repetitive sequence (str or undef).
 
 =cut
 
@@ -91,9 +132,15 @@ sub repeats {
 
 =head2 consensus
 
- Description	: Sets/gets the consensus repeat
- Arguments	: The consensus sequence (str, optional)
- Returns	: The consensus sequence (str or undef)
+Sets/gets the consensus repeat.
+
+=head3 Arguments
+
+The consensus sequence (str, optional).
+
+=head3 Returns
+
+The consensus sequence (str or undef).
 
 =cut
 
@@ -105,10 +152,15 @@ sub consensus {
 
 =head2 error
 
- Purpose	: Gets/sets the error rate of the repeat.  I.e.
- 		  the percentage of mismatches.
- Arguments	: The error (float)
- Returns	: The error (float or undef)
+Gets/sets the error rate of the repeat.  I<I.e.>, the percentage of mismatches.
+
+=head3 Arguments
+
+The error (float).
+
+=head3 Returns
+
+The error (float or undef).
 
 =cut
 
@@ -121,9 +173,15 @@ sub error {
 
 =head2 score
 
- Description	: Gets/sets the score
- Arguments	: none
- Returns	: The score (float)
+Gets/sets the score
+
+=head3 Arguments
+
+The score (float, optional).
+
+=head3 Returns
+
+The score (float or undef).
 
 =cut
 
@@ -133,12 +191,76 @@ sub score {
    return $self->{'_score'};
 }
 
+=head2 distance
+
+Returns the difference in length with the given locus.
+
+=head3 Arguments
+
+=over
+
+=item -locus I<Polloc::LocusI object>
+
+The locus to compare with.
+
+=item -locusref I<Polloc::LocusI object>
+
+The reference locus.  If set, replaces the current loaded object.
+
+=item -units I<bool (int)>
+
+If true, returns the difference in the number of repeat units, not
+in base pairs.  This flag requires the loci to be
+L<Polloc::Locus::repeat> objects.
+
+=back
+
+=head3 Returns
+
+Float, the difference in length.
+
+=head3 Throws
+
+L<Polloc::Polloc::Error> if no locus or the loci are not of the
+proper type.
+
+=cut
+
+sub distance {
+   my($self, @args) = @_;
+   my($locus,$locusref,$units) = $self->_rearrange([qw(LOCUS LOCUSREF UNITS)], @args);
+   $locusref = $self unless defined $locusref;
+   
+   # Check input
+   $self->throw('You must set the target locus') unless defined $locus;
+   $self->throw('Target locus must be an object', $locus) unless UNIVERSAL::can($locus, 'isa');
+   $self->throw('Target locus must be Polloc::LocusI', $locus) unless $locus->isa('Polloc::LocusI');
+   $self->throw('Reference locus must be an object', $locusref) unless UNIVERSAL::can($locusref, 'isa');
+   $self->throw('Reference locus must be Polloc::LocusI', $locusref) unless $locusref->isa('Polloc::LocusI');
+   
+   my $dist = 0;
+   if($units){
+      $self->throw('Unable to get the target exponent', $locus)
+      		unless $locus->can('exponent') and defined $locus->exponent;
+      $self->throw('Unable to get the reference exponent', $locusref)
+      		unless $locusref->can('exponent') and defined $locusref->exponent;
+      $dist = abs $locus->exponent - $locusref->exponent;
+   }else{
+      $self->throw('Unable to get the target coordinates', $locus)
+   		unless defined $locus->from and defined $locus->to;
+      $self->throw('Unable to get the reference coordinates', $locusref)
+   		unless defined $locusref->from and defined $locusref->to;
+      $dist = abs( abs($locus->to - $locus->from) - abs($locusref->to - $locusref->from) );
+   }
+   $self->debug("Distance: $dist");
+   return $dist;
+}
+
+=head1 INTERNAL METHODS
+
+Methods intended to be used only within the scope of Polloc::*
 
 =head2 _initialize
-
- Description	: Initialization function.
- Arguments	: See L<Polloc::Locus::repeat::new>
- Returns	: none
 
 =cut
 

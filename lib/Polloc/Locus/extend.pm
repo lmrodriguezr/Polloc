@@ -22,19 +22,25 @@ use base qw(Polloc::LocusI);
 
 =head1 APPENDIX
 
- Methods provided by the package
-
-=cut
-
+Methods provided by the package
 
 =head2 new
 
- Description	: Creates a B<Polloc::Locus::repeat> object
- Arguments	: -basefeature : (C<Polloc::LocusI> object) The reference
- 			feature or part of the reference collection
- 		  -score : (float) The score of extension (bit-score
-		  	on BLAST or score on HMMer, for example).
- Returns	: A B<Polloc::Locus::extend> object
+Creates a B<Polloc::Locus::repeat> object.
+
+=head3 Arguments
+
+=over
+
+=item -basefeature I<Polloc::LocusI object>
+
+The reference feature or part of the reference collection.
+
+=item -score I<float>
+
+The score of extension (bit-score on BLAST or score on HMMer, for example).
+
+=back
 
 =cut
 
@@ -48,12 +54,17 @@ sub new {
 
 =head2 basefeature
 
- Purpose	: Gets/sets the reference feature of the extension.  Be
- 		  careful, this can also refer to one feature in a
-		  collection of reference.  Avoid using specific data
-		  from this feature.
- Arguments	: The reference feature (Polloc::LocusI object, optional)
- Returns	: The reference feature (Polloc::LocusI object or undef)
+Gets/sets the reference feature of the extension.  Be careful, this can also
+refer to one feature in a collection of reference.  Avoid using specific data
+from this feature.
+
+=head3 Arguments
+
+The reference feature (L<Polloc::LocusI> object, optional).
+
+=head3 Returns
+
+The reference feature (L<Polloc::LocusI> object or undef).
 
 =cut
 
@@ -69,9 +80,15 @@ sub basefeature {
 
 =head2 score
 
- Description	: Gets/sets the score
- Arguments	: none
- Returns	: The score (float)
+Gets/sets the score.
+
+=head3 Arguments
+
+The score (float, optional).
+
+=head3 Returns
+
+The score (float or undef).
 
 =cut
 
@@ -81,12 +98,28 @@ sub score {
    return $self->{'_score'};
 }
 
+=head2 distance
+
+Tries to calculate the distance using the base-feature's C<distance()>
+method.  See L<Polloc::LocusI->distance()>.
+
+=head3 Throws
+
+L<Polloc::Polloc::Error>.
+
+=cut
+
+sub distance {
+   my ($self, @args) = @_;
+   $self->throw('Impossible to find a base feature.') unless defined $self->basefeature;
+   return $self->basefeature->distance(-locusref=>$self, @args);
+}
+
+=head1 INTERNAL METHODS
+
+Methods intended to be used only within the scope of Polloc::*
 
 =head2 _initialize
-
- Description	: Initialization function.
- Arguments	: See L<Polloc::Locus::repeat::new>
- Returns	: none
 
 =cut
 

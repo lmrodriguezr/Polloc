@@ -824,6 +824,42 @@ sub context_seq {
    return $seq;
 }
 
+=head2 distance
+
+Calculates the distance (referring to diversity, not genomic position) with the
+given locus.
+
+=head3 Arguments
+
+=over
+
+=item -locus I<Polloc::LocusI object>
+
+The locus to compare with.  Most of the locus types require this locus to be of
+the same type.
+
+=item -locusref I<Polloc::LocusI object>
+
+The reference locus.  If set, replaces the loaded object as reference.
+
+=back
+
+=head3 Returns
+
+Float.  The distance with the given locus.  Most types will return a distance ranging
+from one to zero.
+
+=head3 Note
+
+See the documentation for additional arguments and precisions.
+
+=head3 Throws
+
+L<Polloc::Polloc::NotImplementedException> if not implemented by the correspondig class.
+
+=cut
+
+sub distance { $_[0]->throw("score",$_[0],"Polloc::Polloc::NotImplementedException") }
 
 
 =head1 INTERNAL METHODS

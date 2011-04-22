@@ -22,17 +22,27 @@ use base qw(Polloc::LocusI);
 
 =head1 APPENDIX
 
- Methods provided by the package
+Methods provided by the package
 
 =cut
 
 =head2 new
 
- Description	: Initializes the feature
- Arguments	: -letters : (str) The residues
- 		  -composition : (float) The percentage of the sequence covered by
-		  	the residues (letters).
- Returns	: A Polloc::Locus::composition object
+Initialization method.
+
+=head3 Arguments
+
+=over
+
+=item -letters I<str>
+
+The residues
+
+=item -composition I<float>
+
+The percentage of the sequence covered by the residues (letters).
+
+=back
 
 =cut
 
@@ -43,23 +53,17 @@ sub new {
    return $self;
 }
 
-sub _initialize {
-   my($self,@args) = @_;
-   my($letters, $composition) = $self->_rearrange(
-   		[qw(LETTERS COMPOSITION)], @args);
-   $self->type('composition');
-   $self->letters($letters);
-   $self->comments("Residues=" . $self->letters) if defined $self->letters;
-   $self->composition($composition);
-   $self->comments("Perc=" . sprintf("%.2f",$self->composition)) if defined $self->composition;
-}
-
-
 =head2 letters
 
- Purpose	: Gets/sets the analysed residues.
- Arguments	: The residues (str, optional)
- Returns	: The residues (str or undef)
+Gets/sets the analysed residues.
+
+=head3 Arguments
+
+The residues (str, optional).
+
+=head3 Returns
+
+The residues (str or undef).
 
 =cut
 
@@ -72,10 +76,15 @@ sub letters {
 
 =head2 composition
 
- Purpose	: Gets/sets the percentage of the sequence
- 		  covered by the residues (letters).
- Arguments	: The percentage (float, optional)
- Returns	: The percentage (float or undef)
+Gets/sets the percentage of the sequence covered by the residues (letters).
+
+=head3 Arguments
+
+The percentage (float, optional).
+
+=head3 Returns
+
+The percentage (float or undef).
 
 =cut
 
@@ -88,13 +97,31 @@ sub composition {
 
 =head2 score
 
- Description	: Dummy function, required by the L<Polloc::LocusI>
- 		  interface.  Returns undef because any score is associated
- Arguments	: none
- Returns	: undef
+Dummy function, required by the L<Polloc::LocusI> interface.  Returns undef
+because any score is associated
 
 =cut
 
 sub score { return }
+
+
+=head1 INTERNAL METHODS
+
+Methods intended to be used only within the scope of Polloc::*
+
+=head2 _initialize
+
+=cut
+
+sub _initialize {
+   my($self,@args) = @_;
+   my($letters, $composition) = $self->_rearrange(
+   		[qw(LETTERS COMPOSITION)], @args);
+   $self->type('composition');
+   $self->letters($letters);
+   $self->comments("Residues=" . $self->letters) if defined $self->letters;
+   $self->composition($composition);
+   $self->comments("Perc=" . sprintf("%.2f",$self->composition)) if defined $self->composition;
+}
 
 1;

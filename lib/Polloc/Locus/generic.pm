@@ -21,13 +21,11 @@ use base qw(Polloc::LocusI);
 
 =head1 APPENDIX
 
- Methods provided by the package
+Methods provided by the package
 
 =head2 new
 
- Description	: Creates a B<Polloc::Locus::repeat> object
- Arguments	: none
- Returns	: A B<Polloc::Locus::generic> object
+Creates a B<Polloc::Locus::repeat> object.
 
 =cut
 
@@ -38,11 +36,11 @@ sub new {
    return $self;
 }
 
-=head2 _initialize
+=head1 INTERNAL METHODS
 
- Description	: Initialization function.
- Arguments	: none
- Returns	: none
+Methods intended to be used only within the scope of Polloc::*
+
+=head2 _initialize
 
 =cut
 

@@ -20,14 +20,25 @@ use base qw(Polloc::LocusI);
 
 =head1 APPENDIX
 
- Methods provided by the package
+Methods provided by the package
 
 =head2 new
 
- Description	: Creates a B<Polloc::Locus::repeat> object
- Arguments	: -spacers_no : (int) The number of spacers
- 		  -dr: (str) Direct repeat sequence
- Returns	: A B<Polloc::Locus::repeat> object
+Creates a B<Polloc::Locus::repeat> object.
+
+=head3 Arguments
+
+=over
+
+=item -spacers_no I<int>
+
+The number of spacers.
+
+=item -dr I<str>
+
+Direct repeat sequence.
+
+=back
 
 =cut
 
@@ -38,12 +49,17 @@ sub new {
    return $self;
 }
 
-
 =head2 spacers_no
 
- Purpose	: Gets/sets the number of spacers.
- Arguments	: The number of spacers (int, optional)
- Returns	: The number of spacers (int or undef)
+Gets/sets the number of spacers.
+
+=head3 Arguments
+
+The number of spacers (int, optional).
+
+=head3 Returns
+
+The number of spacers (int or undef).
 
 =cut
 
@@ -56,9 +72,15 @@ sub spacers_no {
 
 =head2 dr
 
- Description	: Sets/gets the Direct Repeat sequence.
- Arguments	: The direct repeat sequence (str, optional)
- Returns	: The direct repeat sequence (str or undef)
+Sets/gets the Direct Repeat sequence.
+
+=head3 Arguments
+
+The direct repeat sequence (str, optional).
+
+=head3 Returns
+
+The direct repeat sequence (str or undef).
 
 =cut
 
@@ -70,9 +92,15 @@ sub dr {
 
 =head2 score
 
- Description	: Gets/sets the score
- Arguments	: none
- Returns	: The score (float)
+Gets/sets the score.
+
+=head3 Arguments
+
+The score (float, optional).
+
+=head3 Returns
+
+The score (float or undef).
 
 =cut
 
@@ -83,11 +111,11 @@ sub score {
 }
 
 
-=head2 _initialize
+=head1 INTERNAL METHODS
 
- Description	: Initialization function.
- Arguments	: See L<Polloc::Locus::repeat::new>
- Returns	: none
+Methods intended to be used only within the scope of Polloc::*
+
+=head2 _initialize
 
 =cut
 
