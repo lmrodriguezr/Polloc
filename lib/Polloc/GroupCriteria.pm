@@ -758,7 +758,7 @@ sub build_groups {
    }#FEAT1
    my $out = [];
    for my $gk (0 .. $#$groups){
-      my $group = Polloc::LociGroup->new(-name=>$gk+1); #+++ ToDo: Is ID ok?
+      my $group = Polloc::LociGroup->new(-name=>sprintf("%04s", $gk+1)); #+++ ToDo: Is ID ok?
       for my $lk (0 .. $#{$groups->[$gk]}){
          my $locus = $loci->[ $groups->[$gk]->[$lk] ];
 	 # Paranoid bugbuster:

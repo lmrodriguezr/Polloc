@@ -11,10 +11,6 @@ for the repeats calculation.
 
 Email lmrodriguezr at gmail dot com
 
-=head1 TODO
-
-I should add support to the linux32 binary of TRF, based on the local arch.
-
 =cut
 package Polloc::Rule::tandemrepeat;
 
@@ -27,6 +23,7 @@ use Bio::SeqIO;
 use File::Spec;
 use File::Basename;
 use Cwd;
+use Config;
 
 use base qw(Polloc::RuleI);
 
@@ -108,7 +105,7 @@ sub execute {
    }elsif($^O =~ /mswin/i){
       $bin = "trf.exe";
    }else{
-      $bin = "trf.linux32.bin";
+      $bin = "trf.linux".($Config{'archname64'}?'64':'32').".bin";
    }
    if($path){
       $trf = $io->exists_exe($path . $bin) unless $trf;
