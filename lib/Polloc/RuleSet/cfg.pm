@@ -1,3 +1,28 @@
+=head1 NAME
+
+Polloc::RuleSet::cfg - Implementation of Polloc::RuleIO for .cfg files
+
+=head1 DESCRIPTION
+
+Reads .cfg files (a.k.a. .bme files) and produces a L<Polloc::RuleIO>
+object.
+
+=head1 AUTHOR - Luis M. Rodriguez-R
+
+Email lmrodriguezr at gmail dot com
+
+=head1 IMPLEMENTS OR EXTENDS
+
+=over
+
+=item *
+
+L<Polloc::RuleIO>
+
+=back
+
+=cut
+
 package Polloc::RuleSet::cfg;
 
 use strict;
@@ -8,6 +33,36 @@ use Bio::Seq;
 
 use base qw(Polloc::RuleIO);
 
+=head1 APPENDIX
+
+Methods provided by the package
+
+=cut
+
+=head2 new
+
+Generic initialization method.
+
+=head3 Arguments
+
+=over
+
+=item -init_id I<str>
+
+Sets the initial ID (1 by default).
+
+=item *
+
+Any other parameter accepted by L<Polloc::RuleIO>.
+
+=item *
+
+Any other parameter accepted by L<Polloc::Polloc::Config>.
+
+=back
+
+=cut
+
 sub new {
    my($caller,@args) = @_;
    my $self = $caller->SUPER::new(@args);
@@ -15,21 +70,11 @@ sub new {
    return $self;
 }
 
-sub _initialize {
-   my($self,@args) = @_;
-   my($init_id) = $self->_rearrange([qw(INIT_ID)], @args);
-   $self->init_id($init_id);
-   $self->_parse_cfg(@args);
-}
+=head2 read
 
-sub _parse_cfg {
-   my($self,@args) = @_;
-   $self->_cfg( Polloc::Polloc::Config->new(-noparse=>1, @args) );
-   $self->_cfg->spaces(".rule");
-   $self->_cfg->spaces(".groupcriteria");
-   $self->_cfg->spaces(".groupextension");
-   $self->read(@args);
-}
+Configures and parses the file.
+
+=cut
 
 sub read {
    my($self,@args) = @_;
@@ -70,6 +115,34 @@ sub read {
    $self->_cfg->parse(@args);
 }
 
+=head2 value
+
+Sets/gets a stored value.
+
+=head3 Arguments
+
+=over
+
+=item -key
+
+The key.
+
+=item -value
+
+The value (if any).
+
+=item alert
+
+If true, alerts if the key is not set.
+
+=back
+
+=head3 Returns
+
+The value (mix).
+
+=cut
+
 sub value {
    my($self,@args) = @_;
    my($key,$value,$alert) = $self->_rearrange([qw(KEY VALUE ALERT)], @args);
@@ -85,6 +158,20 @@ sub value {
    return $self->_cfg->value(-key=>$key, -space=>".", -noalert=>!$alert);
 }
 
+=head1 INTERNAL METHODS
+
+Methods intended to be used only within the scope of Polloc::*
+
+=head2 _cfg
+
+Sets/gets the L<Polloc::Polloc::Config> main object.
+
+=head3 Throws
+
+L<Polloc::Polloc::Error> if the object is not of the proper class.
+
+=cut
+
 sub _cfg {
    my($self,$value) = @_;
    $self->{'_cfg_obj'} = $value if $value;
@@ -93,6 +180,16 @@ sub _cfg {
    	$self->throw("Unexpected type of cfg object", $self->{'_cfg_obj'});
    return $self->{'_cfg_obj'};
 }
+
+=head2 _parse_rule
+
+Parses the body of an 'add' statement in the Rule namespace.
+
+=head3 Throws
+
+L<Polloc::Polloc::Error> if bad format.
+
+=cut
 
 sub _parse_rule {
    my($self, $body, $defaults) = @_;
@@ -122,18 +219,24 @@ sub _parse_rule {
    $self->{'_key_rule_map'}->{ $self->_cfg->_parse_key(-key=>$key, -space=>"rule") } = $index;
 }
 
-
 =head2
- 
- Description	: Parses the body of the .rule.set and the .rule.setrule statements
- 		  with the structure [set|setrule] key param='value'.  If setrule,
-		  the value is replaced by the corresponding Polloc::RuleI object
- Params		: Str body, described above
- 		  Array reference defaults, supporting only the -isrule flag (to
-		  distinguish among set and setrule)
- Return		: none
+
+Parses the body of the .rule.set and the .rule.setrule statements with the
+structure [set|setrule] key param='value'.  If setrule, the value is replaced
+by the corresponding Polloc::RuleI object
+
+=head3 Default arguments
+
+Arguments passed as an array reference to the second slot:
+
+=over
+
+=item -isrule I<bool (int)>
+
+To distinguish among set (false) and setrule (true)
 
 =cut
+
 sub _parse_set {
    my($self,$body,$defaults) = @_;
    $body or $self->throw("Empty body for .rule.set", $body);
@@ -154,6 +257,10 @@ sub _parse_set {
    }
 }
 
+=head2 _parse_glob
+
+=cut
+
 sub _parse_glob {
    my($self,$body,$defaults) = @_;
    $body or $self->throw("Empty body for .rule.glob", $body);
@@ -164,6 +271,9 @@ sub _parse_glob {
    $self->safe_value($param, $value);
 }
 
+=head2 _parse_group_var
+
+=cut
 
 sub _parse_group_var {
    my($self,$body,$defaults) = @_;
@@ -177,6 +287,9 @@ sub _parse_group_var {
     $self->{'_groupcriteria'}->{$2} = \%groupcriteria;
 }
 
+=head2 _parse_group_eval
+
+=cut
 
 sub _parse_group_eval {
    my($self, $body,$defaults) = @_;
@@ -191,6 +304,10 @@ sub _parse_group_eval {
    $self->addgrouprules($group);
 }
 
+=head2 _parse_ext_eval
+
+=cut
+
 sub _parse_ext_eval {
    my($self, $body, $defaults) = @_;
    defined $self->{'_groupcriteria'}
@@ -199,6 +316,10 @@ sub _parse_ext_eval {
    my $group = $groups[$#groups];
    $group->extension($self->_cfg->value(-key=>$body, -space=>"groupextension", -mandatory=>1));
 }
+
+=head2 _parse_group_operation
+
+=cut
 
 sub _parse_group_operation {
    my($self,$name,$defaults) = @_;
@@ -258,6 +379,9 @@ sub _parse_group_operation {
    }
 }
 
+=head2 _parse_context
+
+=cut
 
 sub _parse_context {
    my($self,@args) = @_;
@@ -274,6 +398,30 @@ sub _parse_context {
       return [0,0,0];
    }
    return [0,0,0];
+}
+
+=heda2 _parse_cfg
+
+=cut
+
+sub _parse_cfg {
+   my($self,@args) = @_;
+   $self->_cfg( Polloc::Polloc::Config->new(-noparse=>1, @args) );
+   $self->_cfg->spaces(".rule");
+   $self->_cfg->spaces(".groupcriteria");
+   $self->_cfg->spaces(".groupextension");
+   $self->read(@args);
+}
+
+=head2 _initialize
+
+=cut
+
+sub _initialize {
+   my($self,@args) = @_;
+   my($init_id) = $self->_rearrange([qw(INIT_ID)], @args);
+   $self->init_id($init_id);
+   $self->_parse_cfg(@args);
 }
 
 
