@@ -18,7 +18,11 @@ use Bio::SeqIO;
 
 =head1 APPENDIX
 
- Methods provided by the package
+Methods provided by the package
+
+=head2 new
+
+Generic initialization method.
 
 =cut
 
@@ -29,21 +33,26 @@ sub new {
    return $self;
 }
 
-sub _initialize {
-   my($self,@args) = @_;
-   $self->type('composition');
-}
-
 
 =head2 execute
 
- Description	: Counts the number of letters or groups of letters and compares this
- 		  number with the requested range (See
-		  L<Polloc::Rule::composition::_qualify_value>)
- Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Locus::composition objects
- 		  or undef.  Note that this method returns one Locus per sequence at
-		  most.
+Counts the number of letters or groups of letters and compares this number
+with the requested range (See L<Polloc::Rule::composition::_qualify_value>)
+
+=head2 Arguments
+
+=over
+
+=item -seq I<a Bio::Seq or Bio::SeqIO object>
+
+The input sequence(s).
+
+=back
+
+=head3 Returns
+
+An array reference populated with L<Polloc::Locus::composition> objects
+or undef.  Note that this method returns one Locus per sequence at most.
 
 =cut
 
@@ -89,6 +98,11 @@ sub execute {
    return wantarray ? @feats : \@feats;
 }
 
+=head2 stringify_value
+
+Stringifies the rule.
+
+=cut
 
 sub stringify_value {
    my ($self,@args) = @_;
@@ -102,9 +116,15 @@ sub stringify_value {
 
 =head2 letters
 
- Description	: Sets/gets the residues
- Arguments	: Residues (str, optional)
- Returns	: Residues (str or undef)
+Sets/gets the residues
+
+=head2 Arguments
+
+Residues (str, optional)
+
+=head2 Returns
+
+Residues (str or undef)
 
 =cut
 
@@ -113,9 +133,15 @@ sub letters { shift->_search_value("letters", shift) }
 
 =head2 min_perc
 
- Description	: Sets/gets the minimum percentage
- Arguments	: Percentage (float, optional)
- Returns	: Percentage (float or undef)
+Sets/gets the minimum percentage
+
+=head2 Arguments
+
+Percentage (float, optional)
+
+=head2 Returns
+
+Percentage (float or undef)
 
 =cut
 
@@ -124,25 +150,56 @@ sub min_perc { shift->_search_value("min_perc", shift) }
 
 =head2 max_perc
 
- Description	: Sets/gets the maximum percentage
- Arguments	: Percentage (float, optional)
- Returns	: Percentage (float or undef)
+Sets/gets the maximum percentage
+
+=head2 Arguments
+
+Percentage (float, optional)
+
+=head2 Returns
+
+Percentage (float or undef)
 
 =cut
 
 sub max_perc { shift->_search_value("max_perc", shift) }
 
 
+=head1 INTERNAL METHODS
+
+Methods intended to be used only within the scope of Polloc::*
+
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the Polloc::RuleI interface
- Arguments	: Value (str or ref-to-hash or ref-to-array)
- 		  The supported keys are:
-		  	-letters : The residues to take into account as a string
-			-range : The allowed (perc.) range in the format 20..50
-			-min_perc : The minimum percentage (ignored if range is set)
-			-max_perc : The maximum percentage (ignored if range is set)
- Return		: Value (ref-to-hash or undef)
+Implements the _qualify_value from the Polloc::RuleI interface
+
+=head2 Arguments
+
+Value (str or ref-to-hash or ref-to-array). The supported keys are:
+
+=over
+
+=item -letters
+
+The residues to take into account as a string
+
+=item -range
+
+The allowed (perc.) range in the format 20..50
+
+=item -min_perc
+
+The minimum percentage (ignored if range is set)
+
+=item -max_perc
+
+The maximum percentage (ignored if range is set)
+
+=back
+
+=head2 Returns
+
+Value (ref-to-hash or undef)
 
 =cut
 
@@ -179,6 +236,15 @@ sub _qualify_value {
    }
    
    return $out;
+}
+
+=head2 _initialize
+
+=cut
+
+sub _initialize {
+   my($self,@args) = @_;
+   $self->type('composition');
 }
 
 1;

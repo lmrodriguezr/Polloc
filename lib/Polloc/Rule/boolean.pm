@@ -20,7 +20,7 @@ use base qw(Polloc::RuleI);
 
 =head1 APPENDIX
 
- Methods provided by the package
+Methods provided by the package
 
 =cut
 

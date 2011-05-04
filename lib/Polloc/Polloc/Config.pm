@@ -195,11 +195,28 @@ sub value {
 
 Gets all the stored keys.
 
+=head3 Arguments
+
+=over
+
+=item -space I<str>
+
+The parent space.  By default C<.>.
+
+=back
+
+=head3 Returns
+
+All the keys within the space (array of str).
+
 =cut
 
 sub all_keys {
-   my($self,$key) = @_;
-   return keys %{ $self->{'_data'} };
+   my($self,@args) = @_;
+   my($space) = $self->_rearrange([qw(SPACE)], @args);
+   $space||= '.';
+   $space = $self->_parse_space($space);
+   return grep { /^$space/ } keys %{ $self->{'_data'} };
 }
 
 =head2 alias
@@ -220,7 +237,7 @@ The B<to> key name.
 
 =back
 
-=head Throws
+=head3 Throws
 
 L<Polloc::Polloc::Error> if any of the two keys is empty.
 

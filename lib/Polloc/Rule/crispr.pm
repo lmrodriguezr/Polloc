@@ -27,7 +27,7 @@ use base qw(Polloc::RuleI);
 
 =head1 APPENDIX
 
- Methods provided by the package
+Methods provided by the package
 
 =cut
 sub new {
@@ -37,19 +37,24 @@ sub new {
    return $self;
 }
 
-sub _initialize {
-   my($self,@args) = @_;
-   $self->type('CRISPR');
-}
-
-
 =head2 execute
 
- Description	: Runs CRIPRRfinder and parses the output.
- Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Locus::repeat objects
+Runs CRIPRRfinder and parses the output.
+
+=head2 Arguments
+
+=over
+
+=item -seq I<Bio::Seq or Bio::SeqIO obj>
+
+The sequence(s).
+
+=head3 Returns
+
+An array reference populated with L<Polloc::Locus::repeat> objects
 
 =cut
+
 sub execute {
    my($self,@args) = @_;
    my($seq) = $self->_rearrange([qw(SEQ)], @args);
@@ -178,6 +183,12 @@ sub execute {
    return wantarray ? @feats : \@feats;
 }
 
+=head2 stringify_value
+
+Stringifies the requested value
+
+=cut
+
 sub stringify_value {
    my ($self,@args) = @_;
    my $out = "";
@@ -187,19 +198,41 @@ sub stringify_value {
    return $out;
 }
 
+
+=head1 INTERNAL METHODS
+
+Methods intended to be used only within the scope of Polloc::*
+
+=head2 _parameters
+
+=cut
+
 sub _parameters {
    return [qw(IGNOREPROBABLE)];
 }
 
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the Polloc::RuleI interface
- Arguments	: Value (str or ref-to-hash or ref-to-array)
- 		  The supported keys are:
-			-ignoreprobable : Should I ignore the 'ProbableCrispr' results?
- Return		: Value (ref-to-hash or undef)
+Implements the C<_qualify_value()> from the L<Polloc::RuleI> interface
+
+=head2 Arguments
+
+Value (str or ref-to-hash or ref-to-array).  The supported keys are:
+
+=over
+
+=item -ignoreprobable
+
+Should I ignore the 'ProbableCrispr' results?
+
+=back
+
+=head2 Return
+
+Value (ref-to-hash or undef)
 
 =cut
+
 sub _qualify_value {
    my($self,$value) = @_;
    unless (defined $value){
@@ -235,5 +268,16 @@ sub _qualify_value {
    }
    return $out;
 }
+
+=head2 _initialize
+
+=cut
+
+sub _initialize {
+   my($self,@args) = @_;
+   $self->type('CRISPR');
+}
+
+
 
 1;
