@@ -86,6 +86,35 @@ sub typing_value {
    return $out;
 }
 
+=head2 graph_content
+
+Generates the expected gel.  See L<Polloc::TypingI-E<gt>graph()>.
+
+=cut
+
+sub graph_content {
+   my($self, $locigroup, $width, $height, $font) = @_;
+   return unless defined $locigroup;
+   return unless $self->_load_module('GD::Simple');
+   
+   # Set the gel up
+   my $below = 50;
+   my($iw, $ih, $nameh, $maxa) = ($width, $height-$below, 75, $self->max_size);
+   my($lw, $lh, $nh) = ($iw/($#genomes+1), int($maxa/750), ($ih-$nameh)/$maxa);
+   my $img = GD::Simple->new($width, $height);
+   $img->bgcolor('black');
+   $img->fgcolor('black');
+   $img->rectangle(0, $nameh, $iw, $ih+$below);
+   $img->font($font);
+   my $white = $img->alphaColor(255,255,255,0);
+   my $white = $img->alphaColor(255,255,255,0);
+   my $b1 = $img->alphaColor(130, 130, 130 ,0);
+   
+   # ToDo .... use vntrsDiv.pl:89..122 code
+   
+}
+
+
 =head1 SPECIFIC METHODS
 
 =head2 fragments
@@ -114,51 +143,6 @@ by the specific C<Polloc::Typing::bandingPattern::*> object.
 =cut
 
 sub fragments { $_[0]->throw("fragments", $_[0], "Polloc::Polloc::NotImplementedException") }
-
-=head2 gel
-
-Returns a L<GD::Simple> object containing the image of the
-expected gel
-
-=head3 Arguments
-
-=over
-
-=item -locigroup I<Polloc::LociGroup>
-
-The group to be used as a basis.  If any, attempts to locate
-the last value returned by L<scan()>.  If never called, looks
-for the value stored via L<locigroup()> or at initialization.
-Otherwise, warns about it and returns C<undef>,
-
-=back
-
-=head3 Returns
-
-A L<GD::Simple> object.
-
-=head3 Synopsis
-
-    # ...
-    $typing->scan($lociGroup);
-    my $gel = $typing->gel;
-    open IMG, ">", "gel.png" or die "I can not open gel.png: $!\n";
-    binmode IMG;
-    print IMG $gel->png;
-    close IMG;
-
-=cut
-
-sub gel {
-   my($self, @args) = @_;
-   my($locigroup) = $self->_rearrange([qw(LOCIGROUP)], @args);
-   $locigroup|| = $self->_scan_locigroup || $self->locigroup;
-   unless($locigroup){
-      $self->warn("Impossible to find a group of loci.");
-      return;
-   }
-   # ToDo .... use vntrsDiv.pl code
-}
 
 =head1 INTERNAL METHODS
 

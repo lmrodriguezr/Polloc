@@ -27,6 +27,7 @@ L<Polloc::Polloc::Root>
 package Polloc::TypingI;
 
 use strict;
+use Error qw(:try);
 
 use base qw(Polloc::Polloc::Root);
 
@@ -263,6 +264,77 @@ Alias of L<matrix()> with C<-binary> true.
 sub binary {
    my($self, @args) = @_;
    return $self->matrix(-binary=>1, @args);
+}
+
+=head2 graph
+
+Returns a L<GD::Simple> object containing the graphic representation
+of the typing results.
+
+=head3 Arguments
+
+=over
+
+=item -locigroup I<Polloc::LociGroup>
+
+The group to be used as a basis.  If any, attempts to locate
+the last value returned by L<scan()>.  If never called, looks
+for the value stored via L<locigroup()> or at initialization.
+Otherwise, warns about it and returns C<undef>,
+
+=item -width I<int>
+
+Width of the image in pixels.  600 by default.
+
+=item -height I<int>
+
+Height of the image in pixels.  300 by default.
+
+=item -font I<str>
+
+Font of the text in the image (if any).  'Times' by default, but
+certain images require a TrueType Font in order to work properly.
+This argument is optional, but we strongly reccomend to provide
+the path to Lucida Sans Regular, or any other similar TrueType
+Font.
+
+=back
+
+=head3 Returns
+
+A L<GD::Simple> object.
+
+=head3 Synopsis
+
+    # ...
+    $typing->scan($lociGroup);
+    my $graph = $typing->graph(-font=>'/path/to/LucidaSansRegular.ttf');
+    if($graph){
+       open IMG, ">", "graph.png" or die "I can not open graph.png: $!\n";
+       binmode IMG;
+       print IMG $graph->png;
+       close IMG;
+    }
+
+=cut
+
+sub graph {
+   my($self, @args) = @_;
+   my($locigroup, $width, $height, $font) = $self->_rearrange([qw(LOCIGROUP WIDTH HEIGHT FONT)], @args);
+   $locigroup|| = $self->_scan_locigroup || $self->locigroup;
+   unless($locigroup){
+      $self->warn("Impossible to find a group of loci.");
+      return;
+   }
+   try { $self->_load_module('GD::Simple')); }
+   catch BME::BME::Error with {
+      $self->warn("I need GD::Simple to create the image, impossible to locate it.\n".shift);
+      return;
+   } otherwise { $self->throw("Non-native error", shift); }
+   $width  ||= 600;
+   $height ||= 300;
+   $font   ||= 'Times';
+   return $self->graph_content($locigroup, $width, $height, $font);
 }
 
 =head1 METHODS TO BE IMPLEMENTED

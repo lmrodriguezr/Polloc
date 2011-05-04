@@ -60,7 +60,7 @@ set of modules to be used.
 
 #### Perl modules:
 
-*  `File::Basename`
+* `File::Basename`
 
 * `Cwd`
 
@@ -71,6 +71,8 @@ set of modules to be used.
 * `Bio::Tools::Run::StandAloneBlast`
 
 * `Bio::Tools::Run::Hmmer`
+
+* `GD::Simple`
 
 #### External tools
 
