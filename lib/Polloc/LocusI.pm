@@ -387,6 +387,22 @@ sub to {
    return $self->{'_to'};
 }
 
+=head2 length
+
+Gets the length of the locus.
+
+=head3 Returns
+
+I<int> or C<undef>.
+
+=cut
+
+sub length {
+   my $self = shift;
+   return unless defined $self->from and defined $self->to;
+   return abs($self->to - $self->from);
+}
+
 =head2 id
 
 Gets/sets the ID of the locus

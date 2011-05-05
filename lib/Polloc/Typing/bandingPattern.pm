@@ -20,8 +20,6 @@ Email lmrodriguezr at gmail dot com
 package Polloc::Typing::bandingPattern;
 
 use strict;
-use GD::Simple;
-
 use base qw(Polloc::TypingI);
 
 =head1 APPENDIX
@@ -96,11 +94,17 @@ sub graph_content {
    my($self, $locigroup, $width, $height, $font) = @_;
    return unless defined $locigroup;
    return unless $self->_load_module('GD::Simple');
+
+   # Prepare data
+   my $struc = $locigroup->structured_loci;
+   my $genomes = $locigroup->genomes;
+   $self->throw("You must define the genomes of the loci group in order to create a gel")
+   	unless defined $genomes;
    
    # Set the gel up
    my $below = 50;
    my($iw, $ih, $nameh, $maxa) = ($width, $height-$below, 75, $self->max_size);
-   my($lw, $lh, $nh) = ($iw/($#genomes+1), int($maxa/750), ($ih-$nameh)/$maxa);
+   my($lw, $lh, $nh) = ($iw/($#$genomes+1), int($maxa/750), ($ih-$nameh)/$maxa);
    my $img = GD::Simple->new($width, $height);
    $img->bgcolor('black');
    $img->fgcolor('black');
@@ -110,8 +114,26 @@ sub graph_content {
    my $white = $img->alphaColor(255,255,255,0);
    my $b1 = $img->alphaColor(130, 130, 130 ,0);
    
-   # ToDo .... use vntrsDiv.pl:89..122 code
-   
+   # Draw bands
+   for my $g (0 .. $#$struc){
+      $img->fgcolor('black');
+      $img->moveTo(int($lw*($g+0.2)), int($nameh*0.9));
+      $img->fontsize(8);
+      $img->angle(-45);
+      $img->string($genomes->[$g]->name);
+      $img->angle(0);
+      for my $l (@{$struc->[$g]}){
+	 my ($x1,$y1) = (int($lw*($g+0.1)), $nameh + int($nh*($maxa-$struc->[$g]->[$l]->length)));
+	 my ($x2, $y2) = ($x1+int($lw*0.8), $y1+$lh);
+	 $img->bgcolor($b1);
+	 $img->fgcolor($b1);
+	 $img->rectangle($x1, $y1-int($lh*0.75), $x2, $y2+int($lh*0.75));
+	 $img->bgcolor($white);
+	 $img->fgcolor($white);
+	 $img->rectangle($x1, $y1, $x2, $y2);
+      }
+   }
+   return $img;
 }
 
 
@@ -143,6 +165,32 @@ by the specific C<Polloc::Typing::bandingPattern::*> object.
 =cut
 
 sub fragments { $_[0]->throw("fragments", $_[0], "Polloc::Polloc::NotImplementedException") }
+
+=head2 max_size
+
+Gets/sets the maximum locus size.  No limit (C<inf>) by default.
+
+=cut
+
+sub max_size {
+   my($self, $value) = @_;
+   $self->{'_max_size'} = $value+0 if defined $value;
+   $self->{'_max_size'} = 0 + "Inf" unless defined $self->{'_max_size'};
+   return $self->{'_max_size'};
+}
+
+=head2 min_size
+
+Gets/sets the minimum locus size.  1 by default.
+
+=cut
+
+sub min_size {
+   my($self, $value) = @_;
+   $self->{'_min_size'} = $value+0 if defined $value;
+   $self->{'_min_size'} = 1 unless defined $self->{'_min_size'};
+   return $self->{'_min_size'};
+}
 
 =head1 INTERNAL METHODS
 

@@ -224,7 +224,7 @@ sub tempfile {
    my($self,@args) = @_;
    my($tfh, $file);
    my($dir, $unlink, $template, $suffix) =
-   	$self->_rearrange([qw(DIR UNLINK TEMPollocTE SUFFIX)], @args);
+   	$self->_rearrange([qw(DIR UNLINK TEMPLATE SUFFIX)], @args);
    $dir = $TEMPDIR unless defined $dir;
    $unlink = 1 unless defined $unlink;
    
@@ -326,8 +326,11 @@ sub _io_cleanup {
 sub _initialize_io {
    my($self, @args) = @_;
    $self->_register_cleanup_method(\&_io_cleanup);
-   my ($input, $file, $fh, $flush, $url) =
-   	$self->_rearrange([qw(INPUT FILE FH FLUSH URL)], @args);
+   my ($input, $file, $fh, $flush, $url, $createtmp) =
+   	$self->_rearrange([qw(INPUT FILE FH FLUSH URL CREATETMP)], @args);
+   
+   ($fh, $file) = $self->tempfile(ref($createtmp)?@$createtmp:undef) if defined $createtmp and not $file;
+   
    if($url){
       require LWP::Simple;
 

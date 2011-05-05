@@ -321,12 +321,12 @@ A L<GD::Simple> object.
 sub graph {
    my($self, @args) = @_;
    my($locigroup, $width, $height, $font) = $self->_rearrange([qw(LOCIGROUP WIDTH HEIGHT FONT)], @args);
-   $locigroup|| = $self->_scan_locigroup || $self->locigroup;
+   $locigroup ||= $self->_scan_locigroup || $self->locigroup;
    unless($locigroup){
       $self->warn("Impossible to find a group of loci.");
       return;
    }
-   try { $self->_load_module('GD::Simple')); }
+   try { $self->_load_module('GD::Simple'); }
    catch BME::BME::Error with {
       $self->warn("I need GD::Simple to create the image, impossible to locate it.\n".shift);
       return;

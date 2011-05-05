@@ -79,6 +79,29 @@ sub get_sequences {
    return wantarray ? @{$self->{'_sequences'}} : $self->{'_sequences'};
 }
 
+=head2 search_sequence
+
+Search a sequence by ID
+
+=head3 Arguments
+
+The id (I<str>) of the sequence.
+
+=head3 Returns
+
+The sequence (L<Bio::Seq>) or C<undef>.
+
+=cut
+
+sub search_sequence {
+   my($self, $value) = @_;
+   return unless defined $value;
+   for my $seq (@{$self->get_sequences}){
+      return $seq if $seq->display_id eq $value;
+   }
+   return;
+}
+
 =head2 name
 
 Gets/sets the name of the genome.  If no name is set,
