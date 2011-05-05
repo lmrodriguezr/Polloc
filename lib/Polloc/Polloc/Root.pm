@@ -1,6 +1,6 @@
 =head1 NAME
 
-Polloc::Polloc::Root - The parent of all the Polloc::* objects
+Polloc - Perl library for Polymorphic Loci Analysis
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -30,7 +30,7 @@ The package's version
 
 =cut
 
-$VERSION = "0.0200"; # 0.2.0
+$VERSION = "1.0100"; # 1.1.0
 
 =head2 VERBOSITY
 

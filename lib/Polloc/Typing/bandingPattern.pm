@@ -62,8 +62,8 @@ sub scan {
 
 See L<Polloc::TypingI-E<gt>typing_value()>.
 
-Returns the size of the loci between the minimum (L<min_size())
-and the maximum (L<max_size()) size.
+Returns the size of the loci between the minimum (L<min_size()>)
+and the maximum (L<max_size()>) size.
 
 =head3 Returns
 

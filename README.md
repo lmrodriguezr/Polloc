@@ -53,6 +53,8 @@ modules:
 
 * `Symbol`
 
+* `Bio::SeqIO`
+
 ### Other requirements
 
 The following requirements can be ignored depending on the
@@ -63,8 +65,6 @@ set of modules to be used.
 * `File::Basename`
 
 * `Cwd`
-
-* `Bio::SeqIO`
 
 * `Bio::Tools::Run::Alignment::Muscle`
 
