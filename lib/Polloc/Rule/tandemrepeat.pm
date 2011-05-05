@@ -29,9 +29,14 @@ use base qw(Polloc::RuleI);
 
 =head1 APPENDIX
 
- Methods provided by the package
+Methods provided by the package
+
+=head2 new
+
+Generic initialization method.
 
 =cut
+
 sub new {
    my($caller,@args) = @_;
    my $self = $caller->SUPER::new(@args);
@@ -39,20 +44,21 @@ sub new {
    return $self;
 }
 
-sub _initialize {
-   my($self,@args) = @_;
-   $self->type('tandemrepeat');
-}
-
-
 =head2 execute
 
- Description	: This is where magic happens.  Translates the parameters of the object
- 		  into a call to B<TRF>, and scans the sequence for repeats
- Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Locus::tandemrepeat objects
+This is where magic happens.  Translates the parameters of the object into a call to
+B<TRF>, and scans the sequence for repeats.
+
+=head2 Arguments
+
+The sequence (C<-seq>) as a L<Bio::Seq> or a L<Bio::SeqIO> object.
+
+=head3 Returns
+
+An array reference populated with L<Polloc::Locus::tandemrepeat> objects.
 
 =cut
+
 sub execute {
    my($self,@args) = @_;
    my($seq) = $self->_rearrange([qw(SEQ)], @args);
@@ -206,6 +212,11 @@ sub execute {
    return wantarray ? @feats : \@feats;
 }
 
+=head2 stringify_value
+
+Produces a string with the value of the rule.
+
+=cut
 
 sub stringify_value {
    my ($self,@args) = @_;
@@ -216,32 +227,92 @@ sub stringify_value {
    return $out;
 }
 
+=head1 INTERNAL METHODS
+
+Methods intended to be used only within the scope of Polloc::*
+
+=head2 _parameters
+
+=cut
+
 sub _parameters {
    return [qw(MINSIZE MAXSIZE MINPERIOD MAXPERIOD EXP MATCH MISMATCH INDELS MINSCORE MAXSCORE MINSIM MAXSIM PM PI)];
 }
 
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the Polloc::RuleI interface
- Arguments	: Value (str or ref-to-hash or ref-to-array)
- 		  The supported keys are:
-			-minsize : Minimum size of the repeat
-			-maxsize : Maximum size of the repeat
-			-minperiod : Minimum period of the repeat
-			-maxperiod : Maximum period of the repeat
-			-exp : Minimum exponent (number of repeats)
-			-match : Matching weight
-			-mismatch : Mismatching penalty
-			-indels : Indel penalty
-			-minscore : Minimum score
-			-maxscore : Maximum score
-			-minsim : Minimum similarity percent
-			-maxsim : Maximum similarity percent
-			-pm : match probability
-			-pi : indel probability
- Return		: Value (ref-to-hash or undef)
+Implements the C<_qualify_value()> from the L<Polloc::RuleI> interface
+
+=head3 Arguments
+
+Value (I<str> or I<ref-to-hash> or I<ref-to-array>).  The supported keys are:
+
+=over
+
+=item -minsize I<int>
+
+Minimum size of the repeat
+
+=item -maxsize I<int>
+
+Maximum size of the repeat
+
+=item -minperiod I<float>
+
+Minimum period of the repeat
+
+=item -maxperiod I<float>
+
+Maximum period of the repeat
+
+=item -exp I<float>
+
+Minimum exponent (number of repeats)
+
+=item -match I<int>
+
+Matching weight
+
+=item -mismatch I<int>
+
+Mismatching penalty
+
+=item -indels I<int>
+
+Indel penalty
+
+=item -minscore I<float>
+
+Minimum score
+
+=item -maxscore I<float>
+
+Maximum score
+
+=item -minsim I<float>
+
+Minimum similarity percent
+
+=item -maxsim I<float>
+
+Maximum similarity percent
+
+=item -pm I<float>
+
+Match probability
+
+=item -pi I<float>
+
+Indel probability
+
+=back
+
+=head3 Return
+
+Value (I<ref-to-hash> or C<undef>).
 
 =cut
+
 sub _qualify_value {
    my($self,$value) = @_;
    unless (defined $value){
@@ -276,6 +347,15 @@ sub _qualify_value {
       $out->{"-".lc $k} = $p;
    }
    return $out;
+}
+
+=head2 _initialize
+
+=cut
+
+sub _initialize {
+   my($self,@args) = @_;
+   $self->type('tandemrepeat');
 }
 
 1;

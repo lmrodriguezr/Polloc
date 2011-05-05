@@ -33,7 +33,11 @@ use base qw(Polloc::RuleI);
 
 =head1 APPENDIX
 
- Methods provided by the package
+Methods provided by the package
+
+=head2 new
+
+Generic initialization method
 
 =cut
 
@@ -44,20 +48,21 @@ sub new {
    return $self;
 }
 
-sub _initialize {
-   my($self,@args) = @_;
-   $self->type('repeat');
-}
-
-
 =head2 execute
 
- Description	: This is where magic happens.  Translates the parameters of the object
- 		  into a call to B<mreps>, and scans the sequence for repeats
- Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Locus::repeat objects
+This is where magic happens.  Translates the parameters of the object into a call to
+B<mreps>, and scans the sequence for repeats.
+
+=head2 Arguments
+
+The sequence (C<-seq>) as a L<Bio::Seq> or a L<Bio::SeqIO> object
+
+=head3 Returns
+
+An array reference populated with L<Polloc::Locus::repeat> objects
 
 =cut
+
 sub execute {
    my($self,@args) = @_;
    my($seq) = $self->_rearrange([qw(SEQ)], @args);
@@ -160,6 +165,39 @@ sub execute {
    return wantarray ? @feats : \@feats;
 }
 
+=head2 stringigy_value
+
+Produces a readable string containing the value of the rule.
+
+=cut
+
+sub stringify_value {
+   my ($self,@args) = @_;
+   my $out = "";
+   for my $k (keys %{$self->value}){
+      $out.= "$k=>".(defined $self->value->{$k} ? $self->value->{$k} : "")." ";
+   }
+   return $out;
+}
+
+=head1 INTERNAL METHODS
+
+Methods intended to be used only within the scope of Polloc::*
+
+=head2 _calculate_consensus
+
+Attempts to calculate the consensus of the repeat units.
+
+=head3 Arguments
+
+The repetitive sequence with repeat units separated by spaces (I<str>).
+
+=head3 Returns
+
+The consensus sequence (I<str>)
+
+=cut
+
 sub _calculate_consensus {
    my($self,$seq) = @_;
    return unless $seq;
@@ -194,15 +232,9 @@ sub _calculate_consensus {
    return $consout;
 }
 
+=head2 _parameters
 
-sub stringify_value {
-   my ($self,@args) = @_;
-   my $out = "";
-   for my $k (keys %{$self->value}){
-      $out.= "$k=>".(defined $self->value->{$k} ? $self->value->{$k} : "")." ";
-   }
-   return $out;
-}
+=cut
 
 sub _parameters {
    return [qw(RES MINSIZE MAXSIZE MINPERIOD MAXPERIOD EXP ALLOWSMALL WIN MINSIM MAXSIM)];
@@ -210,22 +242,62 @@ sub _parameters {
 
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the Polloc::RuleI interface
- Arguments	: Value (str or ref-to-hash or ref-to-array)
- 		  The supported keys are:
-		  	-res : Resolution (allowed error)
-			-minsize : Minimum size of the repeat
-			-maxsize : Maximum size of the repeat
-			-minperiod : Minimum period of the repeat
-			-maxperiod : Maximum period of the repeat
-			-exp : Minimum exponent (number of repeats)
-			-allowsmall : If 1, allows spurious results
-			-win : Process by sliding windows of size 2*n overlaping by n
-			-minsim : Minimum similarity percent
-			-maxsim : Maximum similarity percent
- Return		: Value (ref-to-hash or undef)
+Implements the C<_qualify_value()> from the L<Polloc::RuleI> interface
+
+=head3 Arguments
+
+Value (str or ref-to-hash or ref-to-array).  The supported keys are:
+
+=over
+
+=item -res I<float>
+
+Resolution (allowed error)
+
+=item -minsize I<int>
+
+Minimum size of the repeat
+
+=item -maxsize I<int>
+
+Maximum size of the repeat
+
+=item -minperiod I<float>
+
+Minimum period of the repeat
+
+=item -maxperiod I<float>
+
+Maximum period of the repeat
+
+=item -exp I<float>
+
+Minimum exponent (number of repeats)
+
+=item -allowsmall I<bool (int)>
+
+If true, allows spurious results
+
+=item -win I<float>
+
+Process by sliding windows of size C<2*n> overlaping by C<n>
+
+=item -minsim I<float>
+
+Minimum similarity percent
+
+=item -maxsim I<float>
+
+Maximum similarity percent
+
+=back
+
+=head3 Return
+
+Value (I<ref-to-hash> or C<undef>).
 
 =cut
+
 sub _qualify_value {
    my($self,$value) = @_;
    unless (defined $value){
@@ -260,6 +332,15 @@ sub _qualify_value {
       $out->{"-".lc $k} = $p;
    }
    return $out;
+}
+
+=head2 _initialize
+
+=cut
+
+sub _initialize {
+   my($self,@args) = @_;
+   $self->type('repeat');
 }
 
 1;

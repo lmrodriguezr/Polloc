@@ -2,7 +2,7 @@
 
 Polloc::Rule::crispr - A rule of type CRISPR
 
-=heqd1 DESCRIPTION
+=head1 DESCRIPTION
 
 Runs CRISPRFinder to search CRISPRs
 

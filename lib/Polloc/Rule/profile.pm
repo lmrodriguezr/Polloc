@@ -20,7 +20,11 @@ use base qw(Polloc::RuleI);
 
 =head1 APPENDIX
 
- Methods provided by the package
+Methods provided by the package
+
+=head2 new
+
+Generic initialization function
 
 =cut
 
@@ -31,17 +35,17 @@ sub new {
    return $self;
 }
 
-sub _initialize {
-   my($self,@args) = @_;
-   $self->type('repeat');
-}
-
-
 =head2 execute
 
- Description	: Runs the search using HMMer
- Parameters	: The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
- Returns	: An array reference populated with Polloc::Locus::repeat objects
+Runs the search using HMMer
+
+=head3 Arguments
+
+The sequence (-seq) as a Bio::Seq object or a Bio::SeqIO object
+
+=head3 Returns
+
+An array reference populated with L<Polloc::Locus::repeat> objects
 
 =cut
 
@@ -131,6 +135,11 @@ sub execute {
    return wantarray ? @feats : \@feats;
 }
 
+=head2 stringify_value
+
+Produces a readable string of the rule's value
+
+=cut
 
 sub stringify_value {
    my ($self,@args) = @_;
@@ -142,22 +151,81 @@ sub stringify_value {
 }
 
 
+=head1 INTERNAL METHODS
+
+Methods intended to be used only within the scope of Polloc::*
+
 =head2 _qualify_value
 
- Description	: Implements the _qualify_value from the Polloc::RuleI interface
- Arguments	: Value (str or ref-to-hash or ref-to-array)
- 		  The supported keys are:
-		  	-res : Resolution (allowed error)
-			-minsize : Minimum size of the repeat
-			-maxsize : Maximum size of the repeat
-			-minperiod : Minimum period of the repeat
-			-maxperiod : Maximum period of the repeat
-			-exp : Minimum exponent (number of repeats)
-			-allowsmall : If 1, allows spurious results
-			-win : Process by sliding windows of size 2*n overlaping by n
- Return		: Value (ref-to-hash or undef)
+Implements the _qualify_value from the L<Polloc::RuleI> interface
+
+=head3 Arguments
+
+Value (str or ref-to-hash or ref-to-array).  Mandatory arguments are:
+
+=over
+
+=item -hmm I<str>
+
+Path to the file containing the HMM.
+
+=back
+
+See the documentation of HMMER for detailed description of the arguments mapped
+by the followin supported keys:
+
+=over
+
+=item evalue
+
+=item score
+
+=item ince
+
+=item inct
+
+=item incdome
+
+=item incdomt
+
+=item f1
+
+=item f2
+
+=item f3
+
+=item domz
+
+=item seed
+
+=item tformat
+
+=item cpu
+
+=item acc
+
+=item cut_ga
+
+=item cut_nc
+
+=item cut_tc
+
+=item max
+
+=item noheuristics
+
+=item nobias
+
+=item nonull2
+
+=back
+
+=head3 Return
+
+Value (ref-to-hash or undef)
 
 =cut
+
 sub _qualify_value {
    my($self,$value) = @_;
    return unless defined $value;
@@ -181,15 +249,16 @@ sub _qualify_value {
    }
    
    my %params = @args;
-   $value = {};
-   for my $k (("res","minsize","maxsize","minperiod","maxperiod","exp","allowsmall","win")){
-      $value->{"-$k"} = $params{"-$k"}+0 if defined $params{"-$k"};
-      $value->{"-$k"} = $self->safe_value("-$k") 
-			if not defined $value->{"-$k"}
-      			and defined $self->safe_value("-$k");
-   }
-   $value->{"-allowsmall"} = "" if defined $value->{"-allowsmall"};
-   return $value;
+   return \%params;
+}
+
+=head2 _initialize
+
+=cut
+
+sub _initialize {
+   my($self,@args) = @_;
+   $self->type('pattern');
 }
 
 1;
