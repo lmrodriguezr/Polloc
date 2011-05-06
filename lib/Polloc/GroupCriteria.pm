@@ -47,33 +47,33 @@ Methods provided by the package
 
 =head2 new
 
-Attempts to initialize a Polloc::Rule::* object
+Generic initialization method
 
 =head3 Arguments
 
 =over
 
-=item -type
+=item -souce I<str>
 
-The type of rule
+See L<source()>
 
-=item -value
+=item -target I<str>
 
-The value of the rule (depends on the type of rule)
+See L<target()>
 
-=item -context
+=item -features I<Polloc::LociGroup>
 
-The context of the rule.  See L<Polloc::RuleI->context()>
+Alias of C<-loci>
+
+=item -loci I<Polloc::LociGroup>
+
+See L<locigroup()>
 
 =back
 
 =head3 Returns
 
-The C<Polloc::Rule::*> object
-
-=head3 Throws
-
-L<Polloc::Polloc::Error> if unable to initialize the proper object
+The C<Polloc::GroupCriteria> object
 
 =cut
 
@@ -86,6 +86,8 @@ sub new {
 
 =head2 source
 
+Sets/gets the type of source loci (see L<Polloc::LocusI->family()>
+
 =cut
 
 sub source {
@@ -95,6 +97,8 @@ sub source {
 }
 
 =head2 target
+
+Sets/gets the type of target loci (see L<Polloc::LocusI->family()>
 
 =cut
 
@@ -121,6 +125,8 @@ sub locigroup {
 }
 
 =head2 condition
+
+Sets/gets the conditions set to evaluate.
 
 =cut
 

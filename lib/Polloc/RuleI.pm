@@ -56,7 +56,7 @@ The value of the rule (depends on the type of rule)
 
 =item -context
 
-The context of the rule.  See L<Polloc::RuleI::context>.
+The context of the rule.  See L<Polloc::RuleI->context()>.
 
 =back
 

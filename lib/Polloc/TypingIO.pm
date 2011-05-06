@@ -88,6 +88,8 @@ sub new {
 
 =head2 format
 
+Sets/gets the format.
+
 =cut
 
 sub format {
