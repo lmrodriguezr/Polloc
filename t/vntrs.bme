@@ -5,6 +5,12 @@ path = "${.root}bins/"
 glob prefix_id='VNTR'
 VNTR = "-minsize 30 -maxsize 1000 -minperiod 5 -maxperiod 9 -exp 6 -res 2 -minscore 50 -maxscore 0 -minsim 80 -maxsim 100 -match 2 -mismatch 3 -indels 5 -pm 80 -pi 20"
 add TandemRepeat:VNTR as 'VNTR repeat'
+
+dummy = '||'
+add Bool:dummy as 'dummy bool'
+setrule dummy rule1 = 'VNTR'
+setrule dummy rule2 = 'VNTR'
+
 set VNTR executable = 'Yes'
 
 [ GroupCriteria ]

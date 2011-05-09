@@ -218,9 +218,9 @@ sub next_rule {
    return $rule;
 }
 
-=head2 grouprules
+=head2 groupcriteria
 
-Sets/gets the grouprules objects.
+Sets/gets the group criteria objects.
 
 =head3 Arguments
 
@@ -232,11 +232,19 @@ A L<Polloc::GroupCriteria> array ref or undef
 
 =cut
 
-sub grouprules {
+sub groupcriteria {
    my($self,$value) = @_;
    $self->{'_grouprules'} = $value if defined $value;
    return $self->{'_grouprules'};
 }
+
+=head2 grouprules
+
+Alias of L<groupcriteria()> (for backwards-compatibility).
+
+=cut
+
+sub grouprules { return shift->groupcriteria(@_) }
 
 =head2 addgrouprules
 
@@ -258,8 +266,6 @@ sub addgrouprules {
    $self->{'_grouprules'} = [] unless defined $self->{'_grouprules'};
    push @{$self->{'_grouprules'}}, $value;
 }
-
-
 
 =head2 execute
 
