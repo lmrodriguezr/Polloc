@@ -29,6 +29,7 @@ use strict;
 use Polloc::Polloc::Config;
 use Polloc::RuleI;
 use Polloc::GroupCriteria;
+use Polloc::GroupCriteria::operator;
 use Bio::Seq;
 
 use base qw(Polloc::RuleIO);
@@ -284,7 +285,7 @@ sub _parse_group_var {
     my %groupcriteria = (-type=>lc($1), -operation=>$3);
     $self->{'_groupcriteria'} = {} unless defined $self->{'_groupcriteria'};
     $self->debug("Saving '$2'");
-    $self->{'_groupcriteria'}->{$2} = \%groupcriteria;
+    $self->{'_groupcriteria'}->{$2} = Polloc::GroupCriteria::operator->new(%groupcriteria);
 }
 
 =head2 _parse_group_eval
@@ -299,6 +300,8 @@ sub _parse_group_eval {
    my $group = new Polloc::GroupCriteria(
    	-source=>$self->safe_value("source"),
 	-target=>$self->safe_value("target"));
+   $Polloc::GroupCriteria::operator::cons::OP_CONS->{'FEAT1'} = $some_value_1;
+   ######### ///////////////////////////////////////////////////////////////////
    $group->condition($self->_parse_group_operation($body, $defaults));
    # $self->vardump($group->condition);
    $self->addgrouprules($group);
@@ -323,56 +326,58 @@ sub _parse_ext_eval {
 
 sub _parse_group_operation {
    my($self,$name,$defaults) = @_;
-   return {-type=>'cons', -operation=>$name, -name=>$name} if defined $name and $name =~ /^FEAT[12]$/;
+   return Polloc::GroupCriteria::operator->new(-type=>'cons', -operation=>$name, -name=>$name) if defined $name and $name =~ /^FEAT[12]$/;
    my $body = $self->{'_groupcriteria'}->{$name};
    defined $body or $self->throw("Impossible to locate the variable $name", $body);
-   my $t = $body->{'-type'};
-   my $o = $body->{'-operation'};
+   my $t = $body->type;
+   my $o = $body->operation;
    defined $t or $self->throw("You declared an operation without return type", $body);
    defined $o or $self->throw("You declared an operation without body", $body);
    $o =~ s/^\s*//;
    $o =~ s/\s*$//;
    if($t eq 'bool'){
       if($o =~ m/^(t(rue)?|1)$/i){
-	 return {-type=>'bool', -val=>1, -name=>$name};
+	 return Polloc::GroupCriteria::operator->new(-type=>'bool', -val=>1, -name=>$name);
       }elsif($o =~ m/^(f(alse)?|0)$/i){
-         return {-type=>'bool', -val=>0, -name=>$name};
+         return Polloc::GroupCriteria::operator->new(-type=>'bool', -val=>0, -name=>$name);
       }elsif($o =~ m/^([^\s]+)\s*([><]=?|&&?|\|\|?|\^|and|or|xor)\s*([^\s]+)$/i){
          my($o1b,$f,$o2b) = ($1,$2,$3);
 	 my $o1 = $self->_parse_group_operation($o1b, $defaults);
 	 my $o2 = $self->_parse_group_operation($o2b, $defaults);
-	 return {-type=>'bool', -operators=>[$o1, $o2], -operation=>$f, -name=>$name};
+	 return Polloc::GroupCriteria::operator->new(-type=>'bool', -operators=>[$o1, $o2], -operation=>$f, -name=>$name);
       }elsif($o =~ m/^(!|not)\s*([^\s]+)$/i){
          my $f = $1;
          my $o1 = $self->_parse_group_operation($2, $defaults);
-	 return {-type=>'bool', -operators=>[$o1], -operation=>$f, -name=>$name};
+	 return Polloc::GroupCriteria::operator->new(-type=>'bool', -operators=>[$o1], -operation=>$f, -name=>$name);
       }else{
          $self->throw("Impossible to parse boolean", $body);
       }
    }elsif($t eq 'num'){
       if($o =~ m/^[-+]?\d*\.?\d+(e[-+]?\d*\.?\d+)?$/) {
-         return {-type=>'num', -val=>$o+0, -name=>$name};
+         return Polloc::GroupCriteria::operator->new(-type=>'num', -val=>$o+0, -name=>$name);
       }elsif($o =~ m/^([^\s]*)\s*(\+|\-|\*\*?|\/|\^|%|aln-sim( with)?|aln-score( with)?)\s*([^\s]*)$/i){
          my($o1b,$f,$o2b) = ($1,$2,$5);
 	 my $o1 = $self->_parse_group_operation($o1b, $defaults);
 	 my $o2 = $self->_parse_group_operation($o2b, $defaults);
-	 return {-type=>'num', -operators=>[$o1, $o2], -operation=>$f, -name=>$name};
+	 return Polloc::GroupCriteria::operator->new(-type=>'num', -operators=>[$o1, $o2], -operation=>$f, -name=>$name);
       }else{
          $self->throw("Impossible to parse number", $body);
       }
    }elsif($t eq 'seq'){
       if($o =~ m/^[A-Za-z]+$/){
-         return {-type=>'seq', -val=>Bio::Seq->new(-seq=>$o), -name=>$name};
+         return Polloc::GroupCriteria::operator->new(-type=>'seq', -val=>Bio::Seq->new(-seq=>$o), -name=>$name);
       }elsif($o =~ m/^([^\s]+)\s+(at)\s*\[(-?\d)\s*[,;]\s*(-?\d+)\s*\.\.\s*(-?\d+)\]$/i){
          my($o1b,$extra1,$extra2,$extra3) = ($1, $3+0, $4+0, $5+0);
 	 my $o1 = $self->_parse_group_operation($o1b, $defaults);
-	 return {-type=>'seq', -operators=>[$o1, $extra1, $extra2, $extra3], -operation=>'sequence', -name=>$name};
+	 return Polloc::GroupCriteria::operator->new(
+	 				-type=>'seq', -operators=>[$o1, $extra1, $extra2, $extra3],
+	 				-operation=>'sequence', -name=>$name);
       }elsif($o =~ m/^rev(comp?( of)?)?\s+([^\s]+)$/i){
          my $o1 = $self->_parse_group_operation($3, $defaults);
-	 return {-type=>'seq', -operators=>[$o1], -operation=>'reverse', -name=>$name};
+	 return Polloc::GroupCriteria::operator->new(-type=>'seq', -operators=>[$o1], -operation=>'reverse', -name=>$name);
       }elsif($o =~ m/^seq\s+([^\s]+)/){
          my $o1 = $self->_parse_group_operation($1, $defaults);
-	 return {-type=>'seq', -operators=>[$o1], -operation=>'sequence', -name=>$name};
+	 return Polloc::GroupCriteria::operator->new(-type=>'seq', -operators=>[$o1], -operation=>'sequence', -name=>$name);
       }else{
          $self->throw("Impossible to parse number", $body);
       }

@@ -132,7 +132,11 @@ Sets/gets the conditions set to evaluate.
 
 sub condition {
    my($self, $value) = @_;
-   $self->{'_condition'} = $value if defined $value;
+   if(defined $value){
+      $self->throw('Unexpected type of condition', $value)
+      		unless UNIVERSAL::can($value, 'isa') and $value->isa('Polloc::GroupCriteria::operator');
+      $self->{'_condition'} = $value;
+   }
    return $self->{'_condition'};
 }
 
@@ -177,7 +181,7 @@ sub evaluate {
    defined $self->condition or
    	$self->throw("Undefined condition, impossible to group");
    
-   $self->condition->{'-type'} eq 'bool' or
+   $self->condition->type eq 'bool' or
    	$self->throw("Unexpected type of condition", $self->condition);
    
    $self->throw("Undefined source features") unless defined $self->source;
@@ -188,7 +192,7 @@ sub evaluate {
    return 0 unless $feat2->family eq $self->target;
    $self->{'_FEAT1'} = $feat1;
    $self->{'_FEAT2'} = $feat2;
-   my $o = $self->_operate($self->condition);
+   my $o = $self->condition->operate;
    $self->{'_FEAT1'} = undef;
    $self->{'_FEAT2'} = undef;
    return $o;
@@ -1012,203 +1016,6 @@ sub _feat_index2obj{
    return $groups;
 }
 
-
-=head2 _operate
-
-Runs an operation
-
-=head3 Arguments
-
-The variable to interpret
-
-=head3 Returns
-
-Mix
-
-=head3 Throws
-
-L<Polloc::Polloc::Error> if no input
-
-=cut
-
-sub _operate {
-   my($self, $var) = @_;
-   $self->throw("Undefined variable to operate", $var) unless defined $var;
-   return $var->{'-val'} if defined $var->{'-val'};
-   my $o;
-   my $s = lc $var->{'-type'};
-   if($s eq 'bool')	{ $o = $self->_operate_bool($var) }
-   elsif($s eq 'num')	{ $o = $self->_operate_num($var) }
-   elsif($s eq 'seq')	{ $o = $self->_operate_seq($var) }
-   elsif($s eq 'cons')	{ $o = $self->_operate_cons($var) }
-   else			{ $self->throw("Unknown type of variable", $var) }
-   return $o;
-}
-
-
-=head2 _operate_cons
-
-Operates to recover a constant
-
-=head3 Arguments
-
-The variable to interpret.  Note that the name of the constant should not be
-the B<-val>, but the B<-operation> in the variable. Otherwise, the literal
-string of the name will be returned.
-
-=head3 Returns
-
-Mix
-
-=cut
-
-sub _operate_cons {
-   my($self, $var) = @_;
-   my $s = uc $var->{'-operation'};
-   if($s eq 'FEAT1')	{ return $self->{'_FEAT1'} }
-   elsif($s eq 'FEAT2')	{ return $self->{'_FEAT2'} }
-   else			{ $self->throw("Undefined constant", $var) }
-}
-
-
-=head2 _operate_seq
-
-Operates to generate a sequence
-
-=head3 Arguments
-
-The variable to interpret.
-
-=head3 Returns
-
-Bio::Seq object
-
-=cut
-
-sub _operate_seq {
-   my($self, $var) = @_;
-   my $fn = $var->{'-operation'};
-   if($fn =~ /^sequence$/) {
-	 my $feat = $self->_operate($var->{'-operators'}->[0]);
-	 $var->{'-operators'}->[1] = 0 unless defined $var->{'-operators'}->[1];
-	 my $ref = $var->{'-operators'}->[1]+0;
-	 my ($from,$to);
-	 if($ref<0){
-	    $from = $feat->from + $var->{'-operators'}->[2];
-	    $to = $feat->from + $var->{'-operators'}->[3];
-	 }elsif($ref>0){
-	    $from = $feat->to + $var->{'-operators'}->[2];
-	    $to = $feat->to + $var->{'-operators'}->[3];
-	 }else{
-	    $from = $feat->from;
-	    $to = $feat->to;
-	 }
-	 my($start,$end);
-	 if($from<=$to){
-	    $start = $from;
-	    $end = $to;
-	 }else{
-	    $start = $to;
-	    $end = $from;
-	 }
-	 $start = 1 unless $start>0;
-	 $end = $feat->seq->length unless $end<$feat->seq->length;
-	 my $seq = Bio::Seq->new(-seq=>$feat->seq->subseq($start,$end));
-	 if($from>$to){
-	    return $seq->revcom;
-	 }
-	 return $seq;
-   }elsif($fn eq 'reverse') {
-         my $seq = $self->_operate($var->{'-operators'}->[0]);
-	 return $seq->revcom;
-   } else {
-         $self->throw("Unknown operation for sequence", $var);
-   }
-}
-
-
-=head2 _operate_num
-
-Operates to generate a number
-
-=head3 Arguments
-
-The variable to interpret.
-
-=head3 Returns
-
-float or int
-
-=cut
-
-sub _operate_num {
-   my($self, $var) = @_;
-   #$self->debug("Number calculation");
-   my @ops = @{$var->{'-operators'}};
-   my $op1 = $self->_operate($ops[0]);
-   my $op2 = $self->_operate($ops[1]) if defined $ops[1];
-   my $fn = $var->{'-operation'};
-   if($fn eq '+')	{ return $op1 + $op2 }
-   elsif($fn eq '-')	{ return $op1 - $op2 }
-   elsif($fn eq '*')	{ return $op1 * $op2 }
-   elsif($fn eq '/')	{ return $op1 / $op2 }
-   elsif($fn eq '%')	{ return $op1 % $op2 }
-   elsif($fn eq '**')	{ return $op1 ** $op2 }
-   elsif($fn eq '^')	{ return $op1 ** $op2 }
-   elsif($fn =~ /(aln-sim|aln-score)( with)?/i) { 
-	 my $factory = Bio::Tools::Run::Alignment::Muscle->new();
-	 $factory->quiet(1);
-	 $op1->id('op1');
-	 $op2->id('op2');
-	 my $aln = $factory->align([$op1,$op2]);
-	 my $out;
-	 $out = $aln->overall_percentage_identity('long')/100
-	 	if $var->{'-operation'} =~ /aln-sim( with)?/i;
-	 $out = $aln->score if $var->{'-operation'} =~ /aln-score( with)?/i;
-	 $factory->cleanup(); # This is to solve the issue #1
-	 return $out;
-   } else		{ $self->throw("Unknown numeric operation", $var) }
-}
-
-
-=head2 _operate_bool
-
-Operates to generate boolean
-
-=head3 Arguments
-
-The variable to interpret.
-
-=head3 Returns
-
-bool
-
-=cut
-
-sub _operate_bool {
-   my($self, $var) = @_;
-   #$self->debug("Boolean calculation");
-   my @ops = @{$var->{'-operators'}};
-   my $op1 = $self->_operate($ops[0]);
-   my $fn = $var->{'-operation'};
-   if ($fn =~ />|gt/i)
-     	 { return $op1 > $self->_operate($ops[1]) }
-   elsif($fn =~ /<|lt/i)
-     	 { return $op1 < $self->_operate($ops[1]) }
-   elsif($fn =~ />=|ge/i)
-     	 { return $op1 >= $self->_operate($ops[1]) }
-   elsif($fn =~ /<=|le/i)
-     	 { return $op1 <= $self->_operate($ops[1]) }
-   elsif($fn =~ /&&?|and/i)
-     	 { return ( $op1 and $self->_operate($ops[1]) ) }
-   elsif($fn =~ /\|\|?|or/i)
-     	 { return ( $op1 or $self->_operate($ops[1]) ) }
-   elsif($fn =~ /\^|xor/i)
-     	 { return ( $op1 xor $self->_operate($ops[1]) ) }
-   elsif($fn =~ /\!|not/i)
-     	 { return ( not $op1 ) }
-   else { $self->throw("Unknown boolean operation", $var) }
-}
 
 =head _grouprules_cleanup
 

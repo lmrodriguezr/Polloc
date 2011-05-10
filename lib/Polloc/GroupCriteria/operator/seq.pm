@@ -60,17 +60,17 @@ sub operate {
       $self->operators->[2] = 0 + ($self->operators->[2] || 0);
       $self->operators->[3] = 0 + ($self->operators->[3] || 0);
       my($from, $to);
-      if($ref<0){
+      if($self->operators->[1]<0){
          $from = $locus->from + $self->operators->[2];
 	 $to = $locus->from + $self->operators->[3];
-      }elsif($ref>0){
+      }elsif($self->operators->[1]>0){
          $from = $locus->to + $self->operators->[2];
 	 $to = $locus->to + $self->operators->[3];
       }else{
          $from = $locus->from + $self->operators->[2];
 	 $to = $locus->to - $self->operators->[3];
       }
-      my($start, $end) = ($from<=$to) ? ($from, $to) : ($to:$from);
+      my($start, $end) = ($from<=$to) ? ($from, $to) : ($to, $from);
       $start = 1 unless $start>0;
       $end = $locus->seq->length unless $end < $locus->seq->length;
       my $seq = Bio::Seq->new(-seq=>$locus->seq->subseq($start, $end));

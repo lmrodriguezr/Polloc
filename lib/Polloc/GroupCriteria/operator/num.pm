@@ -53,9 +53,9 @@ sub operate {
    $self->throw('Bad operators', $self->operators)
    	unless ref($self->operators)
 	and ref($self->operators)=~/ARRAY/;
-   my $o1 = $self->operators[0]->operate;
+   my $o1 = $self->operators->[0]->operate;
    $self->throw("Undefined first operator") unless defined $o1;
-   my $o2 = $self->operators[1]->operate;
+   my $o2 = $self->operators->[1]->operate;
    $self->throw("Undefined second operator") unless defined $o2;
    return ($o1 + $o2)	if $self->operation =~ /^\s*(?:\+)\s*$/i;
    return ($o1 - $o2)	if $self->operation =~ /^\s*(?:\-)\s*$/i;
