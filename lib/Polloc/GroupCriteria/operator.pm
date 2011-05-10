@@ -78,6 +78,7 @@ sub new {
 
    if($class =~ m/Polloc::GroupCriteria::operator::(\S+)/){
       my $load = 0;
+      my $loadtype = $1;
       if(Polloc::GroupCriteria::operator->_load_module($class)){
          $load = $class;
       }
@@ -86,6 +87,7 @@ sub new {
          my $self = $load->SUPER::new(@args);
 	 $self->debug("Got the GroupCriteria operator class $load");
 	 my($val, $name, $operation, $operators) = $self->_rearrange([qw(VAL NAME OPERATION OPERATORS)], @args);
+	 $self->type($loadtype);
          $self->val($val);
 	 $self->name($name);
 	 $self->operation($operation);
@@ -150,6 +152,19 @@ Sets/gets the operators
 sub operators {
    my($self, $value) = @_;
    my $k = '_operators';
+   $self->{$k} = $value if defined $value;
+   return $self->{$k};
+}
+
+=head2 type
+
+Sets/gets the type of operator
+
+=cut
+
+sub type {
+   my($self, $value) = @_;
+   my $k = '_type';
    $self->{$k} = $value if defined $value;
    return $self->{$k};
 }

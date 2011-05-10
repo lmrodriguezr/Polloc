@@ -300,8 +300,6 @@ sub _parse_group_eval {
    my $group = new Polloc::GroupCriteria(
    	-source=>$self->safe_value("source"),
 	-target=>$self->safe_value("target"));
-   $Polloc::GroupCriteria::operator::cons::OP_CONS->{'FEAT1'} = $some_value_1;
-   ######### ///////////////////////////////////////////////////////////////////
    $group->condition($self->_parse_group_operation($body, $defaults));
    # $self->vardump($group->condition);
    $self->addgrouprules($group);

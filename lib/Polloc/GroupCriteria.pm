@@ -31,6 +31,8 @@ use strict;
 use List::Util qw(min max);
 use Polloc::Polloc::IO;
 use Polloc::LociGroup;
+use Polloc::GroupCriteria::operator;
+use Polloc::GroupCriteria::operator::cons;
 use Bio::Tools::Run::Alignment::Muscle;
 use Bio::Seq;
 use Error qw(:try);
@@ -190,11 +192,11 @@ sub evaluate {
    # Run
    return 0 unless $feat1->family eq $self->source;
    return 0 unless $feat2->family eq $self->target;
-   $self->{'_FEAT1'} = $feat1;
-   $self->{'_FEAT2'} = $feat2;
+   $Polloc::GroupCriteria::operator::cons::OP_CONS->{'FEAT1'} = $feat1;
+   $Polloc::GroupCriteria::operator::cons::OP_CONS->{'FEAT2'} = $feat2;
    my $o = $self->condition->operate;
-   $self->{'_FEAT1'} = undef;
-   $self->{'_FEAT2'} = undef;
+   $Polloc::GroupCriteria::operator::cons::OP_CONS->{'FEAT1'} = undef;
+   $Polloc::GroupCriteria::operator::cons::OP_CONS->{'FEAT2'} = undef;
    return $o;
 }
 
