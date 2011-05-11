@@ -64,17 +64,21 @@ sub operate {
    return ($o1 % $o2)	if $self->operation =~ /^\s*(?:%)\s*$/i;
    return ($o1 ** $o2)	if $self->operation =~ /^\s*(?:\*\*|\^)\s*$/i;
    if($self->operation =~ /^\s*aln-(sim|score)(?: with)?\s*$/i){
-      my $ret = lc $2;
+      my $ret = lc $1;
       return unless $self->_load_module('Bio::Tools::Run::Alignment::Muscle');
       my $factory = Bio::Tools::Run::Alignment::Muscle->new();
       $factory->quiet(1);
+      UNIVERSAL::can($o1, 'isa') or $self->throw('First operator must be an object', $o1);
+      UNIVERSAL::can($o2, 'isa') or $self->throw('First operator must be an object', $o2);
+      $o1->isa('Bio::Seq') or $self->throw('First operator must be a Bio::Seq object', $o1);
+      $o2->isa('Bio::Seq') or $self->throw('Second operator must be a Bio::Seq object', $o2);
       $o1->id('op1');
       $o2->id('op2');
       my $aln = $factory->align([$o1, $o2]);
       my $out = 0;
-      $out = $aln->overall_percentage_identity('long')/100 if $ret=='sim';
-      $out = $aln->score if $ret=='score';
+      $out = ($ret eq 'sim') ? $aln->overall_percentage_identity('long')/100 : $aln->score;
       $factory->cleanup(); # This is to solve the issue #1
+      defined $out or $self->throw('Empty value for '.$ret, $self, 'Polloc::Polloc::UnexpectedException');
       return $out;
    }
    $self->throw("Unknown numeric operation", $self->operation);

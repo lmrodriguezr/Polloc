@@ -114,21 +114,28 @@ sub execute {
       $bin = "trf.linux".($Config{'archname64'}?'64':'32').".bin";
    }
    if($path){
+      # Try first WITH version, to avoid v3 series
+      $trf = $io->exists_exe($path . "trf400") unless $trf;
+      $trf = $io->exists_exe($path . "trf400.bin") unless $trf;
+      $trf = $io->exists_exe($path . "trf400.exe") unless $trf;
+      $trf = $io->exists_exe($path . "trf404") unless $trf;
+      $trf = $io->exists_exe($path . "trf404.bin") unless $trf;
+      $trf = $io->exists_exe($path . "trf404.exe") unless $trf;
       $trf = $io->exists_exe($path . $bin) unless $trf;
       $trf = $io->exists_exe($path . "trf") unless $trf;
       $trf = $io->exists_exe($path . "trf.bin") unless $trf;
       $trf = $io->exists_exe($path . "trf.exe") unless $trf;
-      $trf = $io->exists_exe($path . "trf404") unless $trf;
-      $trf = $io->exists_exe($path . "trf404.bin") unless $trf;
-      $trf = $io->exists_exe($path . "trf404.exe") unless $trf;
    }
+   $trf = $io->exists_exe("trf400") unless $trf;
+   $trf = $io->exists_exe("trf400.bin") unless $trf;
+   $trf = $io->exists_exe("trf400.exe") unless $trf;
+   $trf = $io->exists_exe("trf404") unless $trf;
+   $trf = $io->exists_exe("trf404.bin") unless $trf;
+   $trf = $io->exists_exe("trf404.exe") unless $trf;
    $trf = $io->exists_exe($bin) unless $trf;
    $trf = $io->exists_exe("trf") unless $trf;
    $trf = $io->exists_exe("trf.bin") unless $trf;
    $trf = $io->exists_exe("trf.exe") unless $trf;
-   $trf = $io->exists_exe("trf404") unless $trf;
-   $trf = $io->exists_exe("trf404.bin") unless $trf;
-   $trf = $io->exists_exe("trf404.exe") unless $trf;
    # Other awful naming systems can be used by this package, but here we stop!
    
    $trf or $self->throw("Could not find the trf binary", $path);
@@ -157,7 +164,8 @@ sub execute {
    $self->debug("Hello from ".cwd());
    $self->debug("Running: ".join(" ",@run)." [CWD: ".cwd()."]");
    my $run = Polloc::Polloc::IO->new(-file=>join(" ",@run));
-   while($run->_readline) {} # Do nothing, this is truly unuseful output
+   my $runout = '';
+   while($run->_readline){$runout.=$_ if defined $_} # Do nothing, this is truly unuseful output, just save it in case of errors (for debugging)
    $run->close();
    # Finger crossed (yes, again)
    chdir $cwd or $self->throw("I can not move myself to the original directory: $!", $cwd);
@@ -168,7 +176,7 @@ sub execute {
    		$c_v{'match'} . "." . $c_v{'mismatch'} . "." . $c_v{'indels'} . "." .
 		$c_v{'pm'} . "." . $c_v{'pi'} . "." . $c_v{'minscore'} . "." .
 		$c_v{'maxperiod'} . ".dat");
-   $self->throw("Impossible to locate the output file of TRF", $outfile) unless -e $outfile;
+   $self->throw("Impossible to locate the output file of TRF: '$outfile', (".join(" ", @run).") showing full output", $runout) unless -e $outfile;
    
    # And finally parse it
    my $ontable = 0;
