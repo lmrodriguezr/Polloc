@@ -120,9 +120,9 @@ Installation
 
     ```bash
         perl Makefile.PL
-	make
-	make test
-	make install # Could require sudo
+        make
+        make test
+        make install # Could require sudo
     ```
 
 4.  **Use the package**.  See the following section (Usage) for
