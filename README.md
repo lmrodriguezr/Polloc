@@ -114,13 +114,21 @@ Installation
         cd Polloc
         git init
         git clone git://github.com/lmrodriguezr/Polloc
-        cp -r lib/Polloc <perl-libraries-location> # For example /usr/lib/perl5/site_perl
     ```
 
-3.  **Use the package**.  See the following section (Usage) for
+3.  **Install** the library:
+
+    ```bash
+        perl Makefile.PL
+	make
+	make test
+	make install # Could require sudo
+    ```
+
+4.  **Use the package**.  See the following section (Usage) for
     some examples.
 
-4.  Familiar enough?  We are glad to listen than, then you could
+5.  Familiar enough?  We are glad to listen than, then you could
     **start developing**.  You can check the documentation within the
     modules using perldoc (or any other Pod interpreter), or contact
     us for questions and features requests.
