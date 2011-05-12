@@ -89,7 +89,14 @@ sub primersio {
    my($self, $io) = @_;
    return unless defined $io;
    my $line = $io->_readline;
-   $io->_pushback($line);
+   unless(defined $line){
+      defined $io->file or $self->throw('Empty primers file', $io);
+      my $io2 = Polloc::Polloc::IO->new(-input=>$io->file);
+      $line = $io2->_readline;
+      $io2->close;
+   }else{
+      $io->_pushback($line);
+   }
    my @p = split /\s+/, $line, 3;
    $self->fwd_primer($p[1]);
    $self->rev_primer($p[2]);
@@ -121,11 +128,7 @@ sub rev_primer {
 
 =head2 score
 
-Gets/sets the score
-
-=head3 Arguments
-
-The score (float, optional).
+Gets the score
 
 =head3 Returns
 
@@ -135,8 +138,29 @@ The score (float or undef).
 
 sub score {
    my($self,$value) = @_;
-   $self->{'_score'} = $value+0 if defined $value;
-   return $self->{'_score'};
+   $self->warn("Trying to set value via read-only method 'score()'") if defined $value;
+   return 100*$self->errors/$self->length;
+}
+
+=head2 errors
+
+Sets/gets the errors (in number of nucleotides).
+
+=head3 Arguments
+
+The errors (int, optional).
+
+=head3 Returns
+
+The errors (int or undef).
+
+=cut
+
+sub errors {
+   my($self, $value) = @_;
+   my $k = '_errors';
+   $self->{$k} = $value if defined $value;
+   return $self->{$k};
 }
 
 =head2 distance

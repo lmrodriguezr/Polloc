@@ -326,16 +326,19 @@ sub _io_cleanup {
 sub _initialize_io {
    my($self, @args) = @_;
    $self->_register_cleanup_method(\&_io_cleanup);
-   my ($input, $file, $fh, $flush, $url, $createtmp) =
-   	$self->_rearrange([qw(INPUT FILE FH FLUSH URL CREATETMP)], @args);
+   my ($input, $file, $fh, $flush, $url, $createtemp) =
+   	$self->_rearrange([qw(INPUT FILE FH FLUSH URL CREATETEMP)], @args);
    
-   ($fh, $file) = $self->tempfile(ref($createtmp)?@$createtmp:undef) if defined $createtmp and not $file;
+   if($createtemp){
+      ($fh, $file) = $self->tempfile();
+      $self->file($file);
+   }
    
    if($url){
       require LWP::Simple;
 
       my($handle,$tempfile) = $self->tempfile();
-      main::close($handle);
+      CORE::close($handle);
 
       my $http_result;
       for my $try ( 1 .. $IOTRIALS ){
@@ -363,12 +366,12 @@ sub _initialize_io {
       }
    }
    $self->warn("Bad practice to provide both file and filehandle for reading, ignoring file")
-   	if defined($file) && defined($fh);
+   	if defined($file) and defined($fh) and not $createtemp;
 
    if((!defined $fh) && defined($file) && $file ne ''){
       $fh = Symbol::gensym();
       open($fh, $file) or $self->throw("Could not open $file: $!");
-      $self->file($file) unless $fh;
+      $self->file($file);# unless $fh;
    }
    $self->_fh($fh) if $fh;
    $self->_flush_on_write(defined $flush ? $flush : 1);

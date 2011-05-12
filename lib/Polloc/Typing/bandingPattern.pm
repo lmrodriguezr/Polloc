@@ -45,15 +45,16 @@ sub new {
 
 See L<Polloc::TypingI-E<gt>scan()>.
 
-L<framents()> must be implemented by the C<Polloc::Typing::bandingPattern::*>
+L<fragments()> must be implemented by the C<Polloc::Typing::bandingPattern::*>
 object.
 
 =cut
 
 sub scan {
-   my($self, @args) = @_;
-   my($locigroup) = $self->_rearrange([qw(LOCIGROUP)], @args);
-   return $self->_scan_locigroup($self->fragments());
+   my ($self, @args) = @_;
+   my ($locigroup) = $self->_rearrange([qw(LOCIGROUP)], @args);
+   $locigroup ||= $self->locigroup;
+   return $self->_scan_locigroup($self->fragments(-locigroup=>$locigroup));
 }
 
 =head2 cluster

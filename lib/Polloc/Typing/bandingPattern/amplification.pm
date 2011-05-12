@@ -70,12 +70,16 @@ sub new {
 sub fragments {
    my($self, @args) = @_;
    my ($locigroup) = $self->_rearrange([qw(LOCIGROUP)], @args);
+   defined $locigroup or $self->throw('Trying to amplify fragments, but no loci group provided');
    my $primers = $self->design_primers(-locigroup=>$locigroup);
+   UNIVERSAL::can($primers, 'isa') and $primers->isa('Polloc::Polloc::IO')
+   		or $self->throw('Wrong primers file', $primers, 'Polloc::Polloc::UnexpectedException');
+   defined $primers->file or $self->throw('Impossible to locate primers temporal file', $primers, 'Polloc::Polloc::UnexpectedException');
    my $out = Polloc::LociGroup->new(-genomes=>$locigroup->genomes);
    for my $g (0 .. $#{$locigroup->genomes}){
       next unless defined $locigroup->genomes->[$g]->file;
       my $run = Polloc::Polloc::IO->new(-file=>"primersearch '".$locigroup->genomes->[$g]->file."' ".
-      						"'".$primers->file."' '".$self->annealing_errors."'");
+      						"'".$primers->file."' '".$self->annealing_errors."' -auto -stdout |");
       my $amp = [];
       my $k = -1;
       while(my $ln = $run->_readline){
@@ -92,6 +96,7 @@ sub fragments {
       }
       $out->add_loci($g, @$amp);
    }
+   return $out;
 }
 
 =head2 min_size
@@ -127,6 +132,7 @@ designed in the format required by EMBOSS primerseq:
 sub design_primers {
    my($self,@args) = @_;
    my($locigroup) = $self->_rearrange([qw(LOCIGROUP)], @args);
+   defined $locigroup or $self->throw('Trying to design primers, but no loci group provided');
    $locigroup->fix_strands;
    # Align flanking regions
    my $left_aln   = $locigroup->align_context(-1, $self->flanking_size, 0) or return;
@@ -207,24 +213,16 @@ Methods intended to be used only within the scope of Polloc::*
 
 =head2 _initialize
 
-=cut
-
-sub _initialize {
-   my($self,@args) = @_;
-   my($minSize, $maxSize, $primerConservation, $primerSize) =
-   		$self->_rearrange([qw(MINSIZE MAXSIZE PRIMERCONSERVATION PRIMERSIZE)], @args);
-   $self->type('bandingPattern');
-   $self->min_size($minSize);
-   $self->max_size($maxSize);
-   $self->primer_conservation($primerConservation);
-   $self->primer_size($primerSize);
-   $self->_initialize_method(@args);
-}
-
 =head2 _initialize_method
 
 =cut
 
-sub _initialize_method { }
+sub _initialize_method {
+   my($self,@args) = @_;
+   my($primerConservation, $primerSize) = $self->_rearrange([qw(PRIMERCONSERVATION PRIMERSIZE)], @args);
+   $self->type('bandingPattern::amplification');
+   $self->primer_conservation($primerConservation);
+   $self->primer_size($primerSize);
+}
 
 1;

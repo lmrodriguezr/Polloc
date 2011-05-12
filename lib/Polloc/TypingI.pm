@@ -251,7 +251,7 @@ sub matrix {
    }
    return $out unless $names;
    my $outN = {};
-   $outN->{$locigroup->genomes->[$_]} = $out->[$_] for (0 .. $#$out);
+   $outN->{$locigroup->genomes->[$_]->name} = $out->[$_] for (0 .. $#$out);
    return $outN;
 }
 
