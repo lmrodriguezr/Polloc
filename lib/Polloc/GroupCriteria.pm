@@ -1019,7 +1019,7 @@ sub _feat_index2obj{
 }
 
 
-=head _grouprules_cleanup
+=head2 _grouprules_cleanup
 
 =cut
 

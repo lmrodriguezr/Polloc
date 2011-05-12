@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 22;
+use Test::More tests => 26;
 
 # 1
 use_ok('Polloc::RuleIO');
@@ -51,10 +51,9 @@ isa_ok($T->genomes->[1], 'Polloc::Genome');
 my $L = $T->execute;
 isa_ok($L, 'Polloc::LociGroup');
 isa_ok($L->loci, 'ARRAY');
-ok($#{$L->loci}==1, 'Checking if the number of loci ('.($#{$L->loci}+1).') is equal to two');
-
-
-# ToDo
-# lib/Polloc/RuleIO:270 onwards
-
+ok($#{$L->loci}==1, 'The number of loci ('.($#{$L->loci}+1).') is equal to two');
+isa_ok($L->loci->[0], 'Polloc::Locus::repeat');
+isa_ok($L->loci->[1], 'Polloc::Locus::repeat');
+ok($L->loci->[0]->from == 1672, 'The first locus starts at 1672 ('.$L->loci->[0]->from.')');
+ok($L->loci->[1]->from == 1642, 'The second locus starts at 1642 ('.$L->loci->[1]->from.')');
 

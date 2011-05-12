@@ -403,7 +403,7 @@ sub _parse_context {
    return [0,0,0];
 }
 
-=heda2 _parse_cfg
+=head2 _parse_cfg
 
 =cut
 

@@ -111,7 +111,6 @@ sub graph_content {
    $img->rectangle(0, $nameh, $iw, $ih+$below);
    $img->font($font);
    my $white = $img->alphaColor(255,255,255,0);
-   my $white = $img->alphaColor(255,255,255,0);
    my $b1 = $img->alphaColor(130, 130, 130 ,0);
    
    # Draw bands

@@ -211,10 +211,13 @@ Methods intended to be used only within the scope of Polloc::*
 
 sub _initialize {
    my($self,@args) = @_;
-   my($minSize, $maxSize) = $self->_rearrange([qw(MINSIZE MAXSIZE)], @args);
+   my($minSize, $maxSize, $primerConservation, $primerSize) =
+   		$self->_rearrange([qw(MINSIZE MAXSIZE PRIMERCONSERVATION PRIMERSIZE)], @args);
    $self->type('bandingPattern');
    $self->min_size($minSize);
    $self->max_size($maxSize);
+   $self->primer_conservation($primerConservation);
+   $self->primer_size($primerSize);
    $self->_initialize_method(@args);
 }
 

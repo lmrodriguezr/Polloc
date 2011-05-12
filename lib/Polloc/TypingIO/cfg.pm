@@ -160,11 +160,11 @@ sub _parse_eval {
    my %args = ();
    for my $k ($self->_cfg->all_keys('.typing')){
    	(my $name = $k) =~ s/^\.typing\.//;
+	$name =~ s/^(?!-)/-/;
 	$args{$name} = $self->value($k);
    }
-   $args{'type'} = $body;
+   $args{'-type'} = $body;
    $self->typing(Polloc::TypingI->new(%args));
-   $self->typing->genomes($self->genomes);
 }
 
 =head2 _parse_cfg

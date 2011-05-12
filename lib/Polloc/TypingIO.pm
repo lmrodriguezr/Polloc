@@ -179,25 +179,6 @@ sub safe_value {
    return $self->{'_values'}->{$param};
 }
 
-=head2 genomes
-
-Gets/sets the genomes to be used as analysis base.
-
-=head3 Arguments
-
-A reference to an array of L<Polloc::Genome> objects.
-
-=cut
-
-sub genomes {
-   my($self, $value) = @_;
-   $self->{'_genomes'} = $value if defined $value;
-   return unless defined $self->{'_genomes'};
-   $self->throw("Unexpected type of genomes collection", $self->{'_genomes'})
-   	unless ref($self->{'_genomes'}) and ref($self->{'_genomes'})=~m/ARRAY/i;
-   return $self->{'_genomes'};
-}
-
 =head1 INTERNAL METHODS
 
 Methods intended to be used only within the scope of Polloc::*

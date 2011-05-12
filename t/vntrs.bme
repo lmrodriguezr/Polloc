@@ -47,7 +47,7 @@ maxSize = 2000
 minSize = 1
 primerConservation = 0.9
 primerSize = 20
-eval bandingPatterns::amplification
+eval banding::ampl
 
 
 
