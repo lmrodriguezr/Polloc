@@ -64,9 +64,11 @@ sub new {
       if($load){
          my $self = $load->SUPER::new(@args);
 	 $self->debug("Got the LocusI class $load");
-	 my($from,$to,$strand,$name,$rule,$seq,$id, $family, $source, $comments, $genome) =
+	 my($from,$to,$strand,$name,$rule,$seq,
+	 	$id,$family,$source,$comments,$genome,$seqname) =
 	 	$self->_rearrange(
-	 		[qw(FROM TO STRAND NAME RULE SEQ ID FAMILY SOURCE COMMENTS GENOME)], @args);
+	 	[qw(FROM TO STRAND NAME RULE SEQ ID FAMILY SOURCE COMMENTS GENOME SEQNAME)],
+		@args);
 	 $self->from($from);
 	 $self->to($to);
 	 $self->strand($strand);
@@ -78,6 +80,7 @@ sub new {
 	 $self->source($source);
 	 $self->comments($comments);
 	 $self->genome($genome);
+	 $self->seq_name($seqname);
          $self->_initialize(@args);
          return $self;
          
@@ -137,7 +140,8 @@ sub genome {
    $self->{'_genome'} = $value if defined $value;
    return unless defined $self->{'_genome'};
    $self->throw("Unexpected type of genome", $self->{'_genome'})
-   	unless UNIVERSAL::can($self->{'_genome'},'isa') and $self->{'_genome'}->isa('Polloc::Genome');
+   	unless UNIVERSAL::can($self->{'_genome'},'isa')
+	and $self->{'_genome'}->isa('Polloc::Genome');
    return $self->{'_genome'};
 }
 
@@ -611,10 +615,37 @@ This method returns the full original sequence, not the piece of sequence with t
 sub seq {
    my($self,$seq) = @_;
    if(defined $seq){
-      $self->throw("Illegal type of sequence", $seq) unless $seq->isa('Bio::Seq');
+      $self->throw("Illegal type of sequence", $seq)
+      		unless UNIVERSAL::can($seq, 'isa') and $seq->isa('Bio::Seq');
       $self->{'_seq'} = $seq;
    }
+   if(not defined $self->{'_seq'} and defined $self->{'_seq_name'} and defined $self->genome){
+      $self->{'_seq'} = $self->genome->search_sequence($self->seq_name);
+   }
    return $self->{'_seq'};
+}
+
+=head2 seq_name
+
+Gets/sets the name of the sequence
+
+=head3 Arguments
+
+The name of the sequence (str, optional).
+
+=head3 Returns
+
+The name of the sequence (str or C<undef>).
+
+=cut
+
+sub seq_name {
+   my($self, $value) = @_;
+   $self->{'_seq_name'} = $value if defined $value;
+   if(not defined $self->{'_seq_name'} and defined $self->seq){
+      $self->{'_seq_name'} = $self->seq->display_id;
+   }
+   return $self->{'_seq_name'};
 }
 
 =head2 gff3_line
