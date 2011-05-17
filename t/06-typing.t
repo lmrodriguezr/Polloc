@@ -11,7 +11,7 @@ my $T = Polloc::TypingIO->new(-file=>'t/vntrs.bme')->typing;
 isa_ok($T, 'Polloc::Typing::bandingPattern::amplification');
 
 # 3
-ok($T->type eq 'bandingPattern::amplification', 'Typing method is banding pattern by amplification ('.$T->type.')');
+is($T->type, 'bandingPattern::amplification');
 
 # 4
 # This should be replaced by Polloc::LocusIO once created (see Issue #25):
@@ -32,11 +32,11 @@ isa_ok($T->scan, 'Polloc::LociGroup');
 my $NM = $T->matrix(-names=>1);
 isa_ok($NM, 'HASH');
 isa_ok($NM->{'repeats'}, 'ARRAY');
-ok($#{$NM->{'repeats'}} == 0, 'The first vector contains one element ('.($#{$NM->{'repeats'}}+1).')');
-ok($NM->{'repeats'}->[0] == 105, 'The first value of the first vector in matrix() is 105 ('.$NM->{'repeats'}->[0].')');
+is($#{$NM->{'repeats'}}, 0);
+is($NM->{'repeats'}->[0], 105);
 
 # 12
 my $BM = $T->binary(-names=>1);
 isa_ok($BM, 'HASH');
-ok($BM->{'repeats'} == 1, 'The first value in binary() is 1 ('.$BM->{'repeats'}.')');
+is($BM->{'repeats'}, 1);
 

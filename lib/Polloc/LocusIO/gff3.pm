@@ -82,7 +82,7 @@ sub gff3_line {
    	or $self->throw("Undefined locus or bad type", $locus);
    return $locus->{'_gff3_line'} if defined $locus->{'_gff3_line'} and not $force;
    my @out;
-   push @out, defined $locus->seq ? $locus->seq->display_id : ".";
+   push @out, defined $locus->seq_name ? $locus->seq_name : ".";
    $out[0] =~ s/^>/{{%}}3E/;
    push @out, $locus->source; #defined $locus->rule ? $locus->rule->source : 'bme';
    push @out, $locus->family;
@@ -165,13 +165,15 @@ sub _next_locus_impl {
 		($f eq 'repeat' or $f eq 'vntr' or $f =~ /tandem.?repeat/
 			or lc $source eq 'trf' or lc $source eq 'mreps') ? 'repeat' :
    		'generic';
+   $type = "extend" if grep{ /Extended feature/ } @comments;
    my $locus = Polloc::LocusI->new(
-   		-type=>$type,
+   		-id=>$id, -name=>$name,
+		-type=>$type,
 		-from=>$from, -to=>$to, -strand=>$strand,
 		-source=>$source, -family=>$family,
+		-score=>$score,
 		-seqname=>$seqid);
    # Parse comments
-   my @comments_filt = ();
    for my $comm (@comments){
       if($comm =~ m/^(.+?)=(.+)$/){
 	 my ($k, $v) = (lc $1, $2);
@@ -182,8 +184,11 @@ sub _next_locus_impl {
 	 }
 	 $genome_name = $v if not defined $genome_name and
 	 	($k =~ /^organism(?:_name)?$/ or $k =~ /^genome(?:_name)?$/);
+      }elsif($type eq 'extend' and $comm =~ m/Based on group [^:]+: (.*)/){
+	 for my $b (split /\s/, $1){
+	    $locus->basefeature($self->_locus_by_id($b)) if defined $self->_locus_by_id($b);
+	 }
       }
-      push @comments_filt, $comm;
    }
    if(defined $genomes){
       my $genome;
@@ -203,8 +208,8 @@ sub _next_locus_impl {
       }
       $locus->genome($genome);
    }
-   $locus->comments(@comments_filt);
-   return $locus;
+   $locus->comments(@comments);
+   return $self->_save_locus($locus);
 }
 
 =head2 _write_locus_impl

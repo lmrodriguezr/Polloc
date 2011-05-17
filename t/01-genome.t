@@ -13,7 +13,7 @@ isa_ok($T, 'Polloc::Polloc::Root');
 
 # 4
 $T->file('t/multi.fasta');
-ok($#{$T->get_sequences} == 3, 'get_sequences() return all the sequences');
+is($#{$T->get_sequences}, 3);
 isa_ok($T->get_sequences->[0], 'Bio::Seq');
 isa_ok($T->get_sequences->[1], 'Bio::Seq');
 isa_ok($T->get_sequences->[2], 'Bio::Seq');
@@ -26,6 +26,6 @@ isa_ok($T->get_sequences->[0], 'Bio::Seq');
 
 # 11
 isa_ok($T->search_sequence('SEQ2'), 'Bio::Seq');
-ok($T->search_sequence('SEQ2')->display_id eq 'SEQ2', 'search_sequences() returns the right sequence');
+is($T->search_sequence('SEQ2')->display_id, 'SEQ2');
 
 

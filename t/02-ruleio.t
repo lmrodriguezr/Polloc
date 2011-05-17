@@ -13,16 +13,16 @@ isa_ok($T, 'Polloc::RuleIO');
 isa_ok($T, 'Polloc::RuleSet::cfg');
 
 # 5
-ok($T->prefix_id eq 'VNTR', 'prefix_id() returns the value of "glob prefix_id"');
+is($T->prefix_id, 'VNTR');
 
 # 6
-ok($T->init_id==1, 'init_id() is initialized at 1');
+is($T->init_id, 1);
 
 # 7
-ok($T->format eq 'cfg', 'format() returns the right format');
+is($T->format, 'cfg');
 
 # 8
-ok($#{$T->get_rules}==1, 'get_rules() returns the right number of rules');
+is($#{$T->get_rules}, 1);
 
 # 9
 isa_ok($T->get_rule(0), 'Polloc::RuleI');
@@ -32,11 +32,11 @@ isa_ok($T->get_rule(1), 'Polloc::Rule::boolean');
 # 12
 my $i = 0;
 while($T->next_rule){ $i++ }
-ok($i==2, 'next_rule() iterates through all the rules');
+is($i, 2);
 
 # 13
 isa_ok($T->groupcriteria, 'ARRAY');
-ok($#{$T->groupcriteria} == 0, 'groupcriteria() returns only one instance');
+is($#{$T->groupcriteria}, 0);
 isa_ok($T->groupcriteria->[0], 'Polloc::GroupCriteria');
 isa_ok($T->grouprules->[0], 'Polloc::GroupCriteria');
 
@@ -51,9 +51,9 @@ isa_ok($T->genomes->[1], 'Polloc::Genome');
 my $L = $T->execute;
 isa_ok($L, 'Polloc::LociGroup');
 isa_ok($L->loci, 'ARRAY');
-ok($#{$L->loci}==1, 'The number of loci ('.($#{$L->loci}+1).') is equal to two');
+is($#{$L->loci}, 1);
 isa_ok($L->loci->[0], 'Polloc::Locus::repeat');
 isa_ok($L->loci->[1], 'Polloc::Locus::repeat');
-ok($L->loci->[0]->from == 1672, 'The first locus starts at 1672 ('.$L->loci->[0]->from.')');
-ok($L->loci->[1]->from == 1642, 'The second locus starts at 1642 ('.$L->loci->[1]->from.')');
+is($L->loci->[0]->from, 1672);
+is($L->loci->[1]->from, 1642);
 

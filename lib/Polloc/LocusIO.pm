@@ -247,6 +247,28 @@ sub _next_locus_impl {
    $_[0]->throw("_next_locus_impl", $_[0], 'Polloc::Polloc::UnimplementedException');
 }
 
+=head2 _save_locus
+
+=cut
+
+sub _save_locus {
+   my($self, $locus) = @_;
+   $self->{'_saved_loci'}||= [];
+   push @{$self->{'_saved_loci'}}, $locus if defined $locus;
+   return $locus;
+}
+
+=head2 _locus_by_id
+
+=cut
+
+sub _locus_by_id {
+   my($self, $id) = @_;
+   return unless defined $id;
+   my @col = grep { $_->id eq $id } @{$self->{'_saved_loci'}};
+   return $col[0];
+}
+
 =head2 _initialize
 
 =cut
