@@ -59,10 +59,7 @@ sub new {
       my $bme = Polloc::Polloc::Root->new(@args);
       my($format,$file) = $bme->_rearrange([qw(FORMAT FILE)], @args);
       
-      if(!$format && $file){
-         $format = $file;
-         $format =~ s/.*\.//;
-      }
+      ($format = $file) =~ s/.*\.// if $file and not $format;
       if($format){
          $format = Polloc::RuleIO->_qualify_format($format);
          $class = "Polloc::RuleSet::" . $format if $format;

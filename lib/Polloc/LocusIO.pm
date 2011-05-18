@@ -64,8 +64,9 @@ sub new {
    
    if($class !~ m/Polloc::LocusIO::(\S+)/){
       my $bme = Polloc::Polloc::Root->new(@args);
-      my($format) = $bme->_rearrange([qw(FORMAT)], @args);
-      
+      my($format, $file) = $bme->_rearrange([qw(FORMAT FILE)], @args);
+
+      ($format = $file) =~ s/^.*\.// if $file and not $format;
       if($format){
          $format = __PACKAGE__->_qualify_format($format);
          $class = "Polloc::LocusIO::" . $format if $format;

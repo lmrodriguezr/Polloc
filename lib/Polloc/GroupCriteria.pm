@@ -28,7 +28,7 @@ L<Polloc::Polloc::Root>
 package Polloc::GroupCriteria;
 
 use strict;
-use List::Util qw(min max);
+use List::Util qw(min max first);
 use Polloc::Polloc::IO;
 use Polloc::LociGroup;
 use Polloc::GroupCriteria::operator;
@@ -372,25 +372,30 @@ L<Polloc::Polloc::Error> if unexpected input
 =cut
 
 sub extension {
-my ($self, @args) = @_;
+   my ($self, @args) = @_;
+   return $self->{'_groupextension'} unless $#args>=0;
    @args = split /\s+/, $args[0] if $#args == 0;
    $self->throw("Odd number of elements, impossible to build key-value pairs", \@args)
    	unless $#args%2;
    my %f = @args;
    $f{'-function'} ||= 'context';
    $f{'-algorithm'} ||= 'blast';
-   $f{'-feature'}+= 0 if defined $f{'-feature'};
-   $f{'-detectstrand'}+= 0 if defined $f{'-detectstrand'};
-   $f{'-alldetected'}+= 0 if defined $f{'-alldetected'};
+   ($f{'-feature'} ||= 0) += 0;
+   ($f{'-downstream'} ||= 0) += 0;
+   ($f{'-upstream'} ||= 0) += 0;
+   ($f{'-detectstrand'} ||= 0) += 0;
+   ($f{'-alldetected'} ||= 0) += 0;
+   ($f{'-oneside'} ||= 0) += 0;
    $f{'-lensd'} = defined $f{'-lensd'} ? $f{'-lensd'}+0 : 1.5;
    $f{'-maxlen'} = defined $f{'-maxlen'} ? $f{'-maxlen'}+0 : 0;
    $f{'-minlen'} = defined $f{'-minlen'} ? $f{'-minlen'}+0 : 0;
    $f{'-similarity'} = defined $f{'-similarity'} ? $f{'-similarity'}+0 : 0.8;
    $f{'-score'} = defined $f{'-score'} ? $f{'-score'}+0 : 20;
    $f{'-consensusperc'} = defined $f{'-consensusperc'} ? $f{'-consensusperc'}+0 : 60;
-   $f{'-e'} = 0.1 unless defined $f{'-e'};
+   $f{'-e'} = defined $f{'-e'} ? $f{'-e'}+0 : 0.1;
    $f{'-p'} = 'blastn' unless defined $f{'-p'};
    $self->{'_groupextension'} = \%f;
+   return $self->{'_groupextension'};
 }
 
 
@@ -422,7 +427,6 @@ L<Polloc::Polloc::Error> if unexpected input or weird extension definition.
 sub extend {
    my ($self, @args) = @_;
    my ($loci) = $self->_rearrange([qw(LOCI)], @args);
-   
    # Check input
    my $ext = $self->{'_groupextension'};
    return unless defined $ext;
@@ -431,52 +435,22 @@ sub extend {
    $self->throw("Unexpected type for the group of loci", $loci)
    	unless $loci->isa('Polloc::LociGroup');
    return unless $#{$loci->loci}>=0;
-
    # Set ID base
    my $group_id = $self->_next_group_id;
-
    # Run
    my @new = ();
    $self->debug("--- Extending group (based on ".($#{$loci->loci}+1)." loci) ---");
    if(lc($ext->{'-function'}) eq 'context'){
-      my ($up_aln, $down_aln, $in_aln);
       my ($up_pos, $down_pos, $in_pos);
-      my ($eval_border, $eval_feature);
-
-      # Fix the strands
-      if($ext->{'-detectstrand'}
-      			and (defined $ext->{'-upstream'}
-			or defined $ext->{'-downstream'})){
-         my $downsize = $ext->{'-downstream'};
-	 my $upsize = $ext->{'-upstream'};
-	 $downsize ||= 0;
-	 $upsize ||= 0;
-	 $loci->fix_strands(max($downsize, $upsize));
-      }
-      
+      $loci->fix_strands(max($ext->{'-downstream'}, $ext->{'-upstream'}))
+      	if $ext->{'-detectstrand'} and ($ext->{'-upstream'} or $ext->{'-downstream'});
       # Search
-      if(defined $ext->{'-upstream'} and $ext->{'-upstream'}+0){
-	 $self->debug("Searching upstream sequences");
-	 $up_aln = $loci->align_context(-1, $ext->{'-upstream'}, 0);
-	 $up_pos = $self->_search_aln_seqs($up_aln);
-	 $eval_border = 0;
-	 $self->debug(($#$up_pos+1)." results");
-      }
-      if(defined $ext->{'-downstream'} and $ext->{'-downstream'}+0){
-         $self->debug("Searching downstream sequences");
-	 $down_aln = $loci->align_context(1, $ext->{'-downstream'}, 0);
-	 $down_pos = $self->_search_aln_seqs($down_aln);
-	 $eval_border = 1 if defined $eval_border;
-	 $self->debug(($#$down_pos+1)." results");
-      }
-      if(defined $ext->{'-feature'} and $ext->{'-feature'}+0){
-         $self->debug("Searching in-feature sequences");
-	 $in_aln = $loci->align_context(0, 0, 0);
-	 $in_pos = $self->_search_aln_seqs($in_aln);
-	 $eval_feature = 1;
-	 $self->debug(($#$in_pos+1)." results");
-      }
-
+      my $eval_feature = $ext->{'-feature'} ? 1 : 0;
+      $up_pos = $self->_search_aln_seqs($loci->align_context(-1, $ext->{'-upstream'}, 0))
+      	if $ext->{'-upstream'};
+      $down_pos = $self->_search_aln_seqs($loci->align_context(1, $ext->{'-downstream'},0))
+      	if $ext->{'-downstream'};
+      $in_pos = $self->_search_aln_seqs($loci->align_context(0, 0, 0)) if $ext->{'-feature'};
       # Determine maximum size
       my $max_len = $ext->{'-maxlen'};
       unless($max_len){
@@ -486,73 +460,37 @@ sub extend {
 	 $max_len = $len_avg + $len_sd*$ext->{'-lensd'};
       }
       $self->debug("Comparing results with maximum feature's length of $max_len");
-
       # Evaluate/pair
-      if($eval_border){
+      if($ext->{'-upstream'} and $ext->{'-downstream'}){
 	 # Detect border pairs
-	 US: for my $us (@$up_pos){
-	    $self->throw("Unexpected array structure (upstream): ".join(" | ", @$us), $us)
-	       		unless defined $us->[0] and defined $us->[4];
-	    $self->debug(" US: ", join(':', @$us));
-	    my $found;
-	    my $pair = [];
-	    my $reason;
-	    DS: for my $ds (@$down_pos){
-	       $self->debug("    Discarded: $reason") if defined $reason;
-	       $self->throw("Unexpected array structure (downstream): ".
-	       		join(" | ", @$ds), $ds)
-	       			unless defined $ds->[0] and defined $ds->[4];
-	       $self->debug("  DS: ", join(':', @$ds));
-	       # Same contig:
-	       $reason = '!= ctg';
-	       next DS unless $us->[0] eq $ds->[0];
-	       # Different strand:
-	       $reason = '== strand';
-	       next DS unless $us->[3] != $ds->[3];
-	       # Close enough:
-	       $reason = 'too long';
-	       my $dist = abs($ds->[2]-$us->[2]);
-	       next DS if $dist > $max_len or $dist < $ext->{'-minlen'};
-	       # Closer than previous pairs, if any:
-	       $reason = 'other shorter';
-	       next DS if defined $found and abs($us->[2]-$ds->[2]) > $found;
-	       # Good!
-	       $reason = undef;
-	       $self->debug("Saving pair ".$us->[1]."..".$us->[2]."/".$ds->[1]."..".$ds->[2]);
-	       $found = abs($us->[2]-$ds->[2]);
-	       $pair = [$us->[0], $us->[2], $ds->[2], $us->[3], ($us->[4]+$ds->[4])/2];
-	    }
-	    $self->debug("    Discarded: $reason") if defined $reason;
-	    push @new, $pair if $#$pair>1;
-	 }
+	 push @new, $self->_detect_border_pairs($up_pos, $down_pos, $max_len);
 	 if($eval_feature){
 	    $self->debug("Filtering results with in-feature sequences");
 	    my @prefilter = @new;
 	    @new = ();
 	    BORDER: for my $br (@prefilter){
-	       WITHIN: for my $in (@$in_pos){
-		  $self->throw("Unexpected array structure (in-feature): ".
-		  	join(" | ", @$in), $in)
-		  		unless defined $in->[0] and defined $in->[4];
-		  # Same contig:
-		  next WI unless $br->[0] eq $in->[0];
-		  # Upstream's strand:
-		  next WI unless $br->[3] == $in->[3];
-		  # Overlapping:
-		  next WI unless $br->[3]*$in->[1] < $br->[3]*$br->[2]
-		  		and $br->[3]*$in->[2] > $br->[3]*$br->[1];
-		  # Good!
-		  # ToDo: Should I use the loci' data to sharpen borders?...
-		  $br->[4] = (2*$br->[4] + $in->[4])/3;
-		  push @new, $br;
-	       }
+	       push @new,
+		  first { $br->[0] ne $_->[0] # != ctg
+		     and $br->[3] == $_->[3] # upstream's strand
+		     and $br->[3]*$_->[1] < $br->[3]*$br->[2] # no overlap
+		     and $br->[3]*$_->[2] > $br->[3]*$br->[1] # no overlap
+		  } @$in_pos;
+	       #WITHIN: for my $in (@$in_pos){
+	#	  $self->throw("Unexpected array structure (in-feature)", $in)
+	#	  		unless defined $in->[0] and defined $in->[4];
+	#	  next WITHIN	if $br->[0] eq $in->[0] # == ctg
+	#	  		or $br->[3] != $in->[3] # upstream's strand
+#				or $br->[3]*$in->[1] >= $br->[3]*$br->[2] # overlap
+#				or $br->[3]*$in->[2] <= $br->[3]*$br->[1]; # overlap
+#		  # Good!
+#		  $br->[4] = (2*$br->[4] + $in->[4])/3;
+#		  push @new, $br;
+#		  next BORDER;
+	      # }
 	    }
 	 }
-      }elsif($eval_feature){
-	 # Just like that ;o)
-	 @new = @$in_pos;
-      }else{
-	 $self->throw('Anything to evaluate!  '.
+      }elsif($eval_feature){ @new = @$in_pos }else{
+	 $self->throw('Nothing to evaluate!  '.
 	 		'I need either the two borders or the middle sequence (or both)');
       }
    }else{
@@ -597,7 +535,6 @@ sub extend {
 		-to=>$item->[2],
 		-id=>(defined $id ? $id : ''),
 		-strand=>($item->[3]==-1 ? '+' : '-'),
-		# Seems complicated, but reduces clones:
 		#		       Gk:Genome	 	   ck:Contig
 		-seq=>$self->genomes->[$seq->[0]]->get_sequences->[$seq->[1]],
 		-score=>$item->[4],
@@ -726,7 +663,8 @@ Note that this function is called B<BEFORE> running the comparison.
 
 =head3 Returns
 
-A L<Polloc::LociGroup> object.
+An arrayref of L<Polloc::LociGroup> objects, each containing one consistent
+group of loci.
 
 =head3 Note
 
@@ -771,6 +709,7 @@ sub build_groups {
    my $out = [];
    for my $gk (0 .. $#$groups){
       my $group = Polloc::LociGroup->new(-name=>sprintf("%04s", $gk+1)); #+++ ToDo: Is ID ok?
+      $group->genomes($self->genomes);
       for my $lk (0 .. $#{$groups->[$gk]}){
          my $locus = $loci->[ $groups->[$gk]->[$lk] ];
 	 # Paranoid bugbuster:
@@ -803,6 +742,40 @@ sub genomes {
 =head1 INTERNAL METHODS
 
 Methods intended to be used only within the scope of Polloc::*
+
+=head2 _detect_border_pairs
+
+=cut
+
+sub _detect_border_pairs {
+   my($self, $up_pos, $down_pos, $max_len) = @_;
+   return unless $up_pos and $down_pos;
+   my $ext = $self->{'_groupextension'};
+   my @out = ();
+   US: for my $us (@$up_pos){
+      $self->throw("Unexpected array structure (upstream): ", $us)
+		  unless defined $us->[0] and defined $us->[4];
+      $self->debug(" US: ", join(':', @$us));
+      my $found;
+      my $pair = [];
+      DS: for my $ds (@$down_pos){
+	 $self->throw("Unexpected array structure (downstream): ", $ds)
+			  unless defined $ds->[0] and defined $ds->[4];
+	 $self->debug("  DS: ", join(':', @$ds));
+	 next DS if $us->[0] ne $ds->[0] # != ctg
+		 or $us->[3] == $ds->[3] # == strand
+		 or abs($ds->[2]-$us->[2]) > $max_len # too large
+		 or abs($ds->[2]-$us->[2]) < $ext->{'-minlen'} # too short
+		 or defined $found and abs($us->[2]-$ds->[2]) > $found; # prev better
+	 # Good!
+	 $self->debug("Saving pair ".$us->[1]."..".$us->[2]."/".$ds->[1]."..".$ds->[2]);
+	 $found = abs($us->[2]-$ds->[2]);
+	 $pair = [$us->[0], $us->[2], $ds->[2], $us->[3], ($us->[4]+$ds->[4])/2];
+      }
+      push @out, $pair if $#$pair>1;
+   }
+   return @out;
+}
 
 =head2 _next_group_id
 
@@ -1028,7 +1001,7 @@ sub _grouprules_cleanup {
    my $self = shift;
    if(defined $self->{'_seqsdb'}) {
       my $tmp = $self->{'_seqsdb'};
-      for my $k (0 .. $#{$self->genomes}){
+      for my $k (0 .. $#{$self->genomes || []}){
          while(<$tmp/$k.*>){
 	    unlink $_ or $self->throw("Impossible to delete '$_'", $!);
 	 }
