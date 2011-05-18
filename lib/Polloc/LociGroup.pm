@@ -201,42 +201,6 @@ sub featurename {
    return $self->{'_featurename'};
 }
 
-=head2 export_gff3
-
-Exports the list of loci to the specified file or file handler
-
-=head3 Arguments
-
-Any argument accepted by Polloc::Polloc::IO->new(), or:
-
-=over
-
-=item -io L<Polloc::Polloc::IO>
-
-If set, appends the loci to the object, and does not print the
-gff header.
-
-=back
-
-=head3 Returns
-
-The L<Polloc::Polloc::IO> object handling the output.
-
-=cut
-
-sub export_gff3 {
-   my ($self, @args) = @_;
-   my ($io) = $self->_rearrange([qw(IO)], @args);
-   my $append = defined $io;
-   $io = Polloc::Polloc::IO->new(@args) unless $append;
-   $io->_print("##gff-version 3\n\n") unless $append;
-   for my $locus (@{$self->loci}){
-      $io->_print($locus->gff3_line);
-   }
-   #$io->close();
-   return $io;
-}
-
 =head2 avg_length
 
 Gets the average length of the stored loci.
