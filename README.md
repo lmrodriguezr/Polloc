@@ -22,8 +22,8 @@ Montpellier, France
 License
 -------
 
-This package is licensed under the terms of *The Artistic
-License*. See LICENSE.txt.
+This package is licensed under the terms of **The Artistic
+License**. See LICENSE.txt.
 
 
 Description
@@ -139,6 +139,12 @@ Usage
 
 ### Running existing scripts
 
+The scripts distributed with Polloc are located at the `scripts` folder.  Scripts
+include a small help message, so that you can just run it with `perl`.
+
+* Running the **vntrs.pl** script.  This script is the core of the [VNTRs detection
+tool](http://bioinfo-prod.mpl.ird.fr/xantho/utils/#vntrs).  It requires the
+`vntrs.bme` file, also at the `scripts` folder.
 
 
 ### Writing new scripts
