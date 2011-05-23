@@ -131,7 +131,7 @@ Installation
 5.  Familiar enough?  We are glad to listen than, then you could
     **start developing**.  You can check the documentation within the
     modules using perldoc (or any other Pod interpreter), or contact
-    us for questions and features requests.
+    us for questions and feature requests.
 
 
 Usage
@@ -140,6 +140,24 @@ Usage
 ### Running existing scripts
 
 
+
 ### Writing new scripts
+
+
+
+F.A.Q.
+------
+
+### How do I know the installed version of Polloc in my machine?
+
+    ```bash
+        perl -MPolloc::Polloc::Root -e 'print $Polloc::Polloc::Root::VERSION,"\n"'
+    ```
+
+### Is there an implementation of Polloc running in a real-life tool?
+
+Yes, the [VNTRs detection tool](http://bioinfo-prod.mpl.ird.fr/xantho/utils/#vntrs),
+a web-service devoted to the detection and analysis of VNTR loci (Variable Number of
+Tandem Repeats).  If you have another tool making use of Polloc, please let us know.
 
 

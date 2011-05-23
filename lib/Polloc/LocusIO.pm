@@ -211,6 +211,7 @@ The qualified format (str or undef)
 sub _qualify_format {
    my($self,$value) = @_;
    return unless $value;
+   $value = 'gff3' if $value =~ /^gff3?$/i;
    $value = lc $value;
    return $value;
 }

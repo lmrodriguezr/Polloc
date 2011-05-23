@@ -2,6 +2,7 @@
 
 use strict;
 use Polloc::RuleIO;
+use Polloc::LocusIO;
 use Polloc::Genome;
 use Bio::SeqIO;
 use List::Util qw(min max);
@@ -26,6 +27,34 @@ my @names = split ":", shift @ARGV;
 my @inseqs = @ARGV;
 my $csv = "$out.csv";
 my $groupcsv = "$out.group.csv";
+unless($cnf and $out and $buildgroups and defined $extendgroups
+	and defined $summarizegroups and $#names>-1
+	and $#inseqs>-1){
+die <<HELP
+   Usage: $0 [Params]
+   Params (in that order):
+      cnf (path):	Path to the configuration file (.cnf or .bme).
+      			Example: t/vntrs.bme
+      out (path):	Path to the base of the output files.
+      			Example: /tmp/polloc-vntrs-out
+      buildgroups:	If on, groups the detected loci.
+      			Values: 'on' or '' (empty string)
+      extendgroups:	If on, extends the groups of loci (buildgroups
+      			must be on).
+			Values: 'on' or '' (empty string)
+      summarizegroups:	If on, creates files with additional information
+      			about groups (buildgroups must be on).
+			Values: 'on' or '' (empty string)
+      names (str):	The names of the genomes separated by colons (:).
+      			Example: Xci3:Xeu8:XamC
+      inseqs (paths):	Sequences to scan (input).  Each argument will be
+      			considered a single genome, and the values of
+			'names' will be applied.  The order of the inseqs
+			must be the same of the names.
+			Example: /data/Xci3.fa /data/Xeu8.fa /data/XamC.fa
+      
+HELP
+}
 
 open LOG, ">", "$out.log" or die "I can not create the '$out.log' file: $!\n";
 Polloc::Polloc::Root->DEBUGLOG(-fh=>\*LOG);
@@ -47,7 +76,8 @@ $ruleIO->genomes($genomes);
 
 # ------------------------------------------------- DETECT VNTRs
 my $all_loci = $ruleIO->execute(-advance=>\&advance_detection);
-my $gff3_io = $all_loci->export_gff3(-file=>">$out.gff");
+my $gff3_io = Polloc::LocusIO->new(-file=>">$out.gff");
+$gff3_io->write_locus($_) for @{$all_loci->loci};
 my $struct = $all_loci->structured_loci; # <- expensive function, call it only once.
 for my $gk (0 .. $#$struct){
    for my $locus (@{$struct->[$gk]}){
@@ -77,7 +107,7 @@ if($buildgroups){
 # ------------------------------------------------- EXTEND GROUPS
      if($extendgroups){
 	my $ext = $grule->extend($group);
-	$ext->export_gff3(-io=>$gff3_io);
+	$gff3_io->write_locus($_) for @{$ext->loci};
 	print CSV &csv_line($_, $_->genome->name) for @{$ext->loci};
 	$group->add_loci(@{$ext->loci});
 	&advance_extension($procGroups+1, $#$groups+1);
