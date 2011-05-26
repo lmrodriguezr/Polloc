@@ -143,8 +143,9 @@ The scripts distributed with Polloc are located at the `scripts` folder.  Script
 include a small help message, so that you can just run it with `perl`.
 
 * Running the **vntrs.pl** script.  This script is the core of the [VNTRs detection
-tool](http://bioinfo-prod.mpl.ird.fr/xantho/utils/#vntrs).  It requires the
-`vntrs.bme` file, also at the `scripts` folder.
+tool](http://bioinfo-prod.mpl.ird.fr/xantho/utils/#vntrs).  It requires the `vntrs.bme`
+file, also at the `scripts` folder.  Run it with no arguments to check the required
+parameters.
 
 
 ### Writing new scripts
@@ -158,6 +159,7 @@ F.A.Q.
 
     ```bash
         perl -MPolloc::Polloc::Root -e 'print $Polloc::Polloc::Root::VERSION,"\n"'
+        
     ```
 
 ### Is there an implementation of Polloc running in a real-life tool?

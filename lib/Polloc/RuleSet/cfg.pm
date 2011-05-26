@@ -38,8 +38,6 @@ use base qw(Polloc::RuleIO);
 
 Methods provided by the package
 
-=cut
-
 =head2 new
 
 Generic initialization method.
