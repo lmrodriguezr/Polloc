@@ -30,7 +30,9 @@ Description
 -----------
 
 A perl package for detecting, comparing, grouping, extending and
-summarizing polymorphic loci in bacterial genomes.
+summarizing polymorphic loci in bacterial genomes.  This package
+is mainly aimed to assist typing studies, but can be applied in
+a much wider range of projects.
 
 
 Requirements
@@ -148,7 +150,7 @@ Usage
 The scripts distributed with Polloc are located at the `scripts` folder.  Scripts
 include a small help message, so that you can just run it with `perl`.
 
-* Running the **vntrs.pl** script.  This script is the core of the [VNTRs detection
+* Running the **vntrs.pl** script.  This script is the core of the [VNTRs analysis
 tool](http://bioinfo-prod.mpl.ird.fr/xantho/utils/#vntrs).  It requires the `vntrs.bme`
 file, also at the `scripts` folder.  Run it with no arguments to check the required
 parameters.
@@ -156,6 +158,7 @@ parameters.
 
 ### Writing new scripts
 
+**ToDo**
 
 
 F.A.Q.
@@ -171,4 +174,12 @@ Yes, the [VNTRs detection tool](http://bioinfo-prod.mpl.ird.fr/xantho/utils/#vnt
 a web-service devoted to the detection and analysis of VNTR loci (Variable Number of
 Tandem Repeats).  If you have another tool making use of Polloc, please let us know.
 
+### How can I contribute to the Polloc project?
+
+The Polloc library is Open Source, and is licensed under the Perl Artistic License.  This
+means that you can freely modify the code provided you properly cite the source.  However,
+if you want your modifications to be incorporated into the main Polloc code, please fork
+[Polloc at GitHub](http://www.github.com/lmrodriguezr/Polloc) and submit your changes via
+Pull Requests.  If you are not familiar with Git, please read the documentation available
+at the [git website](http://www.git-scm.com/).
 

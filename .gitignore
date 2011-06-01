@@ -9,5 +9,5 @@ blib*
 pm_to_blib
 t/loci_out.gff3
 formatdb.log
-Bio-Polloc-*
+Bio::Polloc-*
 
