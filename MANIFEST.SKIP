@@ -17,3 +17,12 @@
 ^t/loci_out.gff3$
 ^formatdb.log$
 
+# Version control files
+^.git
+^.gitignore$
+
+# Backup files
+^MANIFEST\.bak$
+^Makefile.bak$
+^Makefile.old$
+

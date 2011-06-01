@@ -80,7 +80,7 @@ set of modules to be used.
 CRISPRs detection.
 
 * [TRF](http://tandem.bu.edu/trf/trf.html), for Tandem
-Repeats detection (producing `Polloc::Locus::Repeat`
+Repeats detection (producing `Bio::Polloc::Locus::Repeat`
 objects).
 
 * [mreps](http://bioinfo.lifl.fr/mreps/), for Repeats
@@ -119,6 +119,12 @@ Installation
 3.  **Install** the library:
 
     ```bash
+        # The following three lines are optional (only for non-built copies)
+        perl Build.PL
+        ./Build manifest
+        ./Build dist
+        
+        # The following lines install the library and the documentation
         perl Makefile.PL
         make
         make test
@@ -157,7 +163,7 @@ F.A.Q.
 
 ### How do I know the installed version of Polloc in my machine?
 
-    perl -MPolloc::Polloc::Root -e 'print $Polloc::Polloc::Root::VERSION,"\n"'
+    perl -MBio::Polloc::Polloc::Root -e 'print $Bio::Polloc::Polloc::Root::VERSION,"\n"'
 
 ### Is there an implementation of Polloc running in a real-life tool?
 

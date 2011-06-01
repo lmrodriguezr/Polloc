@@ -1,5 +1,6 @@
 Makefile
 Makefile.old
+MYMETA.yml
 *.bak
 Build
 Build.bat

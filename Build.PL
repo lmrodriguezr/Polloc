@@ -28,9 +28,8 @@ my $build = new Module::Build (
 		'Bio::Tools::Run::StandAloneBlast' => 0,
 		'Bio::Tools::Run::Hmmer' => 0,
 	},
-	build_requires	=> {
-		'Module::Build'	=> 0.20
-	},
+	build_requires	=> { 'Module::Build' => 0.20 },
+	configure_requires => { 'Module::Build' => 0.36 },
 	create_makefile_pl	=> 'traditional',
 );
 
