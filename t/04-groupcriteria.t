@@ -4,23 +4,23 @@ use warnings;
 use Test::More tests => 24;
 
 # 1
-use_ok('Polloc::GroupCriteria');
-use_ok('Polloc::RuleIO');
+use_ok('Bio::Polloc::GroupCriteria');
+use_ok('Bio::Polloc::RuleIO');
 
 # 5
-my $T = Polloc::RuleIO->new(-file=>'t/vntrs.bme');
-isa_ok($T, 'Polloc::RuleSet::cfg');
+my $T = Bio::Polloc::RuleIO->new(-file=>'t/vntrs.bme');
+isa_ok($T, 'Bio::Polloc::RuleSet::cfg');
 
 # 6
 my $C = $T->groupcriteria->[0];
-isa_ok($C, 'Polloc::GroupCriteria');
+isa_ok($C, 'Bio::Polloc::GroupCriteria');
 
 # 7
 is($C->source, 'VNTR');
 is($C->target, 'VNTR');
 
 # 9
-isa_ok($C->condition, 'Polloc::GroupCriteria::operator');
+isa_ok($C->condition, 'Bio::Polloc::GroupCriteria::operator');
 isa_ok($C->extension, 'HASH');
 is($C->extension->{'-function'}, 'context');
 is($C->extension->{'-upstream'}, 500);

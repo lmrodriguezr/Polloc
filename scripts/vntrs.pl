@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 
 use strict;
-use Polloc::RuleIO;
-use Polloc::LocusIO;
-use Polloc::Genome;
+use Bio::Polloc::RuleIO;
+use Bio::Polloc::LocusIO;
+use Bio::Polloc::Genome;
 use Bio::SeqIO;
 use List::Util qw(min max);
 
@@ -57,8 +57,8 @@ HELP
 }
 
 open LOG, ">", "$out.log" or die "I can not create the '$out.log' file: $!\n";
-Polloc::Polloc::Root->DEBUGLOG(-fh=>\*LOG);
-Polloc::Polloc::Root->VERBOSITY(4);
+Bio::Polloc::Polloc::Root->DEBUGLOG(-fh=>\*LOG);
+Bio::Polloc::Polloc::Root->VERBOSITY(4);
 
 open CSV, ">", $csv or die "I can not create the CSV file '$csv': $!\n";
 
@@ -67,16 +67,16 @@ print CSV &csv_header();
 
 # ------------------------------------------------- READ INPUT
 # Configuration
-my $ruleIO = Polloc::RuleIO->new(-format=>'Config', -file=>$cnf);
+my $ruleIO = Bio::Polloc::RuleIO->new(-format=>'Config', -file=>$cnf);
 my $genomes = [];
 # Sequences
 for my $G (0 .. $#inseqs){
-   push @$genomes, Polloc::Genome->new(-file=>$inseqs[$G], -name=>$names[$G], -id=>$G) }
+   push @$genomes, Bio::Polloc::Genome->new(-file=>$inseqs[$G], -name=>$names[$G], -id=>$G) }
 $ruleIO->genomes($genomes);
 
 # ------------------------------------------------- DETECT VNTRs
 my $all_loci = $ruleIO->execute(-advance=>\&advance_detection);
-my $gff3_io = Polloc::LocusIO->new(-file=>">$out.gff");
+my $gff3_io = Bio::Polloc::LocusIO->new(-file=>">$out.gff");
 $gff3_io->write_locus($_) for @{$all_loci->loci};
 my $struct = $all_loci->structured_loci; # <- expensive function, call it only once.
 for my $gk (0 .. $#$struct){

@@ -4,11 +4,11 @@ use warnings;
 use Test::More tests => 14;
 
 # 1
-use_ok('Polloc::RuleI');
-use_ok('Polloc::RuleIO');
+use_ok('Bio::Polloc::RuleI');
+use_ok('Bio::Polloc::RuleIO');
 
 # 3
-my $r = Polloc::RuleIO->new(-file=>'t/vntrs.bme')->next_rule;
+my $r = Bio::Polloc::RuleIO->new(-file=>'t/vntrs.bme')->next_rule;
 is($r->type, 'tandemrepeat');
 
 # 4
@@ -31,7 +31,7 @@ is($r->stringify, "Tandemrepeat 'VNTR repeat': ".$str);
 is($r->stringify_value, $str);
 
 # 13
-isa_ok($r->ruleset, 'Polloc::RuleIO');
+isa_ok($r->ruleset, 'Bio::Polloc::RuleIO');
 
 # 14
 is($r->source, 'tandemrepeat');

@@ -4,7 +4,7 @@ use Config;
 use File::Spec;
 
 my $build = new Module::Build (
-	module_name	=> 'Bio::Polloc',
+	module_name	=> 'Bio::Polloc::Polloc::Root',
 	description	=> 'Polymorphic Loci analysis',
 	dist_name	=> 'Bio::Polloc',
 	dist_author	=> 'Luis M Rodriguez-R <lmrodriguezr@gmail.com>',
@@ -31,7 +31,7 @@ my $build = new Module::Build (
 	build_requires	=> {
 		'Module::Build'	=> 0.20
 	},
-	create_makefile_pl	=> 'passthrough',
+	create_makefile_pl	=> 'traditional',
 );
 
 for my $pl (qw(polloc_vntrs)){
@@ -39,5 +39,6 @@ for my $pl (qw(polloc_vntrs)){
    $build->scripts($script) if $build->y_n("Do you want to install the $script script to $Config{installscript}?", 'n');
 }
 
+$build->create_makefile_pl;
 $build->create_build_script;
 

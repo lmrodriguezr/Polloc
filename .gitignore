@@ -1,5 +1,6 @@
 Makefile
 Makefile.old
+*.bak
 Build
 Build.bat
 _build*
@@ -7,4 +8,5 @@ blib*
 pm_to_blib
 t/loci_out.gff3
 formatdb.log
+Bio-Polloc-*
 

@@ -4,12 +4,12 @@ use warnings;
 use Test::More tests => 12;
 
 # 1
-use_ok('Polloc::Genome');
+use_ok('Bio::Polloc::Genome');
 
 # 2
-my $T = Polloc::Genome->new;
-isa_ok($T, 'Polloc::Genome');
-isa_ok($T, 'Polloc::Polloc::Root');
+my $T = Bio::Polloc::Genome->new;
+isa_ok($T, 'Bio::Polloc::Genome');
+isa_ok($T, 'Bio::Polloc::Polloc::Root');
 
 # 4
 $T->file('t/multi.fasta');
@@ -20,8 +20,8 @@ isa_ok($T->get_sequences->[2], 'Bio::Seq');
 isa_ok($T->get_sequences->[3], 'Bio::Seq');
 
 # 9
-$T = Polloc::Genome->new(-file=>'t/multi.fasta');
-isa_ok($T, 'Polloc::Genome');
+$T = Bio::Polloc::Genome->new(-file=>'t/multi.fasta');
+isa_ok($T, 'Bio::Polloc::Genome');
 isa_ok($T->get_sequences->[0], 'Bio::Seq');
 
 # 11
