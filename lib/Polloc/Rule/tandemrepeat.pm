@@ -193,12 +193,14 @@ sub execute {
 	 my @v = split /\s+/, $line;
 	 $#v==14 or $self->throw("Unexpected line $.",$line,"Polloc::Polloc::ParsingException");
 	 # MINSIZE MAXSIZE MINPERIOD MAXPERIOD EXP MATCH MISMATCH INDELS MINSCORE MAXSCORE
+	 $self->debug("Checking additional parameters");
 	 next if length($v[14]) > $c_v{'maxsize'} or length($v[14]) < $c_v{'minsize'};
 	 next if $v[2] > $c_v{'maxperiod'} or $v[2] < $c_v{'minperiod'};
 	 next if $v[3] < $c_v{'exp'};
 	 next if $v[7] < $c_v{'minscore'};
 	 next if $c_v{'maxscore'} and $v[7] > $c_v{'maxscore'};
 	 next if $v[5] < $c_v{'minsim'} or $v[5] > $c_v{'maxsim'};
+	 $self->debug("Cool!");
 	 
 	 my $id = $self->_next_child_id;
 	 push @feats, Polloc::LocusI->new(
