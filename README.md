@@ -109,7 +109,7 @@ Installation
     find the Perl modules in [CPAN](http://cpan.org).
 
 2.  **Download** the library.  There are several alternatives,
-    but we love git:
+    but we love [git](http://www.git-scm.com/):
 
     ```bash
         mkdir Polloc

@@ -86,9 +86,8 @@ sub execute {
       my $tv = $self->_search_value($p);
       $cmd_vars->{"-" . lc $p} = $tv if defined $tv;
    }
-   my $minsim = $self->_search_value("minsim")+0;
-   $minsim ||= 0;
-   my $maxsim = $self->_search_value("maxsim")+0;
+   my $minsim = ($self->_search_value("minsim") || 0)+0;
+   my $maxsim = ($self->_search_value("maxsim") || 0)+0;
    $maxsim ||= 100;
 
    # Create the IO master
@@ -96,30 +95,8 @@ sub execute {
 
    # Search for mreps
    $self->source('mreps');
-   my $mreps;
-   my $bin = "";
-   my $path;
-   $path = $self->ruleset->value("path") if defined $self->ruleset;
-   $self->debug("Searching the mreps binary for $^O");
-   # Note the darwin support.  This is because darwin is unable to execute
-   # the linux binary (despite its origin)
-   if($^O =~ /(macos|darwin)/i){
-      $bin = "mreps.macosx.bin";
-   }elsif($^O =~ /mswin/i){
-      $bin = "mreps.exe";
-   }else{
-      $bin = "mreps.linux.bin";
-   }
-   if($path){
-      $mreps = $io->exists_exe($path . $bin) unless $mreps;
-      $mreps = $io->exists_exe($path . "mreps") unless $mreps;
-      $mreps = $io->exists_exe($path . "mreps.bin") unless $mreps;
-   }
-   $mreps = $io->exists_exe($bin) unless $mreps;
-   $mreps = $io->exists_exe("mreps") unless $mreps;
-   $mreps = $io->exists_exe("mreps.bin") unless $mreps;
-   
-   $mreps or $self->throw("Could not find the mreps binary", $path);
+   my $mreps = $self->_executable(defined $self->ruleset ? $self->ruleset->value("path") : undef)
+   	or $self->throw("Could not find the mreps binary");
    
    # Write the sequence
    my($seq_fh, $seq_file) = $io->tempfile;
@@ -165,7 +142,7 @@ sub execute {
    return wantarray ? @feats : \@feats;
 }
 
-=head2 stringigy_value
+=head2 stringify_value
 
 Produces a readable string containing the value of the rule.
 
@@ -179,6 +156,62 @@ sub stringify_value {
    }
    return $out;
 }
+
+=head2 value
+
+Implements the C<_qualify_value()> from the L<Bio::Polloc::RuleI> interface
+
+=head3 Arguments
+
+Value (str or ref-to-hash or ref-to-array).  The supported keys are:
+
+=over
+
+=item -res I<float>
+
+Resolution (allowed error)
+
+=item -minsize I<int>
+
+Minimum size of the repeat
+
+=item -maxsize I<int>
+
+Maximum size of the repeat
+
+=item -minperiod I<float>
+
+Minimum period of the repeat
+
+=item -maxperiod I<float>
+
+Maximum period of the repeat
+
+=item -exp I<float>
+
+Minimum exponent (number of repeats)
+
+=item -allowsmall I<bool (int)>
+
+If true, allows spurious results
+
+=item -win I<float>
+
+Process by sliding windows of size C<2*n> overlaping by C<n>
+
+=item -minsim I<float>
+
+Minimum similarity percent
+
+=item -maxsim I<float>
+
+Maximum similarity percent
+
+=back
+
+=head3 Return
+
+Value (I<hashref> or C<undef>).
 
 =head1 INTERNAL METHODS
 
@@ -240,98 +273,30 @@ sub _parameters {
    return [qw(RES MINSIZE MAXSIZE MINPERIOD MAXPERIOD EXP ALLOWSMALL WIN MINSIM MAXSIM)];
 }
 
-=head2 _qualify_value
+=head2 _executable
 
-Implements the C<_qualify_value()> from the L<Bio::Polloc::RuleI> interface
-
-=head3 Arguments
-
-Value (str or ref-to-hash or ref-to-array).  The supported keys are:
-
-=over
-
-=item -res I<float>
-
-Resolution (allowed error)
-
-=item -minsize I<int>
-
-Minimum size of the repeat
-
-=item -maxsize I<int>
-
-Maximum size of the repeat
-
-=item -minperiod I<float>
-
-Minimum period of the repeat
-
-=item -maxperiod I<float>
-
-Maximum period of the repeat
-
-=item -exp I<float>
-
-Minimum exponent (number of repeats)
-
-=item -allowsmall I<bool (int)>
-
-If true, allows spurious results
-
-=item -win I<float>
-
-Process by sliding windows of size C<2*n> overlaping by C<n>
-
-=item -minsim I<float>
-
-Minimum similarity percent
-
-=item -maxsim I<float>
-
-Maximum similarity percent
-
-=back
-
-=head3 Return
-
-Value (I<ref-to-hash> or C<undef>).
+Attempts to get the mreps executable.
 
 =cut
 
-sub _qualify_value {
-   my($self,$value) = @_;
-   unless (defined $value){
-      $self->warn("Empty value");
-      return;
+sub _executable {
+   my($self, $path) = @_;
+   my $name = 'mreps';
+   my $io = "Bio::Polloc::Polloc::IO";
+   $self->debug("Searching the $name binary for $^O");
+   # Note the darwin support.  This is because darwin is unable to execute
+   # the linux binary (despite its origin)
+   my $bin =	$^O =~ /(macos|darwin)/i ? "mreps.macosx.bin" :
+   		$^O =~ /mswin/i ? "mreps.exe" :
+		"mreps.linux.bin";
+   my @where = ('');
+   unshift @where, $path if $path;
+   for my $p (@where){
+   	for my $n (($bin, $name, "$name.bin")){
+		my $exe = $io->exists_exe($p . $n);
+		return $exe if $exe;
+	}
    }
-   if(ref($value) =~ m/hash/i){
-      my @arr = %{$value};
-      $value = \@arr;
-   }
-   my @args = ref($value) =~ /array/i ? @{$value} : split/\s+/, $value;
-
-   return unless defined $args[0];
-   if($args[0] !~ /^-/){
-      $self->warn("Expecting parameters in the format -parameter value", @args);
-      return;
-   }
-   unless($#args%2){
-      $self->warn("Unexpected (odd) number of parameters", @args);
-      return;
-   }
-
-   my %vals = @args;
-   my $out = {};
-   for my $k ( @{$self->_parameters} ){
-      my $p = $self->_rearrange([$k], @args);
-      next unless defined $p;
-      if( $p !~ /^[\d\.eE+-]+$/ ){
-         $self->warn("Unexpected value for ".$k, $p);
-	 return;
-      }
-      $out->{"-".lc $k} = $p;
-   }
-   return $out;
 }
 
 =head2 _initialize

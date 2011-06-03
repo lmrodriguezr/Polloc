@@ -390,10 +390,7 @@ A L<Bio::Polloc::Polloc::NotImplementedException> if not implemented
 
 =cut
 
-sub execute {
-   my $self = shift;
-   $self->throw("execute", $self, "Bio::Polloc::Polloc::NotImplementedException");
-}
+sub execute { $_[0]->throw("execute", $_[0], "Bio::Polloc::Polloc::NotImplementedException") }
 
 =head2 safe_value
 
@@ -480,23 +477,91 @@ sub _qualify_type {
    # TRUST IT! -lrr if $value =~ /^(pattern|profile|repeat|tandemrepeat|similarity|coding|boolean|composition|crispr)$/;
 }
 
-=head2 _qualify_value
+=head2 _parameters
+
+Returns the supported parameters for L<value()>.
+
+=head3 Returns
+
+The supported value keys (C<arrayref>).
 
 =cut
 
-sub _qualify_value {
-   my $self = shift;
-   $self->throw("_qualify_value", $self, "Bio::Polloc::Polloc::NotImplementedException");
+sub _parameters { $_[0]->throw('_parameters', $_[0], 'Bio::Polloc::Polloc::NotImplementedException') }
+
+=head2 _qualify_value
+
+Takes the different possible values and returns them the way they must be
+saved (usually a hashref).  Bio::Polloc::Rule::* modules must reimplement
+either L<_qualify_value()> or L<_parameters()>.
+
+=cut
+
+sub _qualify_value { return shift->_qualify_value_default(@_) }
+
+=head2 _qualify_value_default
+
+=cut
+
+sub _qualify_value_default {
+   my($self,$value) = @_;
+   unless (defined $value){
+      $self->warn("Empty value");
+      return;
+   }
+   if(ref($value) =~ m/hash/i){
+      my @arr = %{$value};
+      $value = \@arr;
+   }
+   my @args = ref($value) =~ /array/i ? @{$value} : split /\s+/, $value;
+   
+   return unless defined $args[0];
+   if($args[0] !~ /^-/){
+      $self->warn("Expecting parameters in the format -parameter value", @args);
+      return;
+   }
+   unless($#args%2){
+      $self->warn("Unexpected (odd) number of parameters", @args);
+      return;
+   }
+   my %vals = @args;
+   my $out = {};
+   for my $k ( @{$self->_parameters} ){
+      my $p = $self->_rearrange([$k], @args);
+      next unless defined $p;
+      # This checks numeric values, but it's too restrictive
+      #if( $p !~ /^[\d\.eE+-]+$/ ){
+      #   $self->warn("Unexpected value for ".$k, $p);
+	# return;
+      #}
+      $out->{"-".lc $k} = $p;
+   }
+   return $out;
 }
+
+=head2 _executable
+
+Attempts to find the executable
+
+=head3 Arguments
+
+=over
+
+=item *
+
+An alternative path to search at I<str>.
+
+=back
+
+=cut
+
+sub _executable { $_[0]->throw("_executable", $_[0], "Bio::Polloc::Polloc::NotImplementedException") }
 
 =head2 _initialize
 
 =cut
 
-sub _initialize {
-   my $self = shift;
-   $self->throw("_initialize", $self, "Bio::Polloc::Polloc::NotImplementedException");
-}
+sub _initialize { $_[0]->throw("_initialize", $_[0], "Bio::Polloc::Polloc::NotImplementedException") }
 
 =head2 _search_value
 

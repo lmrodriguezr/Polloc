@@ -146,6 +146,16 @@ if($buildgroups){
 	$alnO->write_aln($right_aln) if defined $right_aln;
 	print SUM "\nLocus alignment:\n";
 	$alnO->write_aln($within_aln) if defined $within_aln;
+	print SUM "\nDistance matrix:\n\t";
+	print SUM $_->id, "\t" for @{$group->loci};
+	print SUM "\n";
+	for my $i (0 .. $#{$group->loci}){
+	   print SUM $group->loci->[$i]->id;
+	   for my $j (0 .. $i){
+	      print SUM "\t", $group->loci->[$i]->distance(-locus=>$group->loci->[$j]);
+	   }
+	   print SUM "\n";
+	}
 	close SUM;
      }
      $procGroups++;
@@ -237,7 +247,7 @@ I<The Artistic License>.  See LICENSE.txt for details.
 
 =head1 SYNOPSIS
 
-C<perl> C<polloc_vntrs.pl> B<arguments>
+C<perl polloc_vntrs.pl> B<arguments>
 
 The arguments must be in the following order:
 
@@ -273,6 +283,9 @@ file is assumed to contain a genome (that can contain one or more
 sequence) in [multi-]fasta format.
 
 =back
+
+Run C<perl polloc_vntrs.pl> without arguments to see the help
+message.
 
 =cut
 

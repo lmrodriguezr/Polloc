@@ -57,7 +57,7 @@ provides:
     file: lib/Bio/Polloc/Polloc/IO.pm
   Bio::Polloc::Polloc::Root:
     file: lib/Bio/Polloc/Polloc/Root.pm
-    version: 1.0400
+    version: 1.0500
   Bio::Polloc::Rule::boolean:
     file: lib/Bio/Polloc/Rule/boolean.pm
   Bio::Polloc::Rule::composition:
@@ -106,4 +106,4 @@ requires:
   perl: v5.8.0
 resources:
   license: http://dev.perl.org/licenses/
-version: 1.0400
+version: 1.0500

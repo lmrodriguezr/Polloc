@@ -49,7 +49,7 @@ sub new {
 This is where magic happens.  Translates the parameters of the object into a call to
 B<TRF>, and scans the sequence for repeats.
 
-=head2 Arguments
+=head3 Arguments
 
 The sequence (C<-seq>) as a L<Bio::Seq> or a L<Bio::SeqIO> object.
 
@@ -99,46 +99,9 @@ sub execute {
 
    # Search for TRF
    $self->source('trf'); # For GFF
-   my $trf;
-   my $bin = "";
-   my $path;
-   $path = $self->ruleset->value("path") if defined $self->ruleset;
-   $self->debug("Searching the trf binary for $^O");
-   # Note the darwin support.  This is because darwin is unable to execute
-   # the linux binary (despite its origin)
-   if($^O =~ /(macos|darwin)/i){
-      $bin = "trf.macosx.bin";
-   }elsif($^O =~ /mswin/i){
-      $bin = "trf.exe";
-   }else{
-      $bin = "trf.linux".($Config{'archname64'}?'64':'32').".bin";
-   }
-   if($path){
-      # Try first WITH version, to avoid v3 series
-      $trf = $io->exists_exe($path . "trf400") unless $trf;
-      $trf = $io->exists_exe($path . "trf400.bin") unless $trf;
-      $trf = $io->exists_exe($path . "trf400.exe") unless $trf;
-      $trf = $io->exists_exe($path . "trf404") unless $trf;
-      $trf = $io->exists_exe($path . "trf404.bin") unless $trf;
-      $trf = $io->exists_exe($path . "trf404.exe") unless $trf;
-      $trf = $io->exists_exe($path . $bin) unless $trf;
-      $trf = $io->exists_exe($path . "trf") unless $trf;
-      $trf = $io->exists_exe($path . "trf.bin") unless $trf;
-      $trf = $io->exists_exe($path . "trf.exe") unless $trf;
-   }
-   $trf = $io->exists_exe("trf400") unless $trf;
-   $trf = $io->exists_exe("trf400.bin") unless $trf;
-   $trf = $io->exists_exe("trf400.exe") unless $trf;
-   $trf = $io->exists_exe("trf404") unless $trf;
-   $trf = $io->exists_exe("trf404.bin") unless $trf;
-   $trf = $io->exists_exe("trf404.exe") unless $trf;
-   $trf = $io->exists_exe($bin) unless $trf;
-   $trf = $io->exists_exe("trf") unless $trf;
-   $trf = $io->exists_exe("trf.bin") unless $trf;
-   $trf = $io->exists_exe("trf.exe") unless $trf;
-   # Other awful naming systems can be used by this package, but here we stop!
+   my $trf = $self->_executable(defined $self->ruleset ? $self->ruleset->value("path") : undef)
+   	or $self->throw("Could not find the trf binary");
    
-   $trf or $self->throw("Could not find the trf binary", $path);
    # Next line is because of the horrible practice of creating files at CWD out
    # of thin air (with no possibility to define another way!)
    $trf = File::Spec->rel2abs($trf) unless File::Spec->file_name_is_absolute($trf);
@@ -237,25 +200,11 @@ sub stringify_value {
    return $out;
 }
 
-=head1 INTERNAL METHODS
-
-Methods intended to be used only within the scope of Bio::Polloc::*
-
-=head2 _parameters
-
-=cut
-
-sub _parameters {
-   return [qw(MINSIZE MAXSIZE MINPERIOD MAXPERIOD EXP MATCH MISMATCH INDELS MINSCORE MAXSCORE MINSIM MAXSIM PM PI)];
-}
-
-=head2 _qualify_value
-
-Implements the C<_qualify_value()> from the L<Bio::Polloc::RuleI> interface
+=head2 value
 
 =head3 Arguments
 
-Value (I<str> or I<ref-to-hash> or I<ref-to-array>).  The supported keys are:
+Value (I<str> or I<hashref> or I<arrayref>).  The supported keys are:
 
 =over
 
@@ -319,44 +268,51 @@ Indel probability
 
 =head3 Return
 
-Value (I<ref-to-hash> or C<undef>).
+Value (I<hashref> or C<undef>).
+
+=head1 INTERNAL METHODS
+
+Methods intended to be used only within the scope of Bio::Polloc::*
+
+=head2 _parameters
 
 =cut
 
-sub _qualify_value {
-   my($self,$value) = @_;
-   unless (defined $value){
-      $self->warn("Empty value");
-      return;
-   }
-   if(ref($value) =~ m/hash/i){
-      my @arr = %{$value};
-      $value = \@arr;
-   }
-   my @args = ref($value) =~ /array/i ? @{$value} : split/\s+/, $value;
+sub _parameters { return [qw(MINSIZE MAXSIZE MINPERIOD MAXPERIOD EXP MATCH MISMATCH INDELS MINSCORE MAXSCORE MINSIM MAXSIM PM PI)] }
 
-   return unless defined $args[0];
-   if($args[0] !~ /^-/){
-      $self->warn("Expecting parameters in the format -parameter value", @args);
-      return;
-   }
-   unless($#args%2){
-      $self->warn("Unexpected (odd) number of parameters", @args);
-      return;
-   }
+=head2 _executable
 
-   my %vals = @args;
-   my $out = {};
-   for my $k ( @{$self->_parameters} ){
-      my $p = $self->_rearrange([$k], @args);
-      next unless defined $p;
-      if( $p !~ /^[\d\.eE+-]+$/ ){
-         $self->warn("Unexpected value for ".$k, $p);
-	 return;
+Attempts to find the TRF executable.
+
+=cut
+
+sub _executable {
+   my($self, $path) = @_;
+   my $exe;
+   my $bin;
+   my $name = 'trf';
+   my $io = "Bio::Polloc::Polloc::IO";
+   $self->debug("Searching the $name binary for $^O");
+   # Note the darwin support.  This is because darwin is unable to execute
+   # the linux binary (despite its origin)
+   $bin=$^O =~ /(macos|darwin)/i ? "$name.macosx.bin" :
+   	$^O =~ /mswin/i ? "$name.exe" :
+	$Config{'archname64'} ? "$name.linux64.bin" :
+	"$name.linux32.bin";
+   my @pre = ('');
+   unshift @pre, $path if $path;
+   for my $p (@pre) {
+      # Try first WITH version, to avoid v3 series
+      for my $v ((404, 403, 402, 401, 400, '')){
+         for my $e (('', '.bin', '.exe')){
+	    for my $n (($bin, $name)){
+	       $exe = $io->exists_exe($p . $n . $v . $e);
+	       return $exe if $exe;
+	    }
+	 }
       }
-      $out->{"-".lc $k} = $p;
    }
-   return $out;
+   # Other awful naming systems can be used by this package, but here we stop!
 }
 
 =head2 _initialize

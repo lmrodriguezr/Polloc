@@ -3,6 +3,9 @@ require 5.008000;
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
+  'test' => {
+              'TESTS' => 't/*.t t/00-load/*.t t/01-genomes/*.t t/02-rules/*.t t/02-rules/03-rule/*.t t/04-grouping/*.t t/03-loci/*.t t/05-typing/*.t'
+            },
   'PL_FILES' => {},
   'INSTALLDIRS' => 'site',
   'NAME' => 'Bio::Polloc::Polloc::Root',
