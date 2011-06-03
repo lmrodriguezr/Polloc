@@ -25,6 +25,7 @@ use base qw(Bio::Polloc::RuleI);
 use Bio::SeqIO;
 use Bio::Polloc::LocusI;
 use Bio::Polloc::Polloc::IO;
+use List::Util qw(min max);
 
 =head1 PUBLIC METHODS
 
@@ -116,7 +117,8 @@ sub execute {
       push @loci, Bio::Polloc::LocusI->new(
       			-type=>$self->type,
 			-rule=>$self, -seq=>$seq,
-			-from=>$l[3], -to=>$l[4], -strand=>$l[6],
+			-from=>min($l[3], $l[4]), -to=>max($l[3], $l[4]), # Because of Gff2
+			-strand=>$l[6],
 			-name=>$self->name,
 			-id=>(defined $id ? $id : ""),
 			-pattern=>$pattern,
