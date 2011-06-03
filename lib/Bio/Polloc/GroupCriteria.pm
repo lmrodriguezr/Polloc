@@ -833,6 +833,8 @@ This method is static.
 
 sub _build_subseq {
    my($self, $seq, $from, $to) = @_;
+   $self->throw("No main sequence", $seq)
+   	unless defined $seq and UNIVERSAL::can($seq, 'isa') and $seq->isa('Bio::Seq');
    my ($start, $end) = (min($to, $from), max($to, $from));
    $start = max($start, 1);
    $end = min($end, $seq->length);

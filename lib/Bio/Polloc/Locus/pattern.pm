@@ -25,6 +25,7 @@ Initialization method.
 =head3 Arguments
 
 The generic arguments from L<Bio::Polloc::LocusI>, plus:
+
 =over
 
 =item -pattern I<str>

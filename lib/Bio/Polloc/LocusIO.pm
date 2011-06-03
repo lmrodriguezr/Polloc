@@ -234,7 +234,8 @@ Format-specific implementation of C<next_locus>.
 
 sub _read_loci_impl {
    my ($self,@args) = @_;
-   my $group = Bio::Polloc::LociGroup->new();
+   my($genomes) = $self->_rearrange([qw(GENOMES)], @args);
+   my $group = Bio::Polloc::LociGroup->new(-genomes=>$genomes);
    while(my $locus = $self->next_locus(@args)){
       $group->add_locus($locus);
    }

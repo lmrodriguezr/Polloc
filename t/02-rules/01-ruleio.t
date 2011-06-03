@@ -48,6 +48,10 @@ isa_ok($T->genomes, 'ARRAY');
 isa_ok($T->genomes->[0], 'Bio::Polloc::Genome');
 isa_ok($T->genomes->[1], 'Bio::Polloc::Genome');
 
+SKIP: {
+use Bio::Polloc::Rule::tandemrepeat;
+skip 'trf not installed', 27 unless Bio::Polloc::Rule::tandemrepeat->_executable;
+
 # 20
 my $L = $T->execute;
 isa_ok($L, 'Bio::Polloc::LociGroup');
@@ -94,4 +98,5 @@ isa_ok($nL->loci->[0]->genome, 'Bio::Polloc::Genome');
 is($nL->loci->[0]->genome->name, 'multi');
 is($nL->loci->[1]->genome->name, 'repeats');
 is($nL->loci->[1]->seq_name, 'Scaffold3_woRep');
+}
 

@@ -14,13 +14,10 @@ isa_ok($T, 'Bio::Polloc::Typing::bandingPattern::amplification');
 is($T->type, 'bandingPattern::amplification');
 
 # 4
-# This should be replaced by Bio::Polloc::LocusIO once created (see Issue #25):
 use_ok('Bio::Polloc::Genome');
-use_ok('Bio::Polloc::RuleIO');
-my $R = Bio::Polloc::RuleIO->new(-file=>'t/vntrs.bme');
+use_ok('Bio::Polloc::LocusIO');
 my $G = [Bio::Polloc::Genome->new(-file=>'t/repeats.fasta')];
-$R->genomes($G);
-my $L = $R->execute;
+my $L = Bio::Polloc::LocusIO->new(-file=>'t/loci_short.gff3')->read_loci(-genomes=>$G);
 
 # 6
 isa_ok($T->locigroup($L), 'Bio::Polloc::LociGroup');
