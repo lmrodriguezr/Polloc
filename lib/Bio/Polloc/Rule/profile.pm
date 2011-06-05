@@ -9,14 +9,12 @@ Email lmrodriguezr at gmail dot com
 =cut
 
 package Bio::Polloc::Rule::profile;
-
+use base qw(Bio::Polloc::RuleI);
 use strict;
 use Bio::Polloc::Polloc::IO;
 use Bio::Polloc::LocusI;
-
 use Bio::SeqIO;
-
-use base qw(Bio::Polloc::RuleI);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

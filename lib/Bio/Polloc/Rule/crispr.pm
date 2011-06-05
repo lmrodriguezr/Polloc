@@ -13,23 +13,22 @@ Email lmrodriguezr at gmail dot com
 =cut
 
 package Bio::Polloc::Rule::crispr;
-
+use base qw(Bio::Polloc::RuleI);
 use strict;
 use Bio::Polloc::Polloc::IO;
 use Bio::Polloc::LocusI;
-
 use Bio::SeqIO;
 # For CRISPRFinder:
 use File::Spec;
 use Cwd;
-
-use base qw(Bio::Polloc::RuleI);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 
 Methods provided by the package
 
 =cut
+
 sub new {
    my($caller,@args) = @_;
    my $self = $caller->SUPER::new(@args);

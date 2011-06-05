@@ -19,10 +19,10 @@ L<Bio::Polloc::Polloc::Root>
 =cut
 
 package Bio::Polloc::LociGroup;
-
 use strict;
-use Bio::Polloc::Polloc::IO;
 use base qw(Bio::Polloc::Polloc::Root);
+use Bio::Polloc::Polloc::IO;
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 PUBLIC METHODS
 
@@ -56,12 +56,12 @@ sub add_locus { return shift->add_loci(@_) }
 Adds loci to the collection on the specified
 genome's space
 
-=head3 Throws
+B<Throws>
 
 A L<Bio::Polloc::Polloc::Error> if an argument is not
 a L<Bio::Polloc::LocusI> object.
 
-=head3 Arguments
+B<Arguments>
 
 The first argument B<can> be the identifier of
 the genome's space (int).  All the following are
@@ -103,13 +103,13 @@ Returns a two-dimensional array where the first key corresponds
 to the number of the genome space and the second key is an
 incremental for each locus.
 
-=head3 Note
+B<Note>
 
 This function is provided for convenience in some output formating,
 but its use should be avoided as it causes a huge processing time
 penalty.
 
-=head3 Warning
+B<Warning>
 
 Loci without defined genome will not be included in the output.
 
@@ -137,7 +137,7 @@ sub structured_loci {
 
 Get a locus by ID
 
-=head3 Arguments
+B<Arguments>
 
 The ID of the locus (str).
 
@@ -154,7 +154,7 @@ sub locus {
 Gets/sets the name of the group.  This is supposed
 to be unique!
 
-=head3 Note
+B<Note>
 
 Future implementations could assume unique naming
 for getting/setting/initializing groups of loci
@@ -172,7 +172,7 @@ sub name {
 
 Gets/sets the genomes to be used as analysis base.
 
-=head3 Arguments
+B<Arguments>
 
 A reference to an array of L<Bio::Polloc::Genome> objects.
 
@@ -205,13 +205,13 @@ sub featurename {
 
 Gets the average length of the stored loci.
 
-=head3 Returns
+B<Returns>
 
 The average length (float) or an array containing the
 average length (float) and the standard deviation (float),
 depending on the expected output.
 
-=head3 Syntax
+B<Syntax>
 
     my $len = $locigroup->length;
 
@@ -241,7 +241,7 @@ sub avg_length {
 
 =head2 align_context
 
-=head3 Arguments
+B<Arguments>
 
 Arguments work in the same way L<Bio::Polloc::LocusI-E<gt>context_seq()>
 arguments do.
@@ -291,7 +291,7 @@ sub align_context {
 Fixes the strand of the loci based on the flanking regions, to have all the
 loci in the group with the same orientation.
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -313,6 +313,7 @@ sub fix_strands {
    return if not $force and defined $self->{'_fixed_strands'} and $self->{'_fixed_strands'} == $#{$self->loci};
    $self->{'_fixed_strands'} = $#{$self->loci};
    $self->_load_module('Bio::Polloc::GroupCriteria');
+   $self->_load_module('Bio::Tools::Run::Alignment::Muscle');
    return unless $#{$self->loci}>0; # No need to check
    $size ||= 500;
    

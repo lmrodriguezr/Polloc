@@ -19,20 +19,32 @@ L<Bio::Polloc::Polloc::Root>
 =cut
 
 package Bio::Polloc::Genome;
-
 use strict;
-use Bio::SeqIO;
 use base qw(Bio::Polloc::Polloc::Root);
+use Bio::SeqIO;
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 PUBLIC METHODS
 
 Methods provided by the package
 
-=cut
-
 =head2 new
 
 The basic initialization method
+
+B<Arguments>
+
+=over
+
+=item -name I<str>
+
+The name of the genome (from file if not provided).
+
+=item -file I<str>
+
+The file containing the (multi-)fasta with the genome.
+
+=back
 
 =cut
 
@@ -62,7 +74,7 @@ sub file {
 
 Gets the collection of sequences.
 
-=head3 Returns
+B<Returns>
 
 An array of L<Bio::Seq> objects.
 
@@ -83,11 +95,11 @@ sub get_sequences {
 
 Search a sequence by ID
 
-=head3 Arguments
+B<Arguments>
 
 The id (I<str>) of the sequence.
 
-=head3 Returns
+B<Returns>
 
 The sequence (L<Bio::Seq>) or C<undef>.
 

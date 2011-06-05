@@ -6,30 +6,15 @@ Bio::Polloc::Rule::repeat - A rule of type repeat
 
 Email lmrodriguezr at gmail dot com
 
-=head1 TODO
-
-=head2 Solve this:
-
-The additional parameters (stored with C<safe_value()>) are not
-included in the command line.  This is not prioritary, but could
-lead more serious errors.
-
-=head2 Standardize
-
-Homogenize the whole values system (see L<Bio::Polloc::Rule::composition>).
-This should actually solve the former point.
-
 =cut
 
 package Bio::Polloc::Rule::repeat;
-
+use base qw(Bio::Polloc::RuleI);
 use strict;
 use Bio::Polloc::Polloc::IO;
 use Bio::Polloc::LocusI;
-
 use Bio::SeqIO;
-
-use base qw(Bio::Polloc::RuleI);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

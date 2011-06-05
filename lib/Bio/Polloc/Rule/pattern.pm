@@ -19,13 +19,13 @@ L<Bio::Polloc::RuleI>
 =cut
 
 package Bio::Polloc::Rule::pattern;
-
-use strict;
 use base qw(Bio::Polloc::RuleI);
+use strict;
 use Bio::SeqIO;
 use Bio::Polloc::LocusI;
 use Bio::Polloc::Polloc::IO;
 use List::Util qw(min max);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 PUBLIC METHODS
 

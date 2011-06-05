@@ -15,10 +15,9 @@ Email lmrodriguezr at gmail dot com
 =cut
 
 package Bio::Polloc::Locus::extend;
-
-use strict;
 use base qw(Bio::Polloc::LocusI);
-
+use strict;
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

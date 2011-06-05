@@ -23,9 +23,9 @@ L<Bio::Polloc::Polloc::IO>
 =cut
 
 package Bio::Polloc::TypingIO;
-
-use strict;
 use base qw(Bio::Polloc::Polloc::Root Bio::Polloc::Polloc::IO);
+use strict;
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 PUBLIC METHODS
 
@@ -37,7 +37,7 @@ Methods provided by the package
 
 The basic initialization method
 
-=head3 Arguments
+B<Arguments>
 
 The same arguments of L<Bio::Polloc::Polloc::IO>, plus:
 
@@ -113,15 +113,15 @@ sub read {
 
 Sets/gets the L<Bio::Polloc::TypingI> object
 
-=head3 Arguments
+B<Arguments>
 
 A L<Bio::Polloc::TypingI> object (optional).
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::TypingI> object or C<undef>.
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if trying to set some value
 other than a L<Bio::Polloc::TypingI> object.
@@ -141,13 +141,10 @@ sub typing {
 
 =head2 safe_value
 
-Sets/gets a parameter of arbitrary name and value
+Sets/gets a parameter of arbitrary name and value.  Serves to provide a
+safe interface for setting values from the parsed file.
 
-=head3 Purpose
-
-To provide a safe interface for setting values from the parsed file
-
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -161,7 +158,7 @@ The value of the parameter (optional)
 
 =back
 
-=head3 Returns
+B<Returns>
 
 The value of the parameter or undef
 

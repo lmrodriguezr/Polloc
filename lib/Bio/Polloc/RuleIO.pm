@@ -23,9 +23,9 @@ L<Bio::Polloc::Polloc::IO>
 =cut
 
 package Bio::Polloc::RuleIO;
-
 use strict;
 use base qw(Bio::Polloc::Polloc::Root Bio::Polloc::Polloc::IO);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 PUBLIC METHODS
 
@@ -37,7 +37,7 @@ Methods provided by the package
 
 The basic initialization method
 
-=head3 Arguments
+B<Arguments>
 
 The same arguments of L<Bio::Polloc::Polloc::IO>, plus:
 
@@ -87,15 +87,15 @@ sub new {
 
 Sets/gets the prefix ID, unique for the RuleSet
 
-=head3 Purpose
+B<Purpose>
 
 To allow the identification of children in a unique namespace
 
-=head3 Arguments
+B<Arguments>
 
 A string, supposedly unique.  Any colon (:) will be changed to '_'
 
-=head3 Returns
+B<Returns>
 
 The prefix ID.
 
@@ -172,11 +172,11 @@ sub add_rule {
 
 Gets the rule at the given index
 
-=head3 Arguments
+B<Arguments>
 
 The index (int)
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::RuleI> object or undef
 
@@ -202,7 +202,7 @@ sub get_rules {
 
 =head2 next_rule
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::RuleI> object
 
@@ -219,11 +219,11 @@ sub next_rule {
 
 Sets/gets the group criteria objects.
 
-=head3 Arguments
+B<Arguments>
 
 A L<Bio::Polloc::GroupCriteria> array ref (optional)
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::GroupCriteria> array ref or undef
 
@@ -247,11 +247,11 @@ sub grouprules { return shift->groupcriteria(@_) }
 
 Adds a grouprules object
 
-=head3 Arguments
+B<Arguments>
 
 A L<Bio::Polloc::GroupCriteria> object
 
-=head3 Throws
+B<Throws>
 
 A L<Bio::Polloc::Polloc::Error> if not a proper object
 
@@ -268,7 +268,7 @@ sub addgrouprules {
 
 Executes the executable rules only over the whole list of genomes
 
-=head3 Arguments
+B<Arguments>
 
 Any argument supported/required by the rules, plus:
 
@@ -302,7 +302,7 @@ The ID of the running rule
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::LociGroup> object.
 
@@ -344,11 +344,11 @@ sub execute {
 
 Sets/gets a parameter of arbitrary name and value
 
-=head3 Purpose
+B<Purpose>
 
 To provide a safe interface for setting values from the parsed file
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -362,7 +362,7 @@ The value of the parameter (optional)
 
 =back
 
-=head3 Returns
+B<Returns>
 
 The value of the parameter or undef
 
@@ -383,21 +383,21 @@ sub safe_value {
 
 =head2 parameter
 
-=head3 Purpose
+B<Purpose>
 
 Gets/sets some generic parameter.  It is intended to provide an
 interface between L<Bio::Polloc::RuleIO>'s general configuration and
 L<Bio::Polloc::RuleI>, regardless of the format.
 
-=head3 Arguments
+B<Arguments>
 
 The key (str) and the value (mix, optional)
 
-=head3 Returns
+B<Returns>
 
 The value (mix or undef)
 
-=head3 Throws
+B<Throws>
 
 A L<Bio::Polloc::Polloc::NotImplementedException> if not implemented
 
@@ -421,7 +421,7 @@ sub read {
 
 Gets/sets the genomes to be used as analysis base.
 
-=head3 Arguments
+B<Arguments>
 
 A reference to an array of L<Bio::Polloc::Genome> objects.
 

@@ -25,12 +25,10 @@ L<Bio::Polloc::Polloc::Root>
 =cut
 
 package Bio::Polloc::TypingI;
-
 use strict;
-use Error qw(:try);
-
 use base qw(Bio::Polloc::Polloc::Root);
-
+use Error qw(:try);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 
@@ -42,7 +40,7 @@ Methods provided by the package
 
 Attempts to initialize a C<Bio::Polloc::Typing::*> object
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -95,11 +93,11 @@ Group of loci (L<Bio::Polloc::LociGroup>) to be use for typing.
 
 =back
 
-=head3 Returns
+B<Returns>
 
 The C<Bio::Polloc::Typing::*> object
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if unable to initialize the proper object
 
@@ -142,25 +140,23 @@ sub new {
 
 =head2 type
 
-=head3 Purpose
-
 Gets/sets the type of typing method
 
-=head3 Arguments
+B<Arguments>
 
-Value (str).  See L<new()> and the corresponding C<Bio::Polloc::Typing::*>
+Value (I<str>).  See L<new()> and the corresponding C<Bio::Polloc::Typing::*>
 objects for further details.
 
 Some variations can be introduced, like case variations or short versions like
 B<banding> or B<seq>.
 
-=head3 Return
+B<Return>
 
-Value (str).  The typing method, or C<undef> if undefined.
+Value (I<str>).  The typing method, or C<undef> if undefined.
 The value returned is undef or a string from the above list, regardless of the
 input variations.
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if an unsupported type is received.
 
@@ -180,11 +176,11 @@ sub type {
 
 Sets/gets the group of loci to be used.
 
-=head3 Arguments
+B<Arguments>
 
 A L<Bio::Polloc::LociGroup> object (optional).
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::LociGroup> object or C<undef>.
 
@@ -200,7 +196,7 @@ sub locigroup {
 
 Generates a matrix of values for the given group of loci.
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -225,7 +221,7 @@ keys instead of an array.
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A reference to an array or a hash (if C<-names> is true).  The
 key correspond to the incremental number or the name of the
@@ -271,7 +267,7 @@ sub binary {
 Returns a L<GD::Simple> object containing the graphic representation
 of the typing results.
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -300,11 +296,11 @@ Font.
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A L<GD::Simple> object.
 
-=head3 Synopsis
+B<Synopsis>
 
     # ...
     $typing->scan($lociGroup);
@@ -348,7 +344,7 @@ implemented.
 
 Scans the genomes using the specified loci as base.
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -359,7 +355,7 @@ L<locigroup()> or at initialization.
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::LociGroup> object containing the actual loci
 employed for typing.
@@ -372,7 +368,7 @@ sub scan { $_[0]->throw("scan", $_[0], "Bio::Polloc::Polloc::NotImplementedExcep
 
 Clusters the genomes based on the provided loci.
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -382,7 +378,7 @@ The base group of loci.  Same behavior as L<matrix()>.
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Tree> object.
 
@@ -395,7 +391,7 @@ sub cluster { $_[0]->throw("cluster", $_[0], "Bio::Polloc::Polloc::NotImplemente
 Provides a value for the passed loci associated with
 the typing method.
 
-=head3 Arguments
+B<Arguments>
 
 =item -loci I<Array of Bio::Polloc::LocusI>
 
@@ -405,7 +401,7 @@ This is because all the loci are expected to be part of the
 same genome, and the same group (if grouped).  This argument
 is mandatory.
 
-=head3 Returns
+B<Returns>
 
 A numeric value or a reference to an array of numeric values,
 depending on the genotyping method.

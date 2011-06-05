@@ -23,12 +23,11 @@ Email lmrodriguezr at gmail dot com
 =cut
 
 package Bio::Polloc::LocusIO::gff3;
-
+use base qw(Bio::Polloc::LocusIO);
 use strict;
 use Bio::Polloc::LociGroup;
 use Bio::Polloc::LocusI;
-use base qw(Bio::Polloc::LocusIO);
-
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

@@ -9,14 +9,13 @@ Email lmrodriguezr at gmail dot com
 =cut
 
 package Bio::Polloc::Polloc::IO;
-
+use base qw(Bio::Polloc::Polloc::Root);
 use strict;
 use File::Path;
 use File::Spec;
 use File::Temp;
 use Symbol;
-
-use base qw(Bio::Polloc::Polloc::Root);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 GLOBALS
 

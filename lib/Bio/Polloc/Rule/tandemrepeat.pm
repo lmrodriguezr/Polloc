@@ -12,20 +12,19 @@ for the repeats calculation.
 Email lmrodriguezr at gmail dot com
 
 =cut
-package Bio::Polloc::Rule::tandemrepeat;
 
+package Bio::Polloc::Rule::tandemrepeat;
+use base qw(Bio::Polloc::RuleI);
 use strict;
 use Bio::Polloc::Polloc::IO;
 use Bio::Polloc::LocusI;
-
 use Bio::SeqIO;
-# Thanks to TRF:
+# For TRF:
 use File::Spec;
 use File::Basename;
 use Cwd;
 use Config;
-
-use base qw(Bio::Polloc::RuleI);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

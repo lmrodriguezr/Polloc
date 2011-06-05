@@ -9,10 +9,9 @@ Email lmrodriguezr at gmail dot com
 =cut
 
 package Bio::Polloc::GroupCriteria::operator::num;
-
-use strict;
 use base qw(Bio::Polloc::GroupCriteria::operator);
-
+use strict;
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

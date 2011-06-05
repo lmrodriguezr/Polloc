@@ -86,6 +86,9 @@ is($#{$groups->[0]->genomes}, 1);
 isa_ok($groups->[0]->genomes->[0], 'Bio::Polloc::Genome');
 
 # 39
+eval { $T->_load_module('Bio::Tools::Run::StandAloneBlast') };
+skip 'Bio::Tools::Run::StandAloneBlast not installed', 8 if $@;
+
 my $nL = $crit->extend(-loci=>$groups->[0]);
 isa_ok($nL, 'Bio::Polloc::LociGroup');
 # Genomes passed from $groups->[0] to $nL:

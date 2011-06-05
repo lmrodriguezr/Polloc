@@ -9,12 +9,11 @@ Email lmrodriguezr at gmail dot com
 =cut
 
 package Bio::Polloc::Polloc::Error;
-
 use strict;
 use Error qw(:try);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 @Bio::Polloc::Polloc::Error::ISA = qw( Error );
-
 
 =head1 PUBLIC METHODS
 

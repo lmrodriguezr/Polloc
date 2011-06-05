@@ -24,15 +24,14 @@ L<Bio::Polloc::RuleIO>
 =cut
 
 package Bio::Polloc::RuleSet::cfg;
-
+use base qw(Bio::Polloc::RuleIO);
 use strict;
 use Bio::Polloc::Polloc::Config;
 use Bio::Polloc::RuleI;
 use Bio::Polloc::GroupCriteria;
 use Bio::Polloc::GroupCriteria::operator;
 use Bio::Seq;
-
-use base qw(Bio::Polloc::RuleIO);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

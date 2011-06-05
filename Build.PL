@@ -19,9 +19,9 @@ my $build = new Module::Build (
 		'File::Temp'	=> 0,
 		'List::Util'	=> 0,
 		'Bio::SeqIO'	=> 0,
+		Cwd		=> 0,
 	},
 	recommends	=> {
-		Cwd		=> 0,
 		'GD::Simple'	=> 0,
 		'File::Basename'=> 0,
 		'Bio::Tools::Run::Hmmer' => 0,

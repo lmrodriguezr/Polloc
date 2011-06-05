@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bio::Polloc - Perl library for Polymorphic Loci Analysis
+Bio::Polloc - Perl library for Polymorphic Loci Analyses
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -30,7 +30,7 @@ The package's version
 
 =cut
 
-$VERSION = "1.0500"; # 1.5.0
+$VERSION = "1.0501"; # 1.5.1
 
 =head2 VERBOSITY
 

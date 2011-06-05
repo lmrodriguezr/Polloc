@@ -23,6 +23,10 @@ my $L = Bio::Polloc::LocusIO->new(-file=>'t/loci_short.gff3')->read_loci(-genome
 isa_ok($T->locigroup($L), 'Bio::Polloc::LociGroup');
 
 # 7
+SKIP: {
+eval { $T->_load_module('Bio::Tools::Run::Alignment::Muscle') };
+skip 'Bio::Tools::Run::Alignment::Muscle not installed', 7 if $@;
+
 isa_ok($T->scan, 'Bio::Polloc::LociGroup');
 
 # 8
@@ -36,4 +40,5 @@ is($NM->{'repeats'}->[0], 105);
 my $BM = $T->binary(-names=>1);
 isa_ok($BM, 'HASH');
 is($BM->{'repeats'}, 1);
+}
 

@@ -41,10 +41,9 @@ Read & write loci:
 =cut
 
 package Bio::Polloc::LocusIO;
-
 use strict;
-
 use base qw(Bio::Polloc::Polloc::Root Bio::Polloc::Polloc::IO);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 PUBLIC METHODS
 
@@ -99,11 +98,11 @@ sub new {
 
 Gets/sets the format of the file
 
-=head3 Arguments
+B<Arguments>
 
 Format (str), currently supported: gff3.
 
-=head3 Return
+B<Return>
 
 Format (str or C<undef>).
 
@@ -151,7 +150,7 @@ sub write_locus {
 
 Gets the loci stored in the input file.
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -164,7 +163,7 @@ if this parameter is not provided.
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::LociGroup> object.
 
@@ -176,13 +175,13 @@ sub read_loci { return shift->_read_loci_impl(@_) }
 
 Reads the next locus in the buffer.
 
-=head3 Arguments
+B<Arguments>
 
 Same of L<read_loci()>
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::LocusI> object.
 
@@ -198,11 +197,11 @@ Methods intended to be used only within the scope of Bio::Polloc::*
 
 Uniformizes the distinct names that every format can receive
 
-=head3 Arguments
+B<Arguments>
 
 The requested format (str)
 
-=head3 Returns
+B<Returns>
 
 The qualified format (str or undef)
 

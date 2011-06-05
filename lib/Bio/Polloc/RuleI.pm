@@ -25,12 +25,10 @@ L<Bio::Polloc::Polloc::Root>
 =cut
 
 package Bio::Polloc::RuleI;
-
 use strict;
-use Bio::Polloc::RuleIO;
-
 use base qw(Bio::Polloc::Polloc::Root);
-
+use Bio::Polloc::RuleIO;
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 
@@ -42,7 +40,7 @@ Methods provided by the package
 
 Attempts to initialize a C<Bio::Polloc::Rule::*> object
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -60,11 +58,11 @@ The context of the rule.  See L<Bio::Polloc::RuleI->context()>.
 
 =back
 
-=head3 Returns
+B<Returns>
 
 The C<Bio::Polloc::Rule::*> object
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if unable to initialize the proper object
 
@@ -112,11 +110,9 @@ sub new {
 
 =head2 type
 
-=head3 Purpose
-
 Gets/sets the type of rule
 
-=head3 Arguments
+B<Arguments>
 
 Value (str).  Can be: pattern, profile, repeat, tandemrepeat, similarity, coding,
 boolean, composition, crispr.  See the corresponding C<Bio::Polloc::Rule::*> objects
@@ -125,12 +121,12 @@ for further details.
 Some variations can be introduced, like case variations or short versions like
 B<patt> or B<rep>.
 
-=head3 Return
+B<Return>
 
 Value (str).  The type of the rule, or C<undef> if undefined.  The value returned
 is undef or a string from the above list, regardless of the input variations.
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if an unsupported type is received.
 
@@ -158,16 +154,16 @@ The context is a reference to an array of two elements (int or str), the first b
 And the second being the number of residues from the reference point.  The second
 value can be positive, negative, or zero.
 
-=head3 Purpose
+B<Purpose>
 
 Gets/sets the context of the rule
 
-=head3 Arguments
+B<Arguments>
 
 Three integers, or one integer equal to zero.  Please note that this function is
 extremely tolerant, and tries to guess the context regardless of the input.
 
-=head3 Returns
+B<Returns>
 
 A reference to the array described above.
 
@@ -190,19 +186,19 @@ sub context {
 
 Gets/sets the value of the rule
 
-=head3 Arguments
+B<Arguments>
 
 Value (mix)
 
-=head3 Returns
+B<Returns>
 
 Value (mix)
 
-=head3 Note
+B<Note>
 
 This function relies on C<_qualify_value()>
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc:Error> if unsupported value is received
 
@@ -225,15 +221,15 @@ property is false, if the L<Bio::Polloc::RuleI::execute> method is called direct
 (C<$rule->execute>) or by other rule.  This property is provided only for
 L<Bio::Polloc::RuleIO> objects.
 
-=head3 Arguments
+B<Arguments>
 
 Boolean (0 or 1; optional)
 
-=head3 Returns
+B<Returns>
 
 1 if expicilty executable, 0 otherwise
 
-=head3 Note
+B<Note>
 
 It is advisable to have only few (ideally one) executable rules, handling
 all the others with the rule type B<operation>
@@ -256,11 +252,11 @@ sub executable {
 
 Sets/gets the name of the rule
 
-=head3 Arguments
+B<Arguments>
 
 Name (str), the name to set
 
-=head3 Returns
+B<Returns>
 
 The name (str or undef)
 
@@ -277,15 +273,15 @@ sub name {
 
 Sets/gets the ID of the rule
 
-=head3 Purpose
+B<Purpose>
 
 Provide a somewhat I<unique> but human-readable identifier
 
-=head3 Arguments
+B<Arguments>
 
 The supposedly unique ID of the rule (str), any dot (B<.>) will be changed to B<_>
 
-=head3 Returns
+B<Returns>
 
 The ID (str or undef)
 
@@ -312,11 +308,11 @@ sub restart_index {
 
 =head2 stringify
 
-=head3 Purpose
+B<Purpose>
 
 To provide an easy method for the (str) description of any Bio::Polloc::RuleI object.
 
-=head3 Returns
+B<Returns>
 
 The stringified object (str, off course)
 
@@ -335,7 +331,7 @@ sub stringify {
 
 Dummy function to be overriten if non-string value like in Bio::Polloc::Rule::repeat
 
-=head3 Returns
+B<Returns>
 
 The value as string
 
@@ -350,11 +346,11 @@ sub stringify_value {
 
 Gets/sets the parent ruleset of the rule
 
-=head3 Arguments
+B<Arguments>
 
 The ruleset to set (a L<Bio::Polloc::RuleIO> object).
 
-=head3 Returns
+B<Returns>
 
 A Bio::Polloc::RuleIO object or undef
 
@@ -372,19 +368,19 @@ sub ruleset {
 
 =head2 execute
 
-=head3 Purpose
+B<Purpose>
 
 To evaluate the rule in a given sequence.
 
-=head3 Arguments
+B<Arguments>
 
 A Bio::Seq object
 
-=head3 Returns
+B<Returns>
 
 An array of Bio::Polloc::LocusI objects
 
-=head3 Throws
+B<Throws>
 
 A L<Bio::Polloc::Polloc::NotImplementedException> if not implemented
 
@@ -396,11 +392,11 @@ sub execute { $_[0]->throw("execute", $_[0], "Bio::Polloc::Polloc::NotImplemente
 
 Sets/gets a parameter of arbitrary name and value
 
-=head3 Purpose
+B<Purpose>
 
 To provide a safe interface for setting values from the parsed file
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -414,7 +410,7 @@ The value of the parameter (optional)
 
 =back
 
-=head3 Returns
+B<Returns>
 
 The value of the parameter or undef
 
@@ -437,11 +433,11 @@ sub safe_value {
 
 Sets/gets the source of the annotation
 
-=head3 Arguments
+B<Arguments>
 
 The source (str)
 
-=head3 Returns
+B<Returns>
 
 The source (str or undef)
 
@@ -481,7 +477,7 @@ sub _qualify_type {
 
 Returns the supported parameters for L<value()>.
 
-=head3 Returns
+B<Returns>
 
 The supported value keys (C<arrayref>).
 
@@ -543,7 +539,7 @@ sub _qualify_value_default {
 
 Attempts to find the executable
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -565,11 +561,11 @@ sub _initialize { $_[0]->throw("_initialize", $_[0], "Bio::Polloc::Polloc::NotIm
 
 =head2 _search_value
 
-=head3 Arguments
+B<Arguments>
 
 The key (str)
 
-=head3 Returns
+B<Returns>
 
 The value (mix) or undef
 
@@ -594,11 +590,11 @@ sub _search_value {
 
 Gets the ID for the next child.
 
-=head3 Purpose
+B<Purpose>
 
 Provide support for children identification
 
-=head3 Returns
+B<Returns>
 
 The ID (str) or undef if the ID of the current Rule is not set.
 

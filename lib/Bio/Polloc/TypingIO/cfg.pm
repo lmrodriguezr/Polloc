@@ -24,12 +24,11 @@ L<Bio::Polloc::TypingIO>
 =cut
 
 package Bio::Polloc::TypingIO::cfg;
-
+use base qw(Bio::Polloc::TypingIO);
 use strict;
 use Bio::Polloc::Polloc::Config;
 use Bio::Polloc::TypingI;
-
-use base qw(Bio::Polloc::TypingIO);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

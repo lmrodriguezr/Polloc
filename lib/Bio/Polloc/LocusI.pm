@@ -19,13 +19,12 @@ L<Bio::Polloc::Polloc::Root>
 =cut
 
 package Bio::Polloc::LocusI;
-
 use strict;
+use base qw(Bio::Polloc::Polloc::Root);
 use Bio::Polloc::RuleI;
 use Bio::Polloc::Polloc::IO;
 use List::Util qw(min max);
-
-use base qw(Bio::Polloc::Polloc::Root);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 PUBLIC METHODS
 
@@ -98,18 +97,18 @@ sub new {
 
 Gets/sets the type of rule
 
-=head3 Arguments
+B<Arguments>
 
 Value (str).  Can be: pattern, profile, repeat, similarity, coding. composition, crispr
 Some variations can be introduced, like case variations or short versions like B<patt>
 or B<rep>.
 
-=head3 Return
+B<Return>
 
 Value (str).  The type of the rule, or null if undefined.  The value returned is undef
 or a string from the above list, regardless of the input variations.
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if an unsupported type is received.
 
@@ -129,7 +128,7 @@ sub type {
 
 Sets/gets the source genome as a L<Bio::Polloc::Genome> object.
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if unexpected type.
 
@@ -149,11 +148,11 @@ sub genome {
 
 Sets/gets the name of the locus
 
-=head3 Arguments
+B<Arguments>
 
 Name (str), the name to set
 
-=head3 Returns
+B<Returns>
 
 The name (str or undef)
 
@@ -170,7 +169,7 @@ sub name {
 
 Gets the alias names
 
-=head3 Returns
+B<Returns>
 
 Aliases (arr reference or undef)
 
@@ -181,7 +180,7 @@ sub aliases { return shift->{'_aliases'}; }
 
 =head2 add_alias
 
-=head3 Arguments
+B<Arguments>
 
 One or more alias names (str)
 
@@ -197,7 +196,7 @@ sub add_alias {
 
 Gets the parent features or loci
 
-=head3 Returns
+B<Returns>
 
 Parents (arr reference or undef)
 
@@ -207,11 +206,11 @@ sub parents { return shift->{'_parents'}; }
 
 =head2 add_parent
 
-=head3 Arguments
+B<Arguments>
 
 One or more parent object (C<Bio::Polloc::LocusI>)
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if some argument is not L<Bio::Polloc::LocusI>
 
@@ -229,7 +228,7 @@ sub add_parent {
 
 Gets/sets the target of the alignment, if the feature is some alignment
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -251,7 +250,7 @@ The strand of the target sequence
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A hash reference like C<{B<id>=E<gt>id, B<from>=E<gt>from, B<to>=E<gt>to,
 B<strand>=E<gt>strand}>
@@ -271,11 +270,11 @@ sub target {
 
 Gets/sets the comments on the locus, newline-separated
 
-=head3 Arguments
+B<Arguments>
 
 New comments to add (str)
 
-=head3 Returns
+B<Returns>
 
 Comments (str)
 
@@ -296,7 +295,7 @@ sub comments {
 
 Gets the cross references of the locus
 
-=head3 Returns
+B<Returns>
 
 Array reference or undef
 
@@ -308,7 +307,7 @@ sub xrefs { return shift->{'_xrefs'} }
 
 Adds a cross reference
 
-=head3 Arguments
+B<Arguments>
 
 One or more cross references in GFF3 format
 
@@ -324,7 +323,7 @@ sub add_xref {
 
 Gets the ontology terms as explicit strings
 
-=head3 Returns
+B<Returns>
 
 Array reference or undef
 
@@ -336,7 +335,7 @@ sub ontology_terms_str{ return shift->{'_ontology_terms_str'} }
 
 Adds an ontology term by string
 
-=head3 Arguments
+B<Arguments>
 
 One or more strings
 
@@ -352,11 +351,11 @@ sub add_ontology_term_str {
 
 Gets/sets the B<from> position
 
-=head3 Arguments
+B<Arguments>
 
 Position (int, optional)
 
-=head3 Returns
+B<Returns>
 
 The B<from> position (int, -1 if undefined)
 
@@ -374,11 +373,11 @@ sub from {
 
 Gets/sets the B<to> position
 
-=head3 Arguments
+B<Arguments>
 
 Position (int, optional)
 
-=head3 Returns
+B<Returns>
 
 The B<to> position (int, -1 if undefined)
 
@@ -395,7 +394,7 @@ sub to {
 
 Gets the length of the locus.
 
-=head3 Returns
+B<Returns>
 
 I<int> or C<undef>.
 
@@ -411,11 +410,11 @@ sub length {
 
 Gets/sets the ID of the locus
 
-=head3 Arguments
+B<Arguments>
 
 ID (str)
 
-=head3 Returns
+B<Returns>
 
 ID (str)
 
@@ -434,15 +433,15 @@ Sets/gets the family of features.  I<I.e.>, a name identifying the type of locus
 A common family is B<CDS>, but other families can be defined.  Note that the family
 is not qualified by the software used for the prediction (use C<source()> for that).
 
-=head3 Arguments
+B<Arguments>
 
 The family (str, optional)
 
-=head3 Returns
+B<Returns>
 
 The family (str)
 
-=head3 Note
+B<Note>
 
 This method tries to locate the family by looking (in that order) at:
 
@@ -485,15 +484,15 @@ sub family {
 
 Sets/gets the source of the feature.  For example, the software used.
 
-=head3 Arguments
+B<Arguments>
 
 The source (str, optional).
 
-=head3 Returns
+B<Returns>
 
 The source (str).
 
-=head3 Note
+B<Note>
 
 This method tries to locate the source looking (in that order) at:
 
@@ -528,11 +527,11 @@ sub source {
 
 Gets/sets the strand
 
-=head3 Arguments
+B<Arguments>
 
 Strand (str: B<+>, B<-> or B<.>)
 
-=head3 Returns
+B<Returns>
 
 The strand (str)
 
@@ -549,15 +548,15 @@ sub strand {
 
 Gets/sets the origin rule
 
-=head3 Arguments
+B<Arguments>
 
 A L<Bio::Polloc::RuleI> object
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::RuleI> object
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if the argument is not of the proper class
 
@@ -578,11 +577,11 @@ sub rule {
 
 Gets the score of the feature
 
-=head3 Returns
+B<Returns>
 
 The score (float)
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::NotImplementedException> if not implemented
 
@@ -595,19 +594,19 @@ sub score { $_[0]->throw("score",$_[0],"Bio::Polloc::Polloc::NotImplementedExcep
 
 Sets/gets the sequence
 
-=head3 Arguments
+B<Arguments>
 
 The sequence (Bio::Seq object, optional)
 
-=head3 Returns
+B<Returns>
 
 The sequence (Bio::Seq object or undef)
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if the sequence is not Bio::Seq
 
-=head3 Note
+B<Note>
 
 This method returns the full original sequence, not the piece of sequence with the target
 
@@ -629,11 +628,11 @@ sub seq {
 
 Gets/sets the name of the sequence
 
-=head3 Arguments
+B<Arguments>
 
 The name of the sequence (str, optional).
 
-=head3 Returns
+B<Returns>
 
 The name of the sequence (str or C<undef>).
 
@@ -650,11 +649,11 @@ sub seq_name {
 
 =head2 stringify
 
-=head3 Purpose
+B<Purpose>
 
 To provide an easy method for the (str) description of any L<Bio::Polloc::LocusI> object.
 
-=head3 Returns
+B<Returns>
 
 The stringified object (str, off course)
 
@@ -672,7 +671,7 @@ sub stringify {
 
 Extracts a sequence from the context of the locus
 
-=head3 Arguments
+B<Arguments>
 
 All the following arguments are mandatory, and must be passed in that order:
 
@@ -695,7 +694,7 @@ to I<int> : The relative end position.
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Seq> object.
 
@@ -747,7 +746,7 @@ sub context_seq {
 Calculates the distance (referring to diversity, not genomic position) with the
 given locus.
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -762,16 +761,16 @@ The reference locus.  If set, replaces the loaded object as reference.
 
 =back
 
-=head3 Returns
+B<Returns>
 
 Float.  The distance with the given locus.  Most types will return a distance ranging
 from one to zero.
 
-=head3 Note
+B<Note>
 
 See the documentation for additional arguments and precisions.
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::NotImplementedException> if not implemented by the correspondig class.
 
@@ -788,11 +787,11 @@ Methods intended to be used only within the scope of Bio::Polloc::*
 
 Uniformizes the distinct names that every type can receive
 
-=head3 Arguments
+B<Arguments>
 
 The requested type (str)
 
-=head3 Returns
+B<Returns>
 
 The qualified type (str or undef)
 

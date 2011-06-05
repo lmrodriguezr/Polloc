@@ -26,18 +26,16 @@ L<Bio::Polloc::Polloc::Root>
 =cut
 
 package Bio::Polloc::GroupCriteria;
-
 use strict;
+use base qw(Bio::Polloc::Polloc::Root);
 use List::Util qw(min max first);
 use Bio::Polloc::Polloc::IO;
 use Bio::Polloc::LociGroup;
 use Bio::Polloc::GroupCriteria::operator;
 use Bio::Polloc::GroupCriteria::operator::cons;
-use Bio::Tools::Run::Alignment::Muscle;
 use Bio::Seq;
 use Error qw(:try);
-
-use base qw(Bio::Polloc::Polloc::Root);
+our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 #
 
@@ -51,7 +49,7 @@ Methods provided by the package
 
 Generic initialization method
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -73,7 +71,7 @@ See L<locigroup()>
 
 =back
 
-=head3 Returns
+B<Returns>
 
 The C<Bio::Polloc::GroupCriteria> object
 
@@ -146,7 +144,7 @@ sub condition {
 
 Compares two loci based on the defined conditions
 
-=head3 Parameters
+B<Parameters>
 
 =over
 
@@ -160,11 +158,11 @@ The second locus (a L<Bio::Polloc::LocusI> object)
 
 =back
 
-=head3 Returns
+B<Returns>
 
 Boolean
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if unexpected input or undefined condition, source or
 target
@@ -204,7 +202,7 @@ sub evaluate {
 
 Gets the stored loci
 
-=head3 Note
+B<Note>
 
 The stored loci can also be obtained with C<$object-E<gt>locigroup-E<gt>loci>,
 but this function ensures a consistent order in the loci for its evaluation.
@@ -237,15 +235,15 @@ sub get_loci {
 
 Get the locus with the specified index.
 
-=head3 Arguments
+B<Arguments>
 
-The index (int).
+The index (int, mandatory).
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::LocusI> object or undef.
 
-=head3 Note
+B<Note>
 
 This is a lazzy method, and should be used B<ONLY> after C<get_loci()>
 were called at least once.  Otherwise, the order might not be the expected,
@@ -264,7 +262,7 @@ sub get_locus {
 
 Sets the conditions for group extensions.
 
-=head3 Arguments
+B<Arguments>
 
 Array, hash or string with C<-key =E<gt> value> pairs.  Supported values are:
 
@@ -365,9 +363,9 @@ default.
 
 =back
 
-=head3 Throws
+B<Throws>
 
-L<Bio::Polloc::Polloc::Error> if unexpected input
+L<Bio::Polloc::Polloc::Error> if unexpected input,
 
 =cut
 
@@ -403,7 +401,7 @@ sub extension {
 
 Extends a group based on the arguments provided by L<Bio::Polloc::GroupCriteria->extension()>.
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -413,12 +411,12 @@ The L<Bio::Polloc::LociGroup> containing the loci in the group to extend.
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Polloc::LociGroup> object containing the updated group, i.e. the
 original group PLUS the extended features.
 
-=head3 Throws
+B<Throws>
 
 L<Bio::Polloc::Polloc::Error> if unexpected input or weird extension definition.
 
@@ -550,7 +548,7 @@ sub extend {
 
 Compares all the included loci and returns the identity matrix
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -560,11 +558,11 @@ If true, calculates the complete matrix instead of only the bottom-left triangle
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A reference to a boolean 2-dimensional array (only left-down triangle)
 
-=head3 Note
+B<Note>
 
 B<WARNING!>  The order of the output is not allways the same of the input.
 Please use C<get_loci()> instead, as source features B<MUST> be after
@@ -595,15 +593,15 @@ sub build_bin {
 
 Builds groups of loci based on a binary matrix
 
-=head3 Arguments
+B<Arguments>
 
 A matrix as returned by L<Bio::Polloc::GroupCriteria::build_bin()>
 
-=head3 Returns
+B<Returns>
 
-A 2-D matrix ref.
+A 2-D arrayref.
 
-=head3 Note
+B<Note>
 
 This method is intended to build groups providing information on all-vs-all
 comparisons.  If you do not need this information, use the much more
@@ -637,7 +635,7 @@ sub bin_build_groups {
 
 This is the main method, creates groups of loci.
 
-=head3 Arguments
+B<Arguments>
 
 =over
 
@@ -652,7 +650,7 @@ errors, this method ignores the command at ANY possible error).
 B<Unimplemented>: This argument is currently ignored. Some algorithmic
 considerations must be addressed before using it. B<TODO>.
 
-=item -advance I<ref to sub>
+=item -advance I<coderef>
 
 A reference to a function to call at every new pair.  The function is called
 with three arguments, the first is the index of the first locus, the second
@@ -661,12 +659,12 @@ Note that this function is called B<BEFORE> running the comparison.
 
 =over
 
-=head3 Returns
+B<Returns>
 
 An arrayref of L<Bio::Polloc::LociGroup> objects, each containing one consistent
 group of loci.
 
-=head3 Note
+B<Note>
 
 This method is faster than combining C<build_bin()> and C<build_groups_bin()>,
 and it should be used whenever transitivity can be freely assumed and you do
@@ -794,7 +792,7 @@ sub _next_group_id {
 
 =head2 _build_subseq
 
-=head3 Arguments
+B<Arguments>
 
 All the following arguments are mandatory and must be passed in that order.
 The strand will be determined by the relative position of from/to:
@@ -819,11 +817,11 @@ The B<to> position
 
 =back
 
-=head3 Returns
+B<Returns>
 
 A L<Bio::Seq> object.
 
-=head3 Comments
+B<Comments>
 
 This method should be located at a higher hierarchy module (Root?).
 
@@ -853,11 +851,11 @@ sub _build_subseq {
 
 Uses an alignment to search in the sequences of the collection of genomes
 
-=head3 Arguments
+B<Arguments>
 
 A Bio::SimpleAlign object
 
-=head3 Returns
+B<Returns>
 
 A reference to an array of references to arrays, each with structure:
 C<["genome-key:acc", from, to, strand, score]>
@@ -893,12 +891,12 @@ sub _search_aln_seqs {
       my $factory;
       my $query;
       if($alg eq 'blast'){
-         require Bio::Tools::Run::StandAloneBlast;
+         $self->_load_module('Bio::Tools::Run::StandAloneBlast');
 	 my $cons_seq = $aln->consensus_string($ext->{'-consensusperc'});
 	 $cons_seq =~ s/\?/N/g;
          $query = Bio::Seq->new(-seq=>$cons_seq);
       }elsif($alg eq 'hmmer'){
-	 require Bio::Tools::Run::Hmmer;
+	 $self->_load_module('Bio::Tools::Run::Hmmer');
 	 my $tmpio = Bio::Polloc::Polloc::IO->new();
 	 # The following lines should be addressed with a three-lines code,
 	 # but the buggy AUTOLOAD of Bio::Tools::Run::Hmmer let us no option
@@ -973,11 +971,11 @@ sub _search_aln_seqs {
 
 Takes an index 2D matrix and returns it as the equivalent L<Bio::Polloc::LocusI> objects
 
-=head3 Arguments
+B<Arguments>
 
-2D matrix of integers (ref)
+2D matrix of integers (arrayref)
 
-=head3 Returns
+B<Returns>
 
 2D matrix of L<Bio::Polloc::LocusI> objects (ref)
 
