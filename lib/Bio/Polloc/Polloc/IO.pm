@@ -15,7 +15,6 @@ use File::Path;
 use File::Spec;
 use File::Temp;
 use Symbol;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 GLOBALS
 

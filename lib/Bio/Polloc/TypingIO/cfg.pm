@@ -28,7 +28,6 @@ use base qw(Bio::Polloc::TypingIO);
 use strict;
 use Bio::Polloc::Polloc::Config;
 use Bio::Polloc::TypingI;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

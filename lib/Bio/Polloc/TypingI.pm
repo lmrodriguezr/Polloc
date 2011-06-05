@@ -28,7 +28,6 @@ package Bio::Polloc::TypingI;
 use strict;
 use base qw(Bio::Polloc::Polloc::Root);
 use Error qw(:try);
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

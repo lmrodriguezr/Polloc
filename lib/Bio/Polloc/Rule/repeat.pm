@@ -14,7 +14,6 @@ use strict;
 use Bio::Polloc::Polloc::IO;
 use Bio::Polloc::LocusI;
 use Bio::SeqIO;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

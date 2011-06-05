@@ -12,7 +12,6 @@ package Bio::Polloc::GroupCriteria::operator::seq;
 use base qw(Bio::Polloc::GroupCriteria::operator);
 use strict;
 use Bio::Seq;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

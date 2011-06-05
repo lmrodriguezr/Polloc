@@ -28,7 +28,6 @@ package Bio::Polloc::RuleI;
 use strict;
 use base qw(Bio::Polloc::Polloc::Root);
 use Bio::Polloc::RuleIO;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

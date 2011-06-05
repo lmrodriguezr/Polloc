@@ -11,7 +11,6 @@ Email lmrodriguezr at gmail dot com
 package Bio::Polloc::Locus::pattern;
 use base qw(Bio::Polloc::LocusI);
 use strict;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

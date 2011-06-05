@@ -31,7 +31,6 @@ use Bio::Polloc::RuleI;
 use Bio::Polloc::GroupCriteria;
 use Bio::Polloc::GroupCriteria::operator;
 use Bio::Seq;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

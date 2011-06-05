@@ -21,7 +21,6 @@ use Bio::SeqIO;
 # For CRISPRFinder:
 use File::Spec;
 use Cwd;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

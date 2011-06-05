@@ -363,5 +363,18 @@ sub DESTROY {
    }
 }
 
+=head2 import
+
+=cut
+
+sub import {
+   no strict 'refs';
+   my $c = 0;
+   while(defined caller(++$c)){
+      my $v = caller($c) . "::VERSION";
+      ${$v} = $VERSION unless defined ${$v} or $v !~ /^Bio::Polloc::/;
+   }
+}
+
 
 1;

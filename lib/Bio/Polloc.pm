@@ -17,7 +17,5 @@ package Bio::Polloc;
 use strict;
 use Bio::Polloc::Polloc::Root;
 
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
-
 1;
 

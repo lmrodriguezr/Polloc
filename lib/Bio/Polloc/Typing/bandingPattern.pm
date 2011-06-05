@@ -20,7 +20,6 @@ Email lmrodriguezr at gmail dot com
 package Bio::Polloc::Typing::bandingPattern;
 use base qw(Bio::Polloc::TypingI);
 use strict;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

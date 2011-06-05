@@ -25,7 +25,6 @@ use Bio::SeqIO;
 use Bio::Polloc::LocusI;
 use Bio::Polloc::Polloc::IO;
 use List::Util qw(min max);
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 PUBLIC METHODS
 

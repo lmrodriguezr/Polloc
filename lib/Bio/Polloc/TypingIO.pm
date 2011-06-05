@@ -25,7 +25,6 @@ L<Bio::Polloc::Polloc::IO>
 package Bio::Polloc::TypingIO;
 use base qw(Bio::Polloc::Polloc::Root Bio::Polloc::Polloc::IO);
 use strict;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 PUBLIC METHODS
 

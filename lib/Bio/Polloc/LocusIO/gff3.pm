@@ -27,7 +27,6 @@ use base qw(Bio::Polloc::LocusIO);
 use strict;
 use Bio::Polloc::LociGroup;
 use Bio::Polloc::LocusI;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

@@ -24,7 +24,6 @@ use File::Spec;
 use File::Basename;
 use Cwd;
 use Config;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

@@ -19,7 +19,6 @@ Email lmrodriguezr at gmail dot com
 package Bio::Polloc::GroupCriteria::operator;
 use base qw(Bio::Polloc::Polloc::Root);
 use strict;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 

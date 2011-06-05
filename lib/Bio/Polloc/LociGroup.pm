@@ -22,7 +22,6 @@ package Bio::Polloc::LociGroup;
 use strict;
 use base qw(Bio::Polloc::Polloc::Root);
 use Bio::Polloc::Polloc::IO;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 PUBLIC METHODS
 

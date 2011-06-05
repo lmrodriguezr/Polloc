@@ -15,11 +15,12 @@ WriteMakefile
                    'File::Spec' => 0,
                    'Symbol' => 0,
                    'Bio::SeqIO' => 0,
-                   'Error' => 0,
                    'List::Util' => 0,
+                   'Error' => 0,
                    'File::Temp' => 0,
                    'File::Path' => 0,
-                   'Module::Build' => '0.2'
+                   'Module::Build' => '0.2',
+                   'Cwd' => 0
                  }
 )
 ;

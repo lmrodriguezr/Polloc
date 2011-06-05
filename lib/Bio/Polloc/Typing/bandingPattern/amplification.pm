@@ -32,7 +32,6 @@ use base qw(Bio::Polloc::Typing::bandingPattern);
 use strict;
 use Bio::Polloc::Polloc::IO;
 use Bio::Polloc::LocusI;
-our $VERSION = $Bio::Polloc::Polloc::Root::VERSION;
 
 =head1 APPENDIX
 
