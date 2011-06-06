@@ -38,7 +38,7 @@ use Error qw(:try);
 
 #
 
-=head1 APPENDIX
+=head1 APPENDIX - Methods
 
 Methods provided by the package
 
@@ -48,7 +48,9 @@ Methods provided by the package
 
 Generic initialization method
 
-B<Arguments>
+=over
+
+=item Arguments
 
 =over
 
@@ -70,9 +72,11 @@ See L<locigroup()>
 
 =back
 
-B<Returns>
+=item Returns
 
 The C<Bio::Polloc::GroupCriteria> object
+
+=back
 
 =cut
 
@@ -85,7 +89,7 @@ sub new {
 
 =head2 source
 
-Sets/gets the type of source loci (see L<Bio::Polloc::LocusI->family()>
+Sets/gets the type of source loci (see L<Bio::Polloc::LocusI-E<gt>family()>
 
 =cut
 
@@ -97,7 +101,7 @@ sub source {
 
 =head2 target
 
-Sets/gets the type of target loci (see L<Bio::Polloc::LocusI->family()>
+Sets/gets the type of target loci (see L<Bio::Polloc::LocusI-E<gt>family()>
 
 =cut
 
@@ -143,7 +147,9 @@ sub condition {
 
 Compares two loci based on the defined conditions
 
-B<Parameters>
+=over
+
+=item Arguments
 
 =over
 
@@ -157,14 +163,16 @@ The second locus (a L<Bio::Polloc::LocusI> object)
 
 =back
 
-B<Returns>
+=item Returns
 
 Boolean
 
-B<Throws>
+=item Throws
 
 L<Bio::Polloc::Polloc::Error> if unexpected input or undefined condition, source or
 target
+
+=back
 
 =cut
 
@@ -201,10 +209,14 @@ sub evaluate {
 
 Gets the stored loci
 
-B<Note>
+=over
+
+=item Note
 
 The stored loci can also be obtained with C<$object-E<gt>locigroup-E<gt>loci>,
 but this function ensures a consistent order in the loci for its evaluation.
+
+=back
 
 =cut
 
@@ -234,19 +246,23 @@ sub get_loci {
 
 Get the locus with the specified index.
 
-B<Arguments>
+=over
+
+=item Arguments
 
 The index (int, mandatory).
 
-B<Returns>
+=item Returns
 
 A L<Bio::Polloc::LocusI> object or undef.
 
-B<Note>
+=item Note
 
 This is a lazzy method, and should be used B<ONLY> after C<get_loci()>
 were called at least once.  Otherwise, the order might not be the expected,
 and weird results would appear.
+
+=back
 
 =cut
 
@@ -261,7 +277,9 @@ sub get_locus {
 
 Sets the conditions for group extensions.
 
-B<Arguments>
+=over
+
+=item Arguments
 
 Array, hash or string with C<-key =E<gt> value> pairs.  Supported values are:
 
@@ -362,9 +380,11 @@ default.
 
 =back
 
-B<Throws>
+=item Throws
 
 L<Bio::Polloc::Polloc::Error> if unexpected input,
+
+=back
 
 =cut
 
@@ -400,7 +420,9 @@ sub extension {
 
 Extends a group based on the arguments provided by L<Bio::Polloc::GroupCriteria->extension()>.
 
-B<Arguments>
+=over
+
+=item Arguments
 
 =over
 
@@ -410,14 +432,16 @@ The L<Bio::Polloc::LociGroup> containing the loci in the group to extend.
 
 =back
 
-B<Returns>
+=item Returns
 
 A L<Bio::Polloc::LociGroup> object containing the updated group, i.e. the
 original group PLUS the extended features.
 
-B<Throws>
+=item Throws
 
 L<Bio::Polloc::Polloc::Error> if unexpected input or weird extension definition.
+
+=back
 
 =cut
 
@@ -547,7 +571,9 @@ sub extend {
 
 Compares all the included loci and returns the identity matrix
 
-B<Arguments>
+=over
+
+=item Arguments
 
 =over
 
@@ -557,16 +583,18 @@ If true, calculates the complete matrix instead of only the bottom-left triangle
 
 =back
 
-B<Returns>
+=item Returns
 
 A reference to a boolean 2-dimensional array (only left-down triangle)
 
-B<Note>
+=item Note
 
 B<WARNING!>  The order of the output is not allways the same of the input.
 Please use C<get_loci()> instead, as source features B<MUST> be after
 target features in the array.  Otherwise, it is not possible to have the
 full picture without building the full matrix (instead of half).
+
+=back
 
 =cut
 
@@ -592,22 +620,26 @@ sub build_bin {
 
 Builds groups of loci based on a binary matrix
 
-B<Arguments>
+=over
 
-A matrix as returned by L<Bio::Polloc::GroupCriteria::build_bin()>
+=item Arguments
 
-B<Returns>
+A matrix as returned by L<Bio::Polloc::GroupCriteria-E<gt>build_bin()>
+
+=item Returns
 
 A 2-D arrayref.
 
-B<Note>
+=item Note
 
 This method is intended to build groups providing information on all-vs-all
 comparisons.  If you do not need this information, use the much more
-efficient L<Bio::Polloc::GroupCriteria::build_groups()> method, that relies on
+efficient L<Bio::Polloc::GroupCriteria-E<gt>build_groups()> method, that relies on
 transitive property of groups to avoid unnecessary comparisons.  Please note
 that this function also relies on transitivity, but gives you the option to
 examine all the paired comparisons and even write your own grouping function.
+
+=back
 
 =cut
 
@@ -634,7 +666,9 @@ sub bin_build_groups {
 
 This is the main method, creates groups of loci.
 
-B<Arguments>
+=over
+
+=item Arguments
 
 =over
 
@@ -656,19 +690,21 @@ with three arguments, the first is the index of the first locus, the second
 is the index of the second locus and the third is the total number of loci.
 Note that this function is called B<BEFORE> running the comparison.
 
-=over
+=back
 
-B<Returns>
+=item Returns
 
 An arrayref of L<Bio::Polloc::LociGroup> objects, each containing one consistent
 group of loci.
 
-B<Note>
+=item Note
 
 This method is faster than combining C<build_bin()> and C<build_groups_bin()>,
 and it should be used whenever transitivity can be freely assumed and you do
 not need the all-vs-all matrix for further evaluation (for example, manual
 inspection).
+
+=back
 
 =cut
 
@@ -791,40 +827,40 @@ sub _next_group_id {
 
 =head2 _build_subseq
 
-B<Arguments>
+=over
+
+=item Arguments
 
 All the following arguments are mandatory and must be passed in that order.
 The strand will be determined by the relative position of from/to:
 
 =over
 
-=item seq I<Bio::Seq object>
+=item *
 
-The sequence
+The sequence (L<Bio::Seq> object).
 
-=item from I<int>
+=item *
 
-The B<from> position
+The B<from> position (I<int>).
 
-=item to I<int>
+=item *
 
-The B<to> position
-
-=back
+The B<to> position (I<int>).
 
 =back
 
-=back
-
-B<Returns>
+=item Returns
 
 A L<Bio::Seq> object.
 
-B<Comments>
+=item Comments
 
 This method should be located at a higher hierarchy module (Root?).
 
 This method is static.
+
+=back
 
 =cut
 
@@ -850,14 +886,18 @@ sub _build_subseq {
 
 Uses an alignment to search in the sequences of the collection of genomes
 
-B<Arguments>
+=over
+
+=item Arguments
 
 A Bio::SimpleAlign object
 
-B<Returns>
+=item Returns
 
-A reference to an array of references to arrays, each with structure:
-C<["genome-key:acc", from, to, strand, score]>
+A 2D arrayref, where first key is an incremental and second key preserves the
+orrder in the structure: C<["genome-key:acc", from, to, strand, score]>
+
+=back
 
 =cut
 
@@ -970,13 +1010,17 @@ sub _search_aln_seqs {
 
 Takes an index 2D matrix and returns it as the equivalent L<Bio::Polloc::LocusI> objects
 
-B<Arguments>
+=over
+
+=item Arguments
 
 2D matrix of integers (arrayref)
 
-B<Returns>
+=item Returns
 
 2D matrix of L<Bio::Polloc::LocusI> objects (ref)
+
+=back
 
 =cut
 

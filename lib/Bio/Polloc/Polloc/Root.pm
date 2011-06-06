@@ -158,7 +158,7 @@ sub throw {
 
 =head2 debug
 
-Appends debug information to the L<Bio::Polloc::Polloc::DEBUGLOG> or STDERR
+Appends debug information to the L<$Bio::Polloc::Polloc::DEBUGLOG> or STDERR
 if verbosity is greater than 1
 
 =cut
