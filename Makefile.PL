@@ -10,7 +10,7 @@ WriteMakefile
   'INSTALLDIRS' => 'site',
   'NAME' => 'Bio::Polloc::Polloc::Root',
   'EXE_FILES' => [],
-  'VERSION_FROM' => 'lib/Bio/Polloc/Polloc/Root.pm',
+  'VERSION_FROM' => 'lib/Bio/Polloc/Polloc/Version.pm',
   'PREREQ_PM' => {
                    'File::Spec' => 0,
                    'Symbol' => 0,

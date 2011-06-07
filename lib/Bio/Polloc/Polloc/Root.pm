@@ -23,7 +23,7 @@ Global variables controling the behavior of the package
 
 =cut
 
-our($VERSION, $VERBOSITY, $DOER, $DEBUGLOG, $TIMESTAMP);
+our($VERBOSITY, $DOER, $DEBUGLOG, $TIMESTAMP);
 
 =head2 VERSION
 
@@ -31,7 +31,7 @@ The package's version
 
 =cut
 
-$VERSION = "1.0501"; # 1.5.1
+# From v1.5.2 onwards it's inherited from Bio::Polloc::Polloc::Version
 
 =head2 VERBOSITY
 
