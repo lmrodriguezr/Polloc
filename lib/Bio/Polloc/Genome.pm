@@ -22,6 +22,8 @@ package Bio::Polloc::Genome;
 use strict;
 use base qw(Bio::Polloc::Polloc::Root);
 use Bio::SeqIO;
+our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+
 
 =head1 PUBLIC METHODS
 

@@ -24,6 +24,8 @@ use base qw(Bio::Polloc::Polloc::Root);
 use Bio::Polloc::RuleI;
 use Bio::Polloc::Polloc::IO;
 use List::Util qw(min max);
+our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+
 
 =head1 PUBLIC METHODS
 

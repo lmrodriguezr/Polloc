@@ -16,6 +16,8 @@ syntaxis.
 package Bio::Polloc::Polloc::Config;
 use base qw(Bio::Polloc::Polloc::Root Bio::Polloc::Polloc::IO);
 use strict;
+our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+
 
 =head1 GLOBALS
 

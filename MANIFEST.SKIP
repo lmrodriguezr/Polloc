@@ -26,3 +26,6 @@
 ^Makefile.bak$
 ^Makefile.old$
 
+# Other tools
+^auto-version.pl$
+

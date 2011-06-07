@@ -16,7 +16,6 @@ use Bio::Polloc::Polloc::IO;
 use Bio::Polloc::Polloc::Error;
 use Error qw(:try);
 
-
 =head1 GLOBALS
 
 Global variables controling the behavior of the package
@@ -31,7 +30,8 @@ The package's version
 
 =cut
 
-# From v1.5.2 onwards it's inherited from Bio::Polloc::Polloc::Version
+our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+
 
 =head2 VERBOSITY
 

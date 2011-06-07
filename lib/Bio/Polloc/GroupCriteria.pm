@@ -35,6 +35,8 @@ use Bio::Polloc::GroupCriteria::operator;
 use Bio::Polloc::GroupCriteria::operator::cons;
 use Bio::Seq;
 use Error qw(:try);
+our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+
 
 #
 

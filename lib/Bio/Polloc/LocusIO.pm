@@ -43,6 +43,8 @@ Read & write loci:
 package Bio::Polloc::LocusIO;
 use strict;
 use base qw(Bio::Polloc::Polloc::Root Bio::Polloc::Polloc::IO);
+our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+
 
 =head1 PUBLIC METHODS
 
