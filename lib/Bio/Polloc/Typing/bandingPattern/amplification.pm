@@ -83,9 +83,15 @@ sub fragments {
       my $k = -1;
       while(my $ln = $run->_readline){
          chomp $ln;
-	 if($ln =~ m/^Amplimer (\d+)/){ $amp->[$k = $1-1] = Bio::Polloc::LocusI->new(-type=>'amplicon', -primersio=>$primers) }
-	 elsif($ln =~ m/^\s*Sequence: (.*)/){ $amp->[$k]->genome($locigroup->genomes->[$g]->search_sequence($1)) }
-	 elsif($ln =~ m/^\s*\S+ hits forward strand at (\d+) with (\d+) mismatches/){
+	 if($ln =~ m/^Amplimer (\d+)/){
+	    $amp->[$k = $1-1] = Bio::Polloc::LocusI->new(
+	    		-type=>'amplicon',
+			-primersio=>$primers,
+			-genome=>$locigroup->genomes->[$g]);
+	 }elsif($ln =~ m/^\s*Sequence: ([^\s]*)\s*/){
+	    my $sid=$1;
+	    $amp->[$k]->seq($locigroup->genomes->[$g]->search_sequence($sid));
+	 }elsif($ln =~ m/^\s*\S+ hits forward strand at (\d+) with (\d+) mismatches/){
 	    my($from,$err) = ($1+0, $2+0);
 	    $amp->[$k]->from($from);
 	    $amp->[$k]->errors($err);
@@ -218,10 +224,13 @@ Methods intended to be used only within the scope of Bio::Polloc::*
 
 sub _initialize_method {
    my($self,@args) = @_;
-   my($primerConservation, $primerSize) = $self->_rearrange([qw(PRIMERCONSERVATION PRIMERSIZE)], @args);
+   my($primerConservation, $primerSize, $flankingSize, $annealingErrors) =
+   	$self->_rearrange([qw(PRIMERCONSERVATION PRIMERSIZE FLANKINGSIZE ANNEALINGERRORS)], @args);
    $self->type('bandingPattern::amplification');
    $self->primer_conservation($primerConservation);
    $self->primer_size($primerSize);
+   $self->flanking_size($flankingSize);
+   $self->annealing_errors($annealingErrors);
 }
 
 1;

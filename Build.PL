@@ -34,7 +34,7 @@ my $build = new Module::Build (
 	create_makefile_pl	=> 'traditional',
 );
 
-for my $pl (qw(polloc_vntrs)){
+for my $pl (qw(polloc_vntrs polloc_primers polloc_gel)){
    my $script = File::Spec->catfile('scripts', "$pl.pl");
    $build->scripts($script) if $build->y_n("Do you want to install the $script script to $Config{installscript}?", 'n');
 }

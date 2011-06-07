@@ -14,7 +14,7 @@ setrule dummy rule2 = 'VNTR'
 set VNTR executable = 'Yes'
 
 [ GroupCriteria ]
-var num simLimit = 0.56
+var num simLimit = 0.9
 
 var seq left1 = FEAT1 at [-1, -500..0]
 var seq left2 = FEAT2 at [-1, -500..0]

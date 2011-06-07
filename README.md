@@ -166,7 +166,7 @@ F.A.Q.
 
 ### How do I know the installed version of Polloc in my machine?
 
-    perl -MBio::Polloc::Polloc::Root -e 'print $Bio::Polloc::Polloc::Root::VERSION,"\n"'
+    perl -MBio::Polloc -e 'print $Bio::Polloc::VERSION, "\n"'
 
 ### Is there an implementation of Polloc running in a real-life tool?
 

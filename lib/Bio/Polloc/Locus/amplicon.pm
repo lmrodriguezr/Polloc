@@ -221,7 +221,10 @@ sub _initialize {
    		[qw(ERROR PRIMERSIO)], @args);
    $self->type('amplicon');
    $self->error($error);
+   $self->comments("Error=" . $self->error) if defined $self->error;
    $self->primersio($primersio);
+   $self->comments("Fwd_primer=" . $self->fwd_primer) if defined $self->fwd_primer;
+   $self->comments("Rev_primer=" . $self->rev_primer) if defined $self->rev_primer;
 }
 
 1;

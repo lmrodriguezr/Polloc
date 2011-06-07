@@ -322,10 +322,10 @@ sub graph {
       return;
    }
    try { $self->_load_module('GD::Simple'); }
-   catch BME::BME::Error with {
+   catch Bio::Polloc::Polloc::Error with {
       $self->warn("I need GD::Simple to create the image, impossible to locate it.\n".shift);
       return;
-   } otherwise { $self->throw("Non-native error", shift); }
+   } otherwise { $self->throw("Non-native error", shift); };
    $width  ||= 600;
    $height ||= 300;
    $font   ||= 'Times';

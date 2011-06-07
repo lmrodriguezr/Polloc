@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use Bio::Polloc::RuleIO;
+use Bio::Polloc::RuleIO 1.5010;
 use Bio::Polloc::LocusIO;
 use Bio::Polloc::Genome;
 use Bio::SeqIO;
@@ -28,15 +28,19 @@ my @inseqs = @ARGV;
 my $csv = "$out.csv";
 my $groupcsv = "$out.group.csv";
 unless($cnf and $out and $buildgroups and defined $extendgroups
-	and defined $summarizegroups and $#names>-1
-	and $#inseqs>-1){
+	and defined $summarizegroups and $#inseqs>-1){
 die <<HELP
+
+   polloc_vntrs.pl - Scans genomes searching for VNTRs, compares and groups
+   the found loci, extends the groups based on homology and produce detailed
+   per-group reports.
+   
    Usage: $0 [Params]
-   Params (in that order):
+   Params, in that order:
       cnf (path):	Path to the configuration file (.cnf or .bme).
       			Example: t/vntrs.bme
       out (path):	Path to the base of the output files.
-      			Example: /tmp/polloc-vntrs-out
+      			Example: /tmp/polloc-vntrs.out
       buildgroups:	If on, groups the detected loci.
       			Values: 'on' or '' (empty string)
       extendgroups:	If on, extends the groups of loci (buildgroups
@@ -46,6 +50,8 @@ die <<HELP
       			about groups (buildgroups must be on).
 			Values: 'on' or '' (empty string)
       names (str):	The names of the genomes separated by colons (:).
+      			Alternatively, can be an empty string ('') to
+			assign genome names from files.
       			Example: Xci3:Xeu8:XamC
       inseqs (paths):	Sequences to scan (input).  Each argument will be
       			considered a single genome, and the values of
@@ -56,8 +62,7 @@ die <<HELP
 HELP
 }
 
-open LOG, ">", "$out.log" or die "I can not create the '$out.log' file: $!\n";
-Bio::Polloc::Polloc::Root->DEBUGLOG(-fh=>\*LOG);
+Bio::Polloc::Polloc::Root->DEBUGLOG(-file=>">$out.log");
 Bio::Polloc::Polloc::Root->VERBOSITY(4);
 
 open CSV, ">", $csv or die "I can not create the CSV file '$csv': $!\n";
@@ -95,6 +100,7 @@ if($buildgroups){
   print GCSV "\t", $_->name for @{$ruleIO->genomes};
   print GCSV "\tUpstream consensus\tDownstream consensus\tLocus size (Avg/SD) <2>" if $summarizegroups;
   print GCSV "\n";
+  open GLIST, ">", "$out.groups" or die "I can not open '$out.group': $!\n";
   $grule->locigroup($all_loci);
   my $groups = $grule->build_groups(-advance=>\&advance_group);
   die "Unable to build groups" unless defined $groups;
@@ -119,6 +125,8 @@ if($buildgroups){
 	   print GCSV $member->id." " if $genome->name eq $member->genome->name;
 	}
      }
+     print GLIST $_->id, " " for @{$group->loci};
+     print GLIST "\n";
 # ------------------------------------------------- SUMMARIZE GROUPS
      if($summarizegroups){
         # Within the table
@@ -162,6 +170,7 @@ if($buildgroups){
      print GCSV "\n";
   }
   close GCSV;
+  close GLIST;
 }
 
 &_advance_proto("$csv.done","done");
@@ -230,7 +239,6 @@ sub csv_line($$) {
 }
 
 close CSV;
-close LOG;
 
 __END__
 

@@ -11,6 +11,7 @@ Email lmrodriguezr at gmail dot com
 package Bio::Polloc::Polloc::Root;
 
 use strict;
+use Bio::Polloc::Polloc::Version;
 use Bio::Polloc::Polloc::IO;
 use Bio::Polloc::Polloc::Error;
 use Error qw(:try);
@@ -22,7 +23,7 @@ Global variables controling the behavior of the package
 
 =cut
 
-our($VERSION, $VERBOSITY, $DOER, $DEBUGLOG);
+our($VERSION, $VERBOSITY, $DOER, $DEBUGLOG, $TIMESTAMP);
 
 =head2 VERSION
 
@@ -39,7 +40,16 @@ Verbosity level
 =cut
 
 $VERBOSITY = 0;
-sub VERBOSITY { shift if ref $_[0] || $_[0] =~ m/^Bio::Polloc::/ ; $VERBOSITY = 0+shift }
+sub VERBOSITY { shift; $VERBOSITY = 0 + shift }
+
+=head2 TIMESTAMP
+
+Should I report the current Unix time on each debug line?
+
+=cut
+
+$TIMESTAMP = 0;
+sub TIMESTAMP { shift; $TIMESTAMP = shift }
 
 =head2 DOER
 
@@ -48,7 +58,7 @@ Should I save my work?  Provided for testing purposes
 =cut
 
 $DOER = 1;
-sub DOER { shift ; $DOER = 0+shift }
+sub DOER { shift ; $DOER = shift }
 
 =head2 DEBUGLOG
 
@@ -166,7 +176,7 @@ if verbosity is greater than 1
 sub debug {
    my($self,@txt) = @_;
    if($self->verbosity >= 2){
-      my $msg = ref($self) . " | " . join(' ', @txt) . "\n";
+      my $msg = "" . ($TIMESTAMP ? "[".time()."] " : '') . ref($self) . " | " . join(' ', @txt) . "\n";
       if(defined $self->DEBUGLOG){ $self->DEBUGLOG->_print($msg) }
       else{ print STDERR $msg }
    }
@@ -362,19 +372,5 @@ sub DESTROY {
       $method->($self);
    }
 }
-
-=head2 import
-
-=cut
-
-sub import {
-   no strict 'refs';
-   my $c = 0;
-   while(defined caller(++$c)){
-      my $v = caller($c) . "::VERSION";
-      ${$v} = $VERSION unless defined ${$v} or $v !~ /^Bio::Polloc::/;
-   }
-}
-
 
 1;

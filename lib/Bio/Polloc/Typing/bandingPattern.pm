@@ -104,6 +104,7 @@ sub graph_content {
    # Set the gel up
    my $below = 50;
    my($iw, $ih, $nameh, $maxa) = ($width, $height-$below, 75, $self->max_size);
+   $maxa = 5e3 if $maxa > 5e10;
    my($lw, $lh, $nh) = ($iw/($#$genomes+1), int($maxa/750), ($ih-$nameh)/$maxa);
    my $img = GD::Simple->new($width, $height);
    $img->bgcolor('black');
@@ -112,6 +113,7 @@ sub graph_content {
    $img->font($font);
    my $white = $img->alphaColor(255,255,255,0);
    my $b1 = $img->alphaColor(130, 130, 130 ,0);
+   $self->debug("GEL iw:$iw ih:$ih nameh:$nameh maxa:$maxa lw:$lw lh:$lh nh:$nh");
    
    # Draw bands
    for my $g (0 .. $#$struc){
@@ -121,15 +123,21 @@ sub graph_content {
       $img->angle(-45);
       $img->string($genomes->[$g]->name);
       $img->angle(0);
+      my $x1 = int($lw*($g+0.1));
+      my $x2 = $x1+int($lw*0.8);
+      $self->debug("Lane from $x1 to $x2");
       for my $l (@{$struc->[$g]}){
-	 my ($x1,$y1) = (int($lw*($g+0.1)), $nameh + int($nh*($maxa-$struc->[$g]->[$l]->length)));
-	 my ($x2, $y2) = ($x1+int($lw*0.8), $y1+$lh);
+	 $self->throw("Bad loci structure (g:$g)", $struc->[$g], "Bio::Polloc::Polloc::UnexpectedException")
+	 	unless UNIVERSAL::can($l, 'isa') and $l->isa('Bio::Polloc::LocusI');
+	 my $y1 = $nameh + int($nh*($maxa - $l->length));
+	 my $y2 = $y1 + $lh;
 	 $img->bgcolor($b1);
 	 $img->fgcolor($b1);
 	 $img->rectangle($x1, $y1-int($lh*0.75), $x2, $y2+int($lh*0.75));
 	 $img->bgcolor($white);
 	 $img->fgcolor($white);
 	 $img->rectangle($x1, $y1, $x2, $y2);
+	 $self->debug("Band from $y1 to $y2");
       }
    }
    return $img;

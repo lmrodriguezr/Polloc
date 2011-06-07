@@ -15,7 +15,7 @@ This package is licensed under the Artistic License - see LICENSE.txt
 package Bio::Polloc;
 
 use strict;
-use Bio::Polloc::Polloc::Root;
+use base qw(Bio::Polloc::Polloc::Root);
 
 1;
 
