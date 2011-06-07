@@ -354,7 +354,8 @@ The parsed (uniform) namespace.
 =cut
 
 sub _parse_space {
-   my($self,$space) = @_;
+   my($self, $space) = @_;
+   return '.' unless defined $space;
    my $out = lc $space;
    $out = "." . $out unless $out =~ m/^\./;
    $self->throw("Invalid space name <$out>", $space) unless $out =~ m/^[\w\.]+(\.\*)?$/i;

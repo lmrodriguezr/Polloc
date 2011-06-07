@@ -13,6 +13,8 @@ meta-spec:
   version: 1.4
 name: Bio::Polloc
 provides:
+  Bio::Polloc:
+    file: lib/Bio/Polloc.pm
   Bio::Polloc::Genome:
     file: lib/Bio/Polloc/Genome.pm
   Bio::Polloc::GroupCriteria:
@@ -58,6 +60,9 @@ provides:
   Bio::Polloc::Polloc::Root:
     file: lib/Bio/Polloc/Polloc/Root.pm
     version: 1.0501
+  Bio::Polloc::Polloc::Version:
+    file: lib/Bio/Polloc/Polloc/Version.pm
+    version: 1.0502
   Bio::Polloc::Rule::boolean:
     file: lib/Bio/Polloc/Rule/boolean.pm
   Bio::Polloc::Rule::composition:
