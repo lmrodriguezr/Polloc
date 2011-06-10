@@ -133,11 +133,14 @@ sub graph_content {
 	 	unless UNIVERSAL::can($l, 'isa') and $l->isa('Bio::Polloc::LocusI');
 	 my $y1 = $nameh + int($nh*($maxa - $l->length));
 	 my $y2 = $y1 + $lh;
+	 my $S = ($l->score || 100) * 255 / 100;
+	 my $b1 = $img->alphaColor($S, $S, $S, 0);
+	 my $b2 = $img->alphaColor($S/2, $S/2, $S/2, 0);
+	 $img->bgcolor($b2);
+	 $img->fgcolor($b2);
+	 $img->rectangle($x1, $y1-int($lh*0.75), $x2, $y2+int($lh*0.75));
 	 $img->bgcolor($b1);
 	 $img->fgcolor($b1);
-	 $img->rectangle($x1, $y1-int($lh*0.75), $x2, $y2+int($lh*0.75));
-	 $img->bgcolor($white);
-	 $img->fgcolor($white);
 	 $img->rectangle($x1, $y1, $x2, $y2);
 	 $self->debug("Band from $y1 to $y2");
       }

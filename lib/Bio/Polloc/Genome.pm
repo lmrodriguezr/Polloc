@@ -33,7 +33,9 @@ Methods provided by the package
 
 The basic initialization method
 
-B<Arguments>
+=over
+
+=item Arguments
 
 =over
 
@@ -47,6 +49,8 @@ The file containing the (multi-)fasta with the genome.
 
 =back
 
+=back
+
 =cut
 
 sub new {
@@ -54,6 +58,43 @@ sub new {
    my $self = $caller->SUPER::new(@args);
    $self->_initialize(@args);
    return $self;
+}
+
+=head2 build_set
+
+Builds a set of genomes.
+
+=over
+
+=item Arguments
+
+=over
+
+=item -files I<arrayref>
+
+An arrayref containing the files from which genomes must be build.
+
+=item -names I<arrayref>
+
+An arrayref containing the names of the genomes (in the same order
+of the files).
+
+=back
+
+=back
+
+=cut
+
+sub build_set {
+   my($self, @args) = @_;
+   my($files, $names) = $self->_rearrange([qw(FILES NAMES)], @args);
+   return unless defined $files;
+   $names||= [];
+   my $out = [];
+   for my $i (0 .. $#$files){
+      push @$out, Bio::Polloc::Genome->new(-file=>$files->[$i], -name=>$names->[$i]);
+   }
+   return $out;
 }
 
 =head2 file

@@ -13,21 +13,22 @@ my $build = new Module::Build (
 	license		=> 'perl',
 	requires	=> {
 		perl		=> '5.8.0',
-		Error		=> 0,
-		Symbol		=> 0,
+		'Bio::SeqIO'	=> 0,
+		'Config'	=> 0,
+		'Cwd'		=> 0,
+		'Error'		=> 0,
 		'File::Path'	=> 0,
 		'File::Spec'	=> 0,
 		'File::Temp'	=> 0,
 		'List::Util'	=> 0,
-		'Bio::SeqIO'	=> 0,
-		Cwd		=> 0,
+		'Symbol'	=> 0,
 	},
 	recommends	=> {
-		'GD::Simple'	=> 0,
-		'File::Basename'=> 0,
 		'Bio::Tools::Run::Hmmer' => 0,
 		'Bio::Tools::Run::StandAloneBlast' => 0,
 		'Bio::Tools::Run::Alignment::Muscle' => 0,
+		'File::Basename'=> 0,
+		'GD::Simple'	=> 0,
 	},
 	build_requires		=> { 'Module::Build' => 0.20 },
 	configure_requires	=> { 'Module::Build' => 0.36 },
@@ -35,9 +36,16 @@ my $build = new Module::Build (
 	create_makefile_pl	=> 'traditional',
 );
 
-for my $pl (qw(polloc_vntrs polloc_primers polloc_gel)){
-   my $script = File::Spec->catfile('scripts', "$pl.pl");
-   $build->scripts($script) if $build->y_n("Do you want to install the $script script to $Config{installscript}?", 'n');
+if($build->y_n("Do you want to install the VNTR analysis tool scripts to $Config{installscript}?", 'n')){
+   for my $pl (qw(vntrs primers gel)){
+      $build->scripts( File::Spec->catfile('scripts', "polloc_$pl.pl") );
+   }
+}
+
+if($build->y_n("Do you want to install the generic Polloc scripts to $Config{installscript}?", 'n')){
+   for my $pl (qw(detect group experiment)){
+      $build->scripts( File::Spec->catfile('scripts', "polloc_$pl.pl") );
+   }
 }
 
 $build->create_build_script;

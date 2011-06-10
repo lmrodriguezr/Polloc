@@ -9,6 +9,7 @@
 \bBUILD.COM$
 \bbuild.com$
 ^MANIFEST\.SKIP$
+^blib
 
 # Avoid archives of this distribution
 \bBio::Polloc-[\d\.\_]+

@@ -105,6 +105,11 @@ BLAST in context-based groups extension.
 Installation
 ------------
 
+From v1.5 onwards there are two way to install Polloc.  The easiest way is using
+[CPAN](http://cpan.org), with the command `install Bio::Polloc`.
+
+The second way is from the source, in a three-steps process:
+
 1.  **Install the requirements**.  Remember, you can
     find the Perl modules in [CPAN](http://cpan.org).
 
@@ -133,10 +138,12 @@ Installation
         make install # Could require sudo
     ```
 
-4.  **Use the package**.  See the following section (Usage) for
+Once installed, you can:
+
+*   **Use the package**.  See the following section (Usage) for
     some examples.
 
-5.  Familiar enough?  We are glad to listen than, then you could
+*   Familiar enough?  We are glad to listen than, then you could
     **start developing**.  You can check the documentation within the
     modules using perldoc (or any other Pod interpreter), or contact
     us for questions and feature requests.
@@ -150,10 +157,9 @@ Usage
 The scripts distributed with Polloc are located at the `scripts` folder.  Scripts
 include a small help message, so that you can just run it with `perl`.
 
-* Running the **vntrs.pl** script.  This script is the core of the [VNTRs analysis
+* Running the **polloc_vntrs.pl** script.  This script is the core of the [VNTRs analysis
 tool](http://bioinfo-prod.mpl.ird.fr/xantho/utils/#vntrs).  It requires the `vntrs.bme`
-file, also at the `scripts` folder.  Run it with no arguments to check the required
-parameters.
+file, also at the `t` folder.  Run it with no arguments to check the required parameters.
 
 
 ### Writing new scripts
@@ -182,4 +188,9 @@ if you want your modifications to be incorporated into the main Polloc code, ple
 [Polloc at GitHub](http://www.github.com/lmrodriguezr/Polloc) and submit your changes via
 Pull Requests.  If you are not familiar with Git, please read the documentation available
 at the [git website](http://www.git-scm.com/).
+
+### Where can I find the documented modules in human-readable format?
+
+You can read the documentation of Polloc in HTML format at CPAN:
+(http://search.cpan.org/dist/Polloc/)
 

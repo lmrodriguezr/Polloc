@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use Bio::Polloc::LocusIO 1.5010;
+use Bio::Polloc::LocusIO 1.0501;
 use Bio::Polloc::Genome;
 use Bio::Polloc::TypingI;
 
@@ -52,4 +52,65 @@ sub usage($) {
 HELP
    ;exit;
 }
+
+__END__
+
+=pod
+
+=head1 AUTHOR
+
+Luis M. Rodriguez-R < lmrodriguezr at gmail dot com >
+
+=head1 LICENSE
+
+This script is distributed under the terms of
+I<The Artistic License>.  See LICENSE.txt for details.
+
+=head1 SYNOPSIS
+
+C<perl polloc_gel.pl> B<arguments>
+
+The arguments must be in the following order:
+
+=over
+
+=item Input gff
+
+GFF3 file containing the amplicons.
+
+Example: C</tmp/polloc-primers.out.amplif.1.gff>
+
+=item Output
+
+Path to the base of the output files.
+
+Example: C</tmp/polloc-gel.out>
+
+=item Names
+
+The names of the genomes separated by colons (C<:>). Alternatively, it
+can be an empty string (C<''>) to assign genome names from files.
+
+Example: C<Xci3:Xeu8:XamC>
+
+=back
+
+Run C<perl polloc_gel.pl> without arguments to see the help
+message.
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<Bio::Polloc::Locus::amplicon>
+
+=item *
+
+L<Bio::Polloc::Typing::bandingPattern>
+
+=back
+
+=cut
 

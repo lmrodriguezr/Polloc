@@ -48,6 +48,10 @@ The same arguments of L<Bio::Polloc::Polloc::IO>, plus:
 
 The format of the file
 
+=item -genomes
+
+The genomes to be scaned
+
 =back
 
 =cut
@@ -72,6 +76,8 @@ sub new {
          my $self = $class->SUPER::new(@args);
 	 $self->debug("Got the RuleIO class $class ($1)");
 	 $self->format($1);
+	 my ($genomes) = $self->_rearrange([qw(GENOMES)], @args);
+	 $self->genomes($genomes);
          $self->_initialize(@args);
          return $self;
       }
@@ -316,6 +322,7 @@ sub execute {
    my $locigroup = Bio::Polloc::LociGroup->new(
    		-name=>'Full collection - '.time().".".rand(1000),
    		-genomes=>$self->genomes);
+   $self->throw("Impossible to execute without genomes") unless defined $self->genomes;
    for my $gk (0 .. $#{$self->genomes}){
       my $genome = $self->genomes->[$gk];
       $self->_end_rules_loop;

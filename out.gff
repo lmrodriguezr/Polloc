@@ -1,0 +1,24 @@
+###gff-version 3
+
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	208464	208544	132	+	0	ID=VNTR:1.1;organism_name=XocBLS256_genome;Note=Period%3D7,Exponent%3D11.6,Score%3D132,Error%3D3;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	351012	351077	132	+	0	ID=VNTR:1.2;organism_name=XocBLS256_genome;Note=Period%3D7,Exponent%3D9.4,Score%3D132,Error%3D0;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	446122	446194	146	+	0	ID=VNTR:1.3;organism_name=XocBLS256_genome;Note=Period%3D9,Exponent%3D8.1,Score%3D146,Error%3D0;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	825999	826047	73	+	0	ID=VNTR:1.4;organism_name=XocBLS256_genome;Note=Period%3D8,Exponent%3D6.2,Score%3D73,Error%3D17;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	1450149	1450186	56	+	0	ID=VNTR:1.5;organism_name=XocBLS256_genome;Note=Period%3D6,Exponent%3D6.3,Score%3D56,Error%3D16;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	1453245	1453400	312	+	0	ID=VNTR:1.6;organism_name=XocBLS256_genome;Note=Period%3D7,Exponent%3D22.3,Score%3D312,Error%3D0;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	1523859	1523924	90	+	0	ID=VNTR:1.7;organism_name=XocBLS256_genome;Note=Period%3D6,Exponent%3D10.8,Score%3D90,Error%3D15;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	1666816	1666862	74	+	0	ID=VNTR:1.8;organism_name=XocBLS256_genome;Note=Period%3D7,Exponent%3D6.7,Score%3D74,Error%3D10;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	1775575	1775625	82	+	0	ID=VNTR:1.9;organism_name=XocBLS256_genome;Note=Period%3D7,Exponent%3D7.3,Score%3D82,Error%3D5;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	1838952	1838993	74	+	0	ID=VNTR:1.10;organism_name=XocBLS256_genome;Note=Period%3D7,Exponent%3D6,Score%3D74,Error%3D3;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	2154494	2154537	73	+	0	ID=VNTR:1.11;organism_name=XocBLS256_genome;Note=Period%3D6,Exponent%3D7.3,Score%3D73,Error%3D3;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	2159999	2160079	142	+	0	ID=VNTR:1.12;organism_name=XocBLS256_genome;Note=Period%3D6,Exponent%3D13.5,Score%3D142,Error%3D6;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	2574214	2574251	51	+	0	ID=VNTR:1.13;organism_name=XocBLS256_genome;Note=Period%3D6,Exponent%3D6.5,Score%3D51,Error%3D16;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	2857319	2857385	94	+	0	ID=VNTR:1.14;organism_name=XocBLS256_genome;Note=Period%3D7,Exponent%3D9.6,Score%3D94,Error%3D4;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	3164085	3164120	67	+	0	ID=VNTR:1.15;organism_name=XocBLS256_genome;Note=Period%3D6,Exponent%3D6,Score%3D67,Error%3D4;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	3243409	3243450	64	+	0	ID=VNTR:1.16;organism_name=XocBLS256_genome;Note=Period%3D7,Exponent%3D6,Score%3D64,Error%3D18;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	3605916	3606009	93	+	0	ID=VNTR:1.17;organism_name=XocBLS256_genome;Note=Period%3D6,Exponent%3D15.7,Score%3D93,Error%3D15;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	3731758	3731807	100	+	0	ID=VNTR:1.18;organism_name=XocBLS256_genome;Note=Period%3D7,Exponent%3D7.1,Score%3D100,Error%3D0;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	3919919	3919977	78	+	0	ID=VNTR:1.19;organism_name=XocBLS256_genome;Note=Period%3D6,Exponent%3D9.8,Score%3D78,Error%3D19;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	3919921	3919977	99	+	0	ID=VNTR:1.20;organism_name=XocBLS256_genome;Note=Period%3D9,Exponent%3D6.3,Score%3D99,Error%3D7;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	3942348	3942533	252	+	0	ID=VNTR:1.21;organism_name=XocBLS256_genome;Note=Period%3D7,Exponent%3D26.6,Score%3D252,Error%3D4;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	4317966	4318022	79	+	0	ID=VNTR:1.22;organism_name=XocBLS256_genome;Note=Period%3D8,Exponent%3D7.2,Score%3D79,Error%3D18;Name=VNTR%20repeat

@@ -1,0 +1,4 @@
+###gff-version 3
+
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	3919919	3919977	78	+	0	ID=VNTR:1.19;organism_name=XocBLS256_genome;Note=Period%3D6,Exponent%3D9.8,Score%3D78,Error%3D19;Name=VNTR%20repeat
+gi|94721236|gb|AAQN01000001.1|	trf	VNTR	3919921	3919977	99	+	0	ID=VNTR:1.20;organism_name=XocBLS256_genome;Note=Period%3D9,Exponent%3D6.3,Score%3D99,Error%3D7;Name=VNTR%20repeat

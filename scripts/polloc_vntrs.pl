@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use Bio::Polloc::RuleIO 1.5010;
+use Bio::Polloc::RuleIO 1.0501;
 use Bio::Polloc::LocusIO;
 use Bio::Polloc::Genome;
 use Bio::SeqIO;
@@ -261,30 +261,37 @@ The arguments must be in the following order:
 
 =over
 
-=item 1
+=item Configuration
 
-The configuration file (a .bme file).
+The configuration file (a .bme or .cfg file).
 
-=item 2
+=item Output
 
 Output base, a path to the prefix of the files to be created.
 
-=item 3
+=item Build groups
 
-Extend groups: Any non-empty string to extend the groups, or
-empty string to avoid extension.
+Any non-empty string to create groups of loci, or empty string
+to avoid grouping.  If empty (C<''>), extension and summary are
+ignored.
 
-=item 4
+=item Extend groups
 
-Summarize groups: Any non-empty string to produce additional
-summaries per group, or empty string to avoid summaries.
+Any non-empty string to extend the groups, or empty string to
+avoid extension.
 
-=item 5
+=item Summarize groups
+
+Any non-empty string to produce additional summaries per group,
+or empty string to avoid summaries.
+
+=item Names
 
 The identifiers (names) of the input genomes in a single string
-separated by colons (:).
+separated by colons (C<:>).  Alternatively, use an empty string
+(C<''>) to use names based on the filename.
 
-=item 6
+=item Inseqs
 
 All the following arguments will be treated as input files.  Each
 file is assumed to contain a genome (that can contain one or more
@@ -294,6 +301,32 @@ sequence) in [multi-]fasta format.
 
 Run C<perl polloc_vntrs.pl> without arguments to see the help
 message.
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<Bio::Polloc::RuleIO>
+
+=item *
+
+L<Bio::Polloc::Genome>
+
+=item *
+
+L<Bio::Polloc::LocusI>
+
+=item *
+
+L<Bio::Polloc::LocusIO>
+
+=item *
+
+L<Bio::Polloc::LociGroup>
+
+=back
 
 =cut
 

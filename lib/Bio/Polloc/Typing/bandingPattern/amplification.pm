@@ -203,7 +203,7 @@ sub flanking_size {
 
 =head2 annealing_errors
 
-Gets/sets the maximum number of errors allowed for a primer to anneal.
+Gets/sets the maximum percentage of errors allowed for a primer to anneal.
 0 by default.
 
 =cut

@@ -1,7 +1,7 @@
 package Bio::Polloc::Polloc::Version;
 
 use strict;
-our $VERSION = '1.0502';
+our $VERSION = '1.0503';
 
 sub import {
    no strict 'refs';

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use Bio::Polloc::LocusIO 1.5010;
+use Bio::Polloc::LocusIO 1.0501;
 use Bio::Polloc::Genome;
 use Bio::Polloc::LociGroup;
 use Bio::Polloc::TypingI;
@@ -48,9 +48,10 @@ my $typing = Bio::Polloc::TypingI->new(
 	-type=>'bandingPattern::amplification',
 	-primerSize=>$len,
 	-primerConservation=>($cons/100),
-	-maxSize=>2000);
-# Alternatively, this can be set with (but remember to use Bio::Polloc::TypingIO): 
-# my $typing = Bio::Polloc::TypingIO->new(-file=>'t/vntrs.bme');
+	-maxSize=>2000,
+	-annealingErrors=>$error);
+# Alternatively, this can be set with (but remember to "use Bio::Polloc::TypingIO;"): 
+# my $typing = Bio::Polloc::TypingIO->new(-file=>'t/vntrs.bme')->typing;
 
 GROUP: for my $lgroupId (0 .. $#gr){
    my $lgroup = $gr[$lgroupId];
@@ -91,7 +92,7 @@ sub usage($) {
 			Default: 100
       len (int):	Length of the primers.
 			Default: 20
-      error (float):	Number of allowed mismatches during in silico
+      error (float):	Percentage of allowed mismatches during in silico
       			amplification.
 			Default: 0
       names (str):	The names of the genomes separated by colons (:).
@@ -107,4 +108,111 @@ sub usage($) {
 HELP
    ;exit;
 }
+
+__END__
+
+=pod
+
+=head1 AUTHOR
+
+Luis M. Rodriguez-R < lmrodriguezr at gmail dot com >
+
+=head1 LICENSE
+
+This script is distributed under the terms of
+I<The Artistic License>.  See LICENSE.txt for details.
+
+=head1 SYNOPSIS
+
+C<perl polloc_vntrs.pl> B<arguments>
+
+The arguments must be in the following order:
+
+=over
+
+=item Input gff
+
+GFF3 file containing the loci to amplify.
+
+Example: C<"/tmp/polloc-vntrs.out.gff">.
+
+=item Groups
+
+File containing the IDs of the grouped loci. One line
+per group, and the IDs separated by spaces.
+
+Example: C<"/tmp/polloc-vntrs.out.groups">.
+
+=item Output
+
+Path to the base of the output files.
+
+Example: C<"/tmp/polloc-primers.out">.
+
+=item Draw
+
+Should I produce graphical output?  Any non-empty string to
+generate PNG images, or empty string (C<''>) to ignore graphical
+output.
+
+=item Consensus (I<float>)
+
+Consensus percentage for primers design.
+
+Default: C<100>.
+
+=item Length (I<int>)
+
+Length of the primers.
+
+Default: C<20>.
+
+=item Errors (I<int>)
+
+Percentage of allowed mismatches during *in silico*
+amplification.
+
+Default: C<0>.
+
+=item Names
+
+The names of the genomes separated by colons (C<:>). Alternatively,
+it can be an empty string (C<''>) to assign genome names from files.
+
+Example: C<"Xci3:Xeu8:XamC">
+
+=item Inseqs
+
+Sequences to scan (input).  Each argument will be
+considered a single genome, and the values of 'names' will be
+applied.  The order of the inseqs must be the same of the names.
+
+Example 1: C<"/data/Xci3.fa" "/data/Xeu8.fa" "/data/XamC.fa">
+
+Example 2: C</data/X*.fa> (unquoted)
+
+=back
+
+Run C<perl polloc_primers.pl> without arguments to see the help
+message.
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<Bio::Polloc::LocusIO>
+
+=item *
+
+L<Bio::Polloc::Genome>
+
+=item *
+
+L<Bio::Polloc::TypingI>
+
+=back
+
+=cut
 
