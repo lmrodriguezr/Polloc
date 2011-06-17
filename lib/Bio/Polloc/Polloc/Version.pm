@@ -1,4 +1,12 @@
-package Bio::Polloc::Polloc::Version;
+=head1 NAME
+
+Bio::Polloc::Polloc::Version - Provides central package-wide version
+
+=head1 AUTHOR - Luis M. Rodriguez-R
+
+Email lrr at cpan dot org
+
+=cut
 
 use strict;
 our $VERSION = '1.0503';

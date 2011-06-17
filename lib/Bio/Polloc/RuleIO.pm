@@ -244,7 +244,7 @@ sub groupcriteria {
 
 =head2 grouprules
 
-Alias of L<groupcriteria()> (for backwards-compatibility).
+Alias of L<groupcriteria> (for backwards-compatibility).
 
 =cut
 

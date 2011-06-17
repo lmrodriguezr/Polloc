@@ -50,8 +50,6 @@ our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
 
 Methods provided by the package
 
-=cut
-
 =head2 new
 
 The basic initialization method
@@ -99,13 +97,17 @@ sub new {
 
 Gets/sets the format of the file
 
-B<Arguments>
+=over
+
+=item Arguments
 
 Format (str), currently supported: gff3.
 
-B<Return>
+=item Return
 
 Format (str or C<undef>).
+
+=back
 
 =cut
 
@@ -123,7 +125,9 @@ sub format {
 
 Appends one locus to the output file.
 
-=head2 Arguments
+=over
+
+=item Arguments
 
 =over
 
@@ -135,6 +139,10 @@ The locus to append.
 
 If true, forces re-parsing of the locus.  Otherwise,
 tries to load cached parsing (if any).
+
+=back
+
+=back
 
 =cut
 
@@ -151,7 +159,9 @@ sub write_locus {
 
 Gets the loci stored in the input file.
 
-B<Arguments>
+=over
+
+=item Arguments
 
 =over
 
@@ -164,9 +174,11 @@ if this parameter is not provided.
 
 =back
 
-B<Returns>
+=item Returns
 
 A L<Bio::Polloc::LociGroup> object.
+
+=back
 
 =cut
 
@@ -176,15 +188,17 @@ sub read_loci { return shift->_read_loci_impl(@_) }
 
 Reads the next locus in the buffer.
 
-B<Arguments>
+=over
 
-Same of L<read_loci()>
+=item Arguments
 
-=back
+Same of L<read_loci>
 
-B<Returns>
+=item Returns
 
 A L<Bio::Polloc::LocusI> object.
+
+=back
 
 =cut
 
@@ -198,13 +212,17 @@ Methods intended to be used only within the scope of Bio::Polloc::*
 
 Uniformizes the distinct names that every format can receive
 
-B<Arguments>
+=over
+
+=item Arguments
 
 The requested format (str)
 
-B<Returns>
+=item Returns
 
 The qualified format (str or undef)
+
+=back
 
 =cut
 
@@ -218,7 +236,7 @@ sub _qualify_format {
 
 =head2 _write_locus_impl
 
-Format-specific implementation of C<write_locus()>.
+Format-specific implementation of C<write_locus>.
 
 =cut
 

@@ -10,7 +10,7 @@ from files (via the L<Bio::Polloc::TypingIO> package).
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
-Email lmrodriguezr at gmail dot com
+Email lrr at cpan dot org
 
 =head1 IMPLEMENTS OR EXTENDS
 
@@ -145,7 +145,7 @@ Gets/sets the type of typing method
 
 B<Arguments>
 
-Value (I<str>).  See L<new()> and the corresponding C<Bio::Polloc::Typing::*>
+Value (I<str>).  See L<new> and the corresponding C<Bio::Polloc::Typing::*>
 objects for further details.
 
 Some variations can be introduced, like case variations or short versions like
@@ -204,9 +204,9 @@ B<Arguments>
 =item -locigroup I<Bio::Polloc::LociGroup object>
 
 The group of loci to be used as base.  If not provided,
-attempts to find the last value returned by L<scan()>.
+attempts to find the last value returned by L<scan>.
 If never called (or not cached by the implementation)
-looks for the base loci (setted via L<locigroup()> or
+looks for the base loci (setted via L<locigroup> or
 at initialization).  If everything fails to provide a
 base group of loci, warns about it and returns C<undef>.
 
@@ -227,7 +227,7 @@ B<Returns>
 A reference to an array or a hash (if C<-names> is true).  The
 key correspond to the incremental number or the name of the
 genomes, and the values can be either numeric or an array of
-numeric values, depending on the L<typing_value()> implemented
+numeric values, depending on the L<typing_value> implemented
 by the genotyping method.  If C<-binary> is true, the values
 are always 0 or 1, regardless of the typing method.
 
@@ -254,7 +254,7 @@ sub matrix {
 
 =head2 binary
 
-Alias of L<matrix()> with C<-binary> true.
+Alias of L<matrix> with C<-binary> true.
 
 =cut
 
@@ -275,8 +275,8 @@ B<Arguments>
 =item -locigroup I<Bio::Polloc::LociGroup>
 
 The group to be used as a basis.  If any, attempts to locate
-the last value returned by L<scan()>.  If never called, looks
-for the value stored via L<locigroup()> or at initialization.
+the last value returned by L<scan>.  If never called, looks
+for the value stored via L<locigroup> or at initialization.
 Otherwise, warns about it and returns C<undef>,
 
 =item -width I<int>
@@ -352,7 +352,7 @@ B<Arguments>
 =item -locigroup I<Bio::Polloc::LociGroup>
 
 Loci to use as genotyping base.  Optional if provided via
-L<locigroup()> or at initialization.
+L<locigroup> or at initialization.
 
 =back
 
@@ -375,7 +375,7 @@ B<Arguments>
 
 =item -locigroup I<Bio::Polloc::LociGroup object>
 
-The base group of loci.  Same behavior as L<matrix()>.
+The base group of loci.  Same behavior as L<matrix>.
 
 =back
 
@@ -394,6 +394,8 @@ the typing method.
 
 B<Arguments>
 
+=over
+
 =item -loci I<Array of Bio::Polloc::LocusI>
 
 The loci to be evaluated.  Note that it is a reference array
@@ -401,6 +403,8 @@ of L<Bio::Polloc::LocusI> objects, and B<NOT> a L<Bio::Polloc::LociGroup>.
 This is because all the loci are expected to be part of the
 same genome, and the same group (if grouped).  This argument
 is mandatory.
+
+=back
 
 B<Returns>
 
@@ -438,7 +442,7 @@ sub _qualify_type {
 =head2 _scan_locigroup
 
 Gets/sets the group of loci after scanning.  This should be
-called at the end of all the implementations of L<scan()>.
+called at the end of all the implementations of L<scan>.
 
 =cut
 

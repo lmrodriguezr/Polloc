@@ -6,6 +6,10 @@ Bio::Polloc::Genome - A group of sequences from the same organism
 
 Email lmrodriguezr at gmail dot com
 
+=head1 LICENSE
+
+This package is licensed under the Artistic License - see LICENSE.txt
+
 =head1 IMPLEMENTS OR EXTENDS
 
 =over
@@ -31,9 +35,11 @@ Methods provided by the package
 
 =head2 new
 
-The basic initialization method
-
 =over
+
+=item 
+
+The basic initialization method
 
 =item Arguments
 
@@ -62,9 +68,11 @@ sub new {
 
 =head2 build_set
 
-Builds a set of genomes.
-
 =over
+
+=item 
+
+Builds a set of genomes.
 
 =item Arguments
 
@@ -99,7 +107,13 @@ sub build_set {
 
 =head2 file
 
+=over
+
+=item 
+
 Sets/gets the file containing the genome
+
+=back
 
 =cut
 
@@ -114,11 +128,17 @@ sub file {
 
 =head2 get_sequences
 
+=over
+
+=item 
+
 Gets the collection of sequences.
 
-B<Returns>
+=item Returns
 
 An array of L<Bio::Seq> objects.
+
+=back
 
 =cut
 
@@ -135,15 +155,21 @@ sub get_sequences {
 
 =head2 search_sequence
 
+=over
+
+=item 
+
 Search a sequence by ID
 
-B<Arguments>
+=item Arguments
 
 The id (I<str>) of the sequence.
 
-B<Returns>
+=item Returns
 
 The sequence (L<Bio::Seq>) or C<undef>.
+
+=back
 
 =cut
 
@@ -159,8 +185,13 @@ sub search_sequence {
 
 =head2 name
 
-Gets/sets the name of the genome.  If no name is set,
-tries to use the file instead.
+=over
+
+=item 
+
+Gets/sets the name of the genome.  If no name is set, tries to use the file instead.
+
+=back
 
 =cut
 

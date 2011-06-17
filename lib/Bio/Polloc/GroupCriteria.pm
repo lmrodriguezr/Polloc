@@ -13,6 +13,10 @@ namespaces.
 
 Email lmrodriguezr at gmail dot com
 
+=head1 LICENSE
+
+This package is licensed under the Artistic License - see LICENSE.txt
+
 =head1 IMPLEMENTS OR EXTENDS
 
 =over
@@ -48,9 +52,11 @@ Methods provided by the package
 
 =head2 new
 
-Generic initialization method
-
 =over
+
+=item 
+
+Generic initialization method
 
 =item Arguments
 
@@ -58,11 +64,11 @@ Generic initialization method
 
 =item -souce I<str>
 
-See L<source()>
+See L<source>
 
 =item -target I<str>
 
-See L<target()>
+See L<target>
 
 =item -features I<Bio::Polloc::LociGroup>
 
@@ -70,7 +76,7 @@ Alias of C<-loci>
 
 =item -loci I<Bio::Polloc::LociGroup>
 
-See L<locigroup()>
+See L<locigroup>
 
 =back
 
@@ -91,7 +97,13 @@ sub new {
 
 =head2 source
 
-Sets/gets the type of source loci (see L<Bio::Polloc::LocusI-E<gt>family()>
+=over
+
+=item 
+
+Sets/gets the type of source loci (see L<Bio::Polloc::LocusI-E<gt>family>
+
+=back
 
 =cut
 
@@ -103,7 +115,13 @@ sub source {
 
 =head2 target
 
-Sets/gets the type of target loci (see L<Bio::Polloc::LocusI-E<gt>family()>
+=over
+
+=item 
+
+Sets/gets the type of target loci (see L<Bio::Polloc::LocusI-E<gt>family>
+
+=back
 
 =cut
 
@@ -115,8 +133,14 @@ sub target {
 
 =head2 locigroup
 
+=over
+
+=item 
+
 Gets/sets the input L<Bio::Polloc::LociGroup> object containing
 all the loci to evaluate.
+
+=back
 
 =cut
 
@@ -131,7 +155,13 @@ sub locigroup {
 
 =head2 condition
 
+=over
+
+=item 
+
 Sets/gets the conditions set to evaluate.
+
+=back
 
 =cut
 
@@ -147,9 +177,11 @@ sub condition {
 
 =head2 evaluate
 
-Compares two loci based on the defined conditions
-
 =over
+
+=item 
+
+Compares two loci based on the defined conditions
 
 =item Arguments
 
@@ -209,9 +241,11 @@ sub evaluate {
 
 =head2 get_loci
 
-Gets the stored loci
-
 =over
+
+=item 
+
+Gets the stored loci
 
 =item Note
 
@@ -246,9 +280,11 @@ sub get_loci {
 
 =head2 get_locus
 
-Get the locus with the specified index.
-
 =over
+
+=item 
+
+Get the locus with the specified index.
 
 =item Arguments
 
@@ -277,9 +313,11 @@ sub get_locus {
 
 =head2 extension
 
-Sets the conditions for group extensions.
-
 =over
+
+=item 
+
+Sets the conditions for group extensions.
 
 =item Arguments
 
@@ -420,9 +458,11 @@ sub extension {
 
 =head2 extend
 
-Extends a group based on the arguments provided by L<Bio::Polloc::GroupCriteria->extension()>.
-
 =over
+
+=item 
+
+Extends a group based on the arguments provided by L<Bio::Polloc::GroupCriteria->extension>.
 
 =item Arguments
 
@@ -571,9 +611,11 @@ sub extend {
 
 =head2 build_bin
 
-Compares all the included loci and returns the identity matrix
-
 =over
+
+=item 
+
+Compares all the included loci and returns the identity matrix
 
 =item Arguments
 
@@ -620,13 +662,15 @@ sub build_bin {
 
 =head2 bin_build_groups
 
-Builds groups of loci based on a binary matrix
-
 =over
+
+=item 
+
+Builds groups of loci based on a binary matrix
 
 =item Arguments
 
-A matrix as returned by L<Bio::Polloc::GroupCriteria-E<gt>build_bin()>
+A matrix as returned by L<Bio::Polloc::GroupCriteria-E<gt>build_bin>
 
 =item Returns
 
@@ -636,7 +680,7 @@ A 2-D arrayref.
 
 This method is intended to build groups providing information on all-vs-all
 comparisons.  If you do not need this information, use the much more
-efficient L<Bio::Polloc::GroupCriteria-E<gt>build_groups()> method, that relies on
+efficient L<Bio::Polloc::GroupCriteria-E<gt>build_groups> method, that relies on
 transitive property of groups to avoid unnecessary comparisons.  Please note
 that this function also relies on transitivity, but gives you the option to
 examine all the paired comparisons and even write your own grouping function.
@@ -666,9 +710,11 @@ sub bin_build_groups {
 
 =head2 build_groups
 
-This is the main method, creates groups of loci.
-
 =over
+
+=item 
+
+This is the main method, creates groups of loci.
 
 =item Arguments
 
@@ -761,8 +807,14 @@ sub build_groups {
 
 =head2 genomes
 
+=over
+
+=item 
+
 Gets the genomes of the base group of loci.  This function is similar
 to calling C<locigroup()-E<gt>genomes()>, but is read-only.
+
+=back
 
 =cut
 
@@ -814,10 +866,16 @@ sub _detect_border_pairs {
 
 =head2 _next_group_id
 
+=over
+
+=item 
+
 Returns an incremental ID that attempts to identify the group used as basis
 of extension.  Please note that this method DOES NOT check if the group's ID
 is the right one, and it is basically intended to keep track of how many
-times the C<extend()> function has been called.
+times the C<extend> function has been called.
+
+=back
 
 =cut
 
@@ -886,9 +944,11 @@ sub _build_subseq {
 
 =head2 _search_aln_seqs
 
-Uses an alignment to search in the sequences of the collection of genomes
-
 =over
+
+=item 
+
+Uses an alignment to search in the sequences of the collection of genomes
 
 =item Arguments
 
@@ -1010,9 +1070,11 @@ sub _search_aln_seqs {
 
 =head2 _feat_index2obj
 
-Takes an index 2D matrix and returns it as the equivalent L<Bio::Polloc::LocusI> objects
-
 =over
+
+=item 
+
+Takes an index 2D matrix and returns it as the equivalent L<Bio::Polloc::LocusI> objects
 
 =item Arguments
 

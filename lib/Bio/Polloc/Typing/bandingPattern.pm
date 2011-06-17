@@ -44,9 +44,9 @@ sub new {
 
 =head2 scan
 
-See L<Bio::Polloc::TypingI-E<gt>scan()>.
+See L<Bio::Polloc::TypingI-E<gt>scan>.
 
-L<fragments()> must be implemented by the C<Bio::Polloc::Typing::bandingPattern::*>
+L<fragments> must be implemented by the C<Bio::Polloc::Typing::bandingPattern::*>
 object.
 
 =cut
@@ -62,10 +62,10 @@ sub scan {
 
 =head2 typing_value
 
-See L<Bio::Polloc::TypingI-E<gt>typing_value()>.
+See L<Bio::Polloc::TypingI-E<gt>typing_value>.
 
-Returns the size of the loci between the minimum (L<min_size()>)
-and the maximum (L<max_size()>) size.
+Returns the size of the loci between the minimum (L<min_size>)
+and the maximum (L<max_size>) size.
 
 =head3 Returns
 
@@ -88,7 +88,7 @@ sub typing_value {
 
 =head2 graph_content
 
-Generates the expected gel.  See L<Bio::Polloc::TypingI-E<gt>graph()>.
+Generates the expected gel.  See L<Bio::Polloc::TypingI-E<gt>graph>.
 
 =cut
 

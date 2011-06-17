@@ -49,6 +49,8 @@ Runs CRIPRRfinder and parses the output.
 
 The sequence(s).
 
+=back
+
 =head3 Returns
 
 An array reference populated with L<Bio::Polloc::Locus::repeat> objects

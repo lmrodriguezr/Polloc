@@ -39,9 +39,13 @@ Methods provided by the package
 
 =head2 new
 
+=over
+
+=item 
+
 Attempts to initialize a C<Bio::Polloc::Rule::*> object
 
-B<Arguments>
+=item Arguments
 
 =over
 
@@ -55,17 +59,19 @@ The value of the rule (depends on the type of rule)
 
 =item -context
 
-The context of the rule.  See L<Bio::Polloc::RuleI->context()>.
+The context of the rule.  See L<Bio::Polloc::RuleI-E<gt>context>.
 
 =back
 
-B<Returns>
+=item Returns
 
 The C<Bio::Polloc::Rule::*> object
 
-B<Throws>
+=item Throws
 
 L<Bio::Polloc::Polloc::Error> if unable to initialize the proper object
+
+=back
 
 =cut
 
@@ -111,9 +117,13 @@ sub new {
 
 =head2 type
 
+=over
+
+=item 
+
 Gets/sets the type of rule
 
-B<Arguments>
+=item Arguments
 
 Value (str).  Can be: pattern, profile, repeat, tandemrepeat, similarity, coding,
 boolean, composition, crispr.  See the corresponding C<Bio::Polloc::Rule::*> objects
@@ -122,14 +132,16 @@ for further details.
 Some variations can be introduced, like case variations or short versions like
 B<patt> or B<rep>.
 
-B<Return>
+=item Return
 
 Value (str).  The type of the rule, or C<undef> if undefined.  The value returned
 is undef or a string from the above list, regardless of the input variations.
 
-B<Throws>
+=item Throws
 
 L<Bio::Polloc::Polloc::Error> if an unsupported type is received.
+
+=back
 
 =cut
 
@@ -147,7 +159,14 @@ sub type {
 
 =head2 context
 
-The context is a reference to an array of two elements (int or str), the first being:
+=over
+
+=item 
+
+Gets/sets the context of the rule.
+
+The context is a reference to an array of two elements (I<int> or I<str>),
+the first being:
    1 => with respect to the start of the sequence
    0 => somewhere within the sequence (ignores the second)
   -1 => with respect to the end of the sequence
@@ -155,18 +174,16 @@ The context is a reference to an array of two elements (int or str), the first b
 And the second being the number of residues from the reference point.  The second
 value can be positive, negative, or zero.
 
-B<Purpose>
-
-Gets/sets the context of the rule
-
-B<Arguments>
+=item Arguments
 
 Three integers, or one integer equal to zero.  Please note that this function is
 extremely tolerant, and tries to guess the context regardless of the input.
 
-B<Returns>
+=item Returns
 
 A reference to the array described above.
+
+=back
 
 =cut
 
@@ -185,23 +202,29 @@ sub context {
 
 =head2 value
 
+=over
+
+=item 
+
 Gets/sets the value of the rule
 
-B<Arguments>
+=item Arguments
 
 Value (mix)
 
-B<Returns>
+=item Returns
 
 Value (mix)
 
-B<Note>
+=item Note
 
-This function relies on C<_qualify_value()>
+This function relies on C<_qualify_value>
 
-B<Throws>
+=item Throws
 
 L<Bio::Polloc::Polloc:Error> if unsupported value is received
+
+=back
 
 =cut
 
@@ -217,23 +240,29 @@ sub value {
 
 =head2 executable
 
-Sets/gets the B<executable> property.  A rule can be executed even if this
+=over
+
+=item 
+
+Sets/gets the C<executable> property.  A rule can be executed even if this
 property is false, if the L<Bio::Polloc::RuleI::execute> method is called directly
-(C<$rule->execute>) or by other rule.  This property is provided only for
+(C<$rule-E<gt>execute>) or by other rule.  This property is provided only for
 L<Bio::Polloc::RuleIO> objects.
 
-B<Arguments>
+=item Arguments
 
 Boolean (0 or 1; optional)
 
-B<Returns>
+=item Returns
 
 1 if expicilty executable, 0 otherwise
 
-B<Note>
+=item Note
 
 It is advisable to have only few (ideally one) executable rules, handling
 all the others with the rule type B<operation>
+
+=back
 
 =cut
 
@@ -251,15 +280,21 @@ sub executable {
 
 =head2 name
 
+=over
+
+=item 
+
 Sets/gets the name of the rule
 
-B<Arguments>
+=item Arguments
 
 Name (str), the name to set
 
-B<Returns>
+=item Returns
 
 The name (str or undef)
+
+=back
 
 =cut
 
@@ -272,19 +307,25 @@ sub name {
 
 =head2 id
 
+=over
+
+=item 
+
 Sets/gets the ID of the rule
 
-B<Purpose>
+=item Purpose
 
 Provide a somewhat I<unique> but human-readable identifier
 
-B<Arguments>
+=item Arguments
 
 The supposedly unique ID of the rule (str), any dot (B<.>) will be changed to B<_>
 
-B<Returns>
+=item Returns
 
 The ID (str or undef)
+
+=back
 
 =cut
 
@@ -309,13 +350,17 @@ sub restart_index {
 
 =head2 stringify
 
-B<Purpose>
+=over
 
-To provide an easy method for the (str) description of any Bio::Polloc::RuleI object.
+=item
 
-B<Returns>
+Provides an easy method for the (I<str>) description of any L<Bio::Polloc::RuleI> object.
+
+=item Returns
 
 The stringified object (str, off course)
+
+=back
 
 =cut
 
@@ -330,11 +375,17 @@ sub stringify {
 
 =head2 stringify_value
 
+=over
+
+=item 
+
 Dummy function to be overriten if non-string value like in Bio::Polloc::Rule::repeat
 
-B<Returns>
+=item Returns
 
 The value as string
+
+=back
 
 =cut
 
@@ -345,15 +396,21 @@ sub stringify_value {
 
 =head2 ruleset
 
+=over
+
+=item 
+
 Gets/sets the parent ruleset of the rule
 
-B<Arguments>
+=item Arguments
 
 The ruleset to set (a L<Bio::Polloc::RuleIO> object).
 
-B<Returns>
+=item Returns
 
-A Bio::Polloc::RuleIO object or undef
+A L<Bio::Polloc::RuleIO> object or C<undef>.
+
+=back
 
 =cut
 
@@ -369,21 +426,25 @@ sub ruleset {
 
 =head2 execute
 
-B<Purpose>
+=over
 
-To evaluate the rule in a given sequence.
+=item 
 
-B<Arguments>
+Evaluates the rule in a given sequence.
 
-A Bio::Seq object
+=item Arguments
 
-B<Returns>
+A L<Bio::Seq> object.
+
+=item Returns
 
 An array of Bio::Polloc::LocusI objects
 
-B<Throws>
+=item Throws
 
 A L<Bio::Polloc::Polloc::NotImplementedException> if not implemented
+
+=back
 
 =cut
 
@@ -391,13 +452,17 @@ sub execute { $_[0]->throw("execute", $_[0], "Bio::Polloc::Polloc::NotImplemente
 
 =head2 safe_value
 
+=over
+
+=item 
+
 Sets/gets a parameter of arbitrary name and value
 
-B<Purpose>
+=item Purpose
 
 To provide a safe interface for setting values from the parsed file
 
-B<Arguments>
+=item Arguments
 
 =over
 
@@ -411,9 +476,11 @@ The value of the parameter (optional)
 
 =back
 
-B<Returns>
+=item Returns
 
 The value of the parameter or undef
+
+=back
 
 =cut
 
@@ -432,17 +499,24 @@ sub safe_value {
 
 =head2 source
 
+=over
+
+=item 
+
 Sets/gets the source of the annotation
 
-B<Arguments>
+=item Arguments
 
-The source (str)
+The source (I<str>)
 
-B<Returns>
+=item Returns
 
-The source (str or undef)
+The source (I<str> or C<undef>)
+
+=back
 
 =cut
+
 sub source {
    my($self,$source) = @_;
    $self->{'_source'} = $source if defined $source;
@@ -476,11 +550,17 @@ sub _qualify_type {
 
 =head2 _parameters
 
-Returns the supported parameters for L<value()>.
+=over
 
-B<Returns>
+=item 
+
+Returns the supported parameters for L<value>.
+
+=item Returns
 
 The supported value keys (C<arrayref>).
+
+=back
 
 =cut
 
@@ -488,9 +568,15 @@ sub _parameters { $_[0]->throw('_parameters', $_[0], 'Bio::Polloc::Polloc::NotIm
 
 =head2 _qualify_value
 
+=over
+
+=item 
+
 Takes the different possible values and returns them the way they must be
-saved (usually a hashref).  Bio::Polloc::Rule::* modules must reimplement
-either L<_qualify_value()> or L<_parameters()>.
+saved (usually a I<hashref>).  Bio::Polloc::Rule::* modules must reimplement
+either L<_qualify_value> or L<_parameters>.
+
+=back
 
 =cut
 
@@ -538,15 +624,21 @@ sub _qualify_value_default {
 
 =head2 _executable
 
+=over
+
+=item 
+
 Attempts to find the executable
 
-B<Arguments>
+=item Arguments
 
 =over
 
 =item *
 
 An alternative path to search at I<str>.
+
+=back
 
 =back
 
@@ -562,13 +654,17 @@ sub _initialize { $_[0]->throw("_initialize", $_[0], "Bio::Polloc::Polloc::NotIm
 
 =head2 _search_value
 
-B<Arguments>
+=over
 
-The key (str)
+=item Arguments
 
-B<Returns>
+The key (I<str>)
+
+=item Returns
 
 The value (mix) or undef
+
+=back
 
 =cut
 
@@ -589,17 +685,24 @@ sub _search_value {
 
 =head2 _next_child_id
 
+=over
+
+=item 
+
 Gets the ID for the next child.
 
-B<Purpose>
+=item Purpose
 
 Provide support for children identification
 
-B<Returns>
+=item Returns
 
-The ID (str) or undef if the ID of the current Rule is not set.
+The ID (I<str>) or C<undef> if the ID of the current Rule is not set.
+
+=back
 
 =cut
+
 sub _next_child_id {
    my $self = shift;
    return unless defined $self->id;

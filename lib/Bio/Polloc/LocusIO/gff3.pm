@@ -220,7 +220,7 @@ sub _write_locus_impl {
    my $self = shift;
    my $line = $self->gff3_line(@_);
    unless($self->{'_header'}){
-      $self->_print("###gff-version 3\n\n");
+      $self->_print("##gff-version 3\n\n");
       $self->{'_header'} = 1;
    }
    $self->_print($line);
@@ -263,12 +263,12 @@ sub _gff3_attribute {
 
 Properly escapes a value on the GFF3 line.  I.e., the content of one column.
 Not to be used with the ninth column, because scapes the colon. the comma and
-the equals signs.  Use instead the L<_gff3_attribute()> function attribute by
+the equals signs.  Use instead the L<_gff3_attribute> function attribute by
 attribute
 
 =head3 Purpose
 
-To simplify the code of L<gff3_line()>
+To simplify the code of L<gff3_line>
 
 =head3 Arguments
 

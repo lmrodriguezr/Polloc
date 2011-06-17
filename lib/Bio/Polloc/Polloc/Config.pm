@@ -23,11 +23,13 @@ our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
 
 Global variables controling the behavior of the package
 
+=over
+
 =cut
 
 our($CFGMAXDEPTH, $CFGCURDEPTH);
 
-=head2 CFGMAXDEPTH
+=item CFGMAXDEPTH
 
 Maximum depth of variables replacement
 
@@ -35,9 +37,11 @@ Maximum depth of variables replacement
 
 $CFGMAXDEPTH = 7 unless defined $CFGMAXDEPTH;
 
-=head2 CFGCURDEPTH
+=item CFGCURDEPTH
 
 Current depth of replacement (internal var)
+
+=back
 
 =cut
 
@@ -49,9 +53,13 @@ Methods provided by the package
 
 =head2 new
 
+=over
+
+=item 
+
 Initialization method.
 
-=head3 Arguments
+=item Arguments
 
 =over
 
@@ -63,7 +71,9 @@ parsed.
 =item -noparse I<bool (int)>
 
 If set to true, does not automatically parse the file on creation.  If so,
-the L<parse()> function must be manually called.
+the L<parse> function must be manually called.
+
+=back
 
 =back
 
@@ -78,11 +88,17 @@ sub new {
 
 =head2 parse
 
+=over
+
+=item 
+
 Parses the configuration file.
 
-=head3 Throws
+=item Throws
 
 L<Bio::Polloc::Polloc::IOException> on parsing error.
+
+=back
 
 =cut
 
@@ -126,7 +142,13 @@ sub parse {
 
 =head2 spaces
 
+=over
+
+=item 
+
 Gets/sets the spaces to be parsed.
+
+=back
 
 =cut
 
@@ -143,9 +165,13 @@ sub spaces {
 
 =head2 value
 
+=over
+
+=item 
+
 Gets the value of a given key.
 
-=head3 Arguments
+=item Arguments
 
 =over
 
@@ -167,9 +193,11 @@ If true, does not alert if not found.
 
 =back
 
-=head3 Throws
+=item Throws
 
 L<Bio::Polloc::Polloc::Error> If not found and mandatory.
+
+=back
 
 =cut
 
@@ -193,9 +221,13 @@ sub value {
 
 =head2 all_keys
 
+=over
+
+=item 
+
 Gets all the stored keys.
 
-=head3 Arguments
+=item Arguments
 
 =over
 
@@ -205,9 +237,11 @@ The parent space.  By default C<.>.
 
 =back
 
-=head3 Returns
+=item Returns
 
 All the keys within the space (array of str).
+
+=back
 
 =cut
 
@@ -221,9 +255,13 @@ sub all_keys {
 
 =head2 alias
 
- a key by alias.
+=over
 
-=head3 Arguments
+=item 
+
+A key by alias.
+
+=item Arguments
 
 =over
 
@@ -237,9 +275,11 @@ The B<to> key name.
 
 =back
 
-=head3 Throws
+=item Throws
 
 L<Bio::Polloc::Polloc::Error> if any of the two keys is empty.
+
+=back
 
 =cut
 
@@ -266,7 +306,13 @@ Methods intended to be used only within the scope of Bio::Polloc::*
 
 =head2 _filter_line
 
+=over
+
+=item 
+
 Removes comments from lines and lines with spaces only.
+
+=back
 
 =cut
 
@@ -284,9 +330,13 @@ sub _filter_line {
 
 =head2 _save
 
+=over
+
+=item 
+
 Saves a key/value pair.
 
-=head3 Arguments
+=item Arguments
 
 =over
 
@@ -305,9 +355,11 @@ The value.
 
 =back
 
-=head3 Returns
+=item Returns
 
 The (uniform) key of the saved pair.  If array or list, the key and the value.
+
+=back
 
 =cut
 
@@ -343,15 +395,21 @@ sub _save {
 
 =head2 _parse_space
 
+=over
+
+=item 
+
 Parses (cleans) the name of a namespace.
 
-=head3 Arguments
+=item Arguments
 
 The namespace to parse.
 
-=head3 Returns
+=item Returns
 
 The parsed (uniform) namespace.
+
+=back
 
 =cut
 
@@ -366,16 +424,22 @@ sub _parse_space {
 
 =head2 _space_required
 
-Indicates whether a namespace is required.  I.e., if the user explicitly
+=over
+
+=item 
+
+Indicates whether a namespace is required.  I<I.e.>, if the user explicitly
 requiested the space, any child or any parent.
 
-=head3 Arguments
+=item Arguments
 
 The namespace.
 
-=head3 Returns
+=item Returns
 
 Boolean (int).
+
+=back
 
 =cut
 
@@ -400,9 +464,13 @@ sub _space_required {
 
 =head2 _execute_token
 
+=over
+
+=item 
+
 Executes a token expected to map to a function.
 
-=head3 Arguments 
+=item Arguments 
 
 =over
 
@@ -418,6 +486,8 @@ The namespace of the token.
 
 A reference to an array containing the arguments to be passed to the
 function.
+
+=back
 
 =back
 
@@ -448,7 +518,13 @@ sub _execute_token {
 
 =head2 _execute_postparse
 
+=over
+
+=item 
+
 Executes registered functions to be launched once parsing is finnished.
+
+=back
 
 =cut
 
@@ -474,9 +550,13 @@ sub _execute_postparse {
 
 =head2 _register_handle_function
 
+=over
+
+=item 
+
 Register a handle function (for tokens).
 
-=head3 Arguments
+=item Arguments
 
 =over
 
@@ -505,6 +585,8 @@ Namespace of the token.
 
 =back
 
+=back
+
 =cut
 
 sub _register_handle_function {
@@ -519,9 +601,13 @@ sub _register_handle_function {
 
 =head2 _register_postparse_function
 
+=over
+
+=item 
+
 Registers a function to be launched once parsing is complete.
 
-=head3 Arguments
+=item Arguments
 
 =over
 
@@ -539,6 +625,8 @@ The parameters to be passed to the function.
 
 =back
 
+=back
+
 =cut
 
 sub _register_postparse_function {
@@ -551,7 +639,13 @@ sub _register_postparse_function {
 
 =head2 _handle_functions
 
+=over
+
+=item 
+
 Gets the collection of functions to handle tokens.
+
+=back
 
 =cut
 
@@ -563,7 +657,13 @@ sub _handle_functions {
 
 =head2 _postparse_functions
 
+=over
+
+=item 
+
 Gets the collection of functions to be launched after parsing.
+
+=back
 
 =cut
 
@@ -575,15 +675,21 @@ sub _postparse_functions {
 
 =head2 _get_handle_function
 
+=over
+
+=item 
+
 Gets the handle function for the given token.
 
-=head3 Arguments
+=item Arguments
 
 =over
 
 =item -token I<str>
 
 The token.
+
+=back
 
 =back
 
@@ -598,8 +704,14 @@ sub _get_handle_function {
 
 =head2 _reparse
 
+=over
+
+=item 
+
 Parses recursively all values until no references to other vars last or
 the maximum depth is reached, whatever happens first.
+
+=back
 
 =cut
 
@@ -629,9 +741,13 @@ sub _reparse {
 
 =head2 _parse_key
 
+=over
+
+=item 
+
 Parses a key and returns its uniform name.
 
-=head3 Arguments
+=item Arguments
 
 =over
 
@@ -642,6 +758,8 @@ The key name (can contain namespace if not explicitly set).
 =item -space I<str>
 
 The namespace.
+
+=back
 
 =back
 
@@ -665,16 +783,22 @@ sub _parse_key {
 
 =head2 _key_alias
 
-Creates an alias for a key based on a string input.  See L<alias()>.
+=over
 
-=head3 Arguments
+=item 
+
+Creates an alias for a key based on a string input.  See L<alias>.
+
+=item Arguments
 
 A string containing the name of the B<from> key, one or more spaces and the name
 of the B<to> string.  Can contain surrounding spaces.
 
-=head3 Throws
+=item Throws
 
 L<Bio::Polloc::Polloc::Error> if empty string or not properly formatted.
+
+=back
 
 =cut
 

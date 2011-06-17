@@ -218,7 +218,7 @@ sub _parse_rule {
    $self->{'_key_rule_map'}->{ $self->_cfg->_parse_key(-key=>$key, -space=>"rule") } = $index;
 }
 
-=head2
+=head2 _parse_set
 
 Parses the body of the .rule.set and the .rule.setrule statements with the
 structure [set|setrule] key param='value'.  If setrule, the value is replaced
@@ -233,6 +233,8 @@ Arguments passed as an array reference to the second slot:
 =item -isrule I<bool (int)>
 
 To distinguish among set (false) and setrule (true)
+
+=back
 
 =cut
 
