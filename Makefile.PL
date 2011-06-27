@@ -14,6 +14,7 @@ WriteMakefile
   'PREREQ_PM' => {
                    'File::Spec' => 0,
                    'Symbol' => 0,
+                   'Config' => 0,
                    'Bio::SeqIO' => 0,
                    'List::Util' => 0,
                    'Error' => 0,

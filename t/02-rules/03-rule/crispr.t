@@ -22,8 +22,8 @@ is($#$loci, 0, 'Correct number of loci');
 
 # 6
 isa_ok($loci->[0], 'Bio::Polloc::Locus::crispr');
-is($loci->[0]->from, 4, 'Correct origin of locus 1');
+is($loci->[0]->from, 43, 'Correct origin of locus 1');
 is($loci->[0]->strand, '.', 'Correct strand of locus 1');
-is($loci->[0]->spacers_no, 1, 'Correct number of spacers');
+is($loci->[0]->spacers_no, 87, 'Correct number of spacers');
 
 }
