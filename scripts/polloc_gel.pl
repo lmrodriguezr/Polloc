@@ -5,14 +5,14 @@ use Bio::Polloc::LocusIO 1.0501;
 use Bio::Polloc::Genome;
 use Bio::Polloc::TypingI;
 
-sub usage($);
+use Pod::Usage;
 
 # ------------------------------------------------- INPUT
 my $gff_in =  shift @ARGV;
 my $out    =  shift @ARGV;
 my @names  = split /:/, shift @ARGV;
 
-&usage('') unless $gff_in and $out and $#names > -1;
+pod2usage(1) unless $gff_in and $out and $#names > -1;
 Bio::Polloc::Polloc::Root->DEBUGLOG(-file=>">$out.log");
 $Bio::Polloc::Polloc::Root::VERBOSITY = 4;
 
@@ -30,29 +30,6 @@ binmode IMG;
 print IMG $typing->graph(-locigroup=>$inloci)->png;
 close IMG;
 
-# ------------------------------------------------- SUBROUTINES
-sub usage($) {
-   my $m = shift;
-   print "$m\n" if $m;
-   print <<HELP
-
-   polloc_draw.pl - Draws the expected gel for a given set of amplicons.
-
-   Usage: $0 [Params]
-   Params, in that order:
-      gff (path):	GFF3 file containing the amplicons.
-      			Example: /tmp/polloc-primers.out.amplif.1.gff
-      out (path):	Path to the base of the output files.
-      			Example: /tmp/polloc-gel.out
-      names (str):	The names of the genomes separated by colons (:).
-      			Alternatively, can be an empty string ('') to
-			assign genome names from files.
-      			Example: Xci3:Xeu8:XamC
-      
-HELP
-   ;exit;
-}
-
 __END__
 
 =pod
@@ -60,6 +37,10 @@ __END__
 =head1 AUTHOR
 
 Luis M. Rodriguez-R < lmrodriguezr at gmail dot com >
+
+=head1 DESCRIPTION
+
+polloc_gel.pl - Draws the expected gel for a given set of amplicons.
 
 =head1 LICENSE
 

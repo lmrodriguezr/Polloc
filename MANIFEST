@@ -40,7 +40,9 @@ lib/Bio/Polloc/TypingI.pm
 lib/Bio/Polloc/TypingIO.pm
 lib/Bio/Polloc/TypingIO/cfg.pm
 LICENSE.txt
+Makefile.PL
 MANIFEST			This list of files
+META.yml
 README.md
 README.txt
 scripts/polloc_detect.pl
@@ -69,5 +71,3 @@ t/multi.fasta
 t/repeats.fasta
 t/repeats.gff3
 t/vntrs.bme
-Makefile.PL
-META.yml
