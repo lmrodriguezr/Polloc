@@ -8,10 +8,10 @@ use_ok('Bio::Polloc::Rule::repeat');
 use_ok('Bio::Seq');
 
 # -------------------------------------------- repeat
-# 3
 SKIP: {
 skip 'mreps not installed', 7 unless Bio::Polloc::Rule::repeat->_executable;
 
+# 3
 my $r = Bio::Polloc::RuleI->new(-type=>'repeat');
 isa_ok($r, 'Bio::Polloc::Rule::repeat');
 

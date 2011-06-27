@@ -8,6 +8,7 @@ use File::Spec;
 sub auto_version($){
    my $path = shift;
    my $v = $Bio::Polloc::Polloc::Version::VERSION;
+   die "Undefined version\n" unless defined $v;
    print "Versioning $path\n";
    if(-d $path){
       opendir (my $Dh, $path) or die "I can not open '$path': $!\n";

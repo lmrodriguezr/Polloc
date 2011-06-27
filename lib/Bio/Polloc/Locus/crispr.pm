@@ -15,7 +15,7 @@ Email lmrodriguezr at gmail dot com
 package Bio::Polloc::Locus::crispr;
 use base qw(Bio::Polloc::LocusI);
 use strict;
-our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+our $VERSION = 1.0503; # [a-version] from Bio::Polloc::Polloc::Version
 
 
 =head1 APPENDIX
@@ -24,9 +24,13 @@ Methods provided by the package
 
 =head2 new
 
+=over
+
+=item 
+
 Creates a B<Bio::Polloc::Locus::repeat> object.
 
-=head3 Arguments
+=item Arguments
 
 =over
 
@@ -37,6 +41,8 @@ The number of spacers.
 =item -dr I<str>
 
 Direct repeat sequence.
+
+=back
 
 =back
 
@@ -51,15 +57,21 @@ sub new {
 
 =head2 spacers_no
 
+=over
+
+=item 
+
 Gets/sets the number of spacers.
 
-=head3 Arguments
+=item Arguments
 
 The number of spacers (int, optional).
 
-=head3 Returns
+=item Returns
 
 The number of spacers (int or undef).
+
+=back
 
 =cut
 
@@ -72,15 +84,21 @@ sub spacers_no {
 
 =head2 dr
 
+=over
+
+=item 
+
 Sets/gets the Direct Repeat sequence.
 
-=head3 Arguments
+=item Arguments
 
 The direct repeat sequence (str, optional).
 
-=head3 Returns
+=item Returns
 
 The direct repeat sequence (str or undef).
+
+=back
 
 =cut
 
@@ -92,15 +110,21 @@ sub dr {
 
 =head2 score
 
+=over
+
+=item 
+
 Gets/sets the score.
 
-=head3 Arguments
+=item Arguments
 
 The score (float, optional).
 
-=head3 Returns
+=item Returns
 
 The score (float or undef).
+
+=back
 
 =cut
 
@@ -110,6 +134,96 @@ sub score {
    return $self->{'_score'};
 }
 
+=head2 add_spacer
+
+=over
+
+=item 
+
+Adds information for an spacer.
+
+=item Arguments
+
+=over
+
+=item -from I<int>
+
+Where the spacer starts.  This is a coordinate on the whole genome (or defined global sequence),
+B<NOT> with respect to the CRISPR.
+
+=item -to I<int>
+
+Where the spacer ends.  This is a coordinate on the whole genome (or defined global sequence).
+B<NOT> with respect to the CRISPR.
+
+=item -raw_seq I<str>
+
+Optional parameter to set the raw sequence of the spacer.  If not provided, it is calculated based
+on the coordinates.  If no global sequence is set, it remains undefined.
+
+=back
+
+=back
+
+=cut
+
+sub add_spacer {
+   my($self, @args) = @_;
+   my ($from, $to, $raw_seq) = $self->_rearrange([qw(FROM TO RAW_SEQ)], @args);
+   return unless defined $from and defined $to;
+   $raw_seq = $self->seq->subseq($from, $to) if defined $self->seq and not defined $raw_seq;
+   $self->{'_spacers'} ||= [];
+   push @{$self->{'_spacers'}}, {from=>$from, to=>$to, raw_seq=>$raw_seq};
+}
+
+=head2 spacers
+
+=over
+
+=item 
+
+Gets the spacers as an arrayref or hashrefs with keys C<from>, C<to> and C<raw_seq>.
+
+=back
+
+=cut
+
+sub spacers {
+   my $self = shift;
+   $self->{'_spacers'}||= [];
+   return $self->{'_spacers'};
+}
+
+=head2 repeats
+
+=over
+
+=item 
+
+Gets the repeats as an arrayref of hashrefs with keys C<from> and C<to>.  The actual
+sequence of the repeats can be retrieved using L<dr>.  There is no way to directly
+set the coordinates of the repeats, instead, you must set the coordinates of the
+L<spacers>.
+
+=back
+
+=cut
+
+sub repeats {
+   my $self = shift;
+   return [] unless $self->spacers;
+   my @froms = sort map { $_->{from}+0 } @{$self->spacers};
+   my @tos = sort map { $_->{to}+0 } @{$self->spacers};
+   my $from = $self->from;
+   my $out = [];
+   while(@froms){
+      my $sp_f = shift @froms;
+      push @$out, {from=>$from, to=>$sp_f} if $sp_f > $from;
+      $from = shift(@tos) + 1;
+   }
+   push @$out, {from=>$from, to=>$self->to} if $out->[$#$out] < $self->to;
+   return $out;
+}
 
 =head1 INTERNAL METHODS
 
@@ -128,7 +242,7 @@ sub _initialize {
    $self->dr($dr);
    $self->comments("DR=" . $self->dr) if defined $self->dr;
    $self->score($score);
-   $self->comments("Probable") if defined $self->score && $self->score < 60;
+   $self->comments("questionable structure") if defined $self->score && $self->score < 60;
 }
 
 1;

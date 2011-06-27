@@ -15,7 +15,7 @@ use File::Path;
 use File::Spec;
 use File::Temp;
 use Symbol;
-our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+our $VERSION = 1.0503; # [a-version] from Bio::Polloc::Polloc::Version
 
 
 =head1 GLOBALS

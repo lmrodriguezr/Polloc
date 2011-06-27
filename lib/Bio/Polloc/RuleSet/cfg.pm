@@ -31,7 +31,7 @@ use Bio::Polloc::RuleI;
 use Bio::Polloc::GroupCriteria;
 use Bio::Polloc::GroupCriteria::operator;
 use Bio::Seq;
-our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+our $VERSION = 1.0503; # [a-version] from Bio::Polloc::Polloc::Version
 
 
 =head1 APPENDIX

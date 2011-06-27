@@ -40,13 +40,11 @@ lib/Bio/Polloc/TypingI.pm
 lib/Bio/Polloc/TypingIO.pm
 lib/Bio/Polloc/TypingIO/cfg.pm
 LICENSE.txt
+Makefile
 Makefile.PL
 MANIFEST			This list of files
 META.yml
-out.csv
-out.gff
-out.group.gff
-out.group.png
+pm_to_blib
 README.md
 README.txt
 scripts/polloc_detect.pl
@@ -59,6 +57,7 @@ t/00-load/polloc.t
 t/01-genomes/01-genome.t
 t/02-rules/01-ruleio.t
 t/02-rules/02-rulei.t
+t/02-rules/03-rule/crispr.t
 t/02-rules/03-rule/pattern.t
 t/02-rules/03-rule/repeat.t
 t/02-rules/03-rule/tandemrepeat.t
@@ -66,9 +65,11 @@ t/03-loci/01-locusio.t
 t/04-grouping/01-groupcriteria.t
 t/05-typing/01-typingio.t
 t/05-typing/02-typing.t
+t/crispr_seq.fasta
 t/loci.gff3
 t/loci_short.gff3
 t/multi.fasta
 t/repeats.fasta
 t/repeats.gff3
 t/vntrs.bme
+test.pl

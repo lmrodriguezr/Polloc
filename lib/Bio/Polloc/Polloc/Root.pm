@@ -30,7 +30,7 @@ The package's version
 
 =cut
 
-our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+our $VERSION = 1.0503; # [a-version] from Bio::Polloc::Polloc::Version
 
 
 =head2 VERBOSITY
@@ -283,6 +283,24 @@ sub vardump {
 	}else{
 		print $value;
 	}
+}
+
+=head2 rrmdir
+
+Recursively removes a directory.
+
+=cut
+
+sub rrmdir {
+   my ($self, $dir) = @_;
+   return unless -d $dir;
+   while(my $file = <$dir/*>){
+      next if $file =~ /^\.\.?$/;
+      $file = Bio::Polloc::Polloc::IO->catfile($dir, $file);
+      if(-d $file){ $self->rrmdir($file) }
+      else { unlink $file }
+   }
+   rmdir $dir;
 }
 
 =head1 INTERNAL METHODS

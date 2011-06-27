@@ -8,9 +8,12 @@ Email lrr at cpan dot org
 
 =cut
 
-use strict;
-our $VERSION = '1.0503';
+package Bio::Polloc::Polloc::Version;
 
+use strict;
+our $VERSION = 1.0503;
+
+=d
 sub import {
    no strict 'refs';
    my $c = -1;
@@ -19,6 +22,6 @@ sub import {
       ${$v} = $VERSION if $v =~ /^Bio::Polloc::/ and not defined ${$v};
    }
 }
-
+=cut
 
 1;

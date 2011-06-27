@@ -11,7 +11,7 @@ Email lmrodriguezr at gmail dot com
 package Bio::Polloc::Polloc::Error;
 use strict;
 use Error qw(:try);
-our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+our $VERSION = 1.0503; # [a-version] from Bio::Polloc::Polloc::Version
 
 
 @Bio::Polloc::Polloc::Error::ISA = qw( Error );

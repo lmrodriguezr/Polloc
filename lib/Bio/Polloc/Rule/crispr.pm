@@ -4,7 +4,7 @@ Bio::Polloc::Rule::crispr - A rule of type CRISPR
 
 =head1 DESCRIPTION
 
-Runs CRISPRFinder to search CRISPRs
+Runs CRISPRFinder v3 to search CRISPRs
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 
@@ -19,14 +19,23 @@ use Bio::Polloc::Polloc::IO;
 use Bio::Polloc::LocusI;
 use Bio::SeqIO;
 # For CRISPRFinder:
-use File::Spec;
 use Cwd;
-our $VERSION = 1.0502; # [a-version] from Bio::Polloc::Polloc::Version
+our $VERSION = 1.0503; # [a-version] from Bio::Polloc::Polloc::Version
 
 
 =head1 APPENDIX
 
 Methods provided by the package
+
+=head2 new
+
+=over
+
+=item 
+
+Generic initialization method.
+
+=back
 
 =cut
 
@@ -39,9 +48,13 @@ sub new {
 
 =head2 execute
 
-Runs CRIPRRfinder and parses the output.
+=over
 
-=head2 Arguments
+=item 
+
+Runs CRISPRfinder and parses the output.
+
+=item Arguments
 
 =over
 
@@ -51,9 +64,11 @@ The sequence(s).
 
 =back
 
-=head3 Returns
+=item Returns
 
-An array reference populated with L<Bio::Polloc::Locus::repeat> objects
+An array reference populated with L<Bio::Polloc::Locus::crispr> objects
+
+=back
 
 =cut
 
@@ -79,115 +94,107 @@ sub execute {
 
    # Search for CRISPRFinder
    $self->source('CRISPRFinder');
-   my ($cf_dir, $cf_script, $cf_def_dir);
-   my $root;
-   $root = $self->ruleset->value("root") if defined $self->ruleset;
-   my $cf_loc;
-   $cf_loc = $self->ruleset->value("crisprfinder") if defined $self->ruleset;
-   
-   $self->debug("Searching the CRISPRFinder directory for $^O");
-   if($^O =~ /mswin/i){
-      $self->throw("Unsupported platform", $^O);
+   my $cf_script;
+   if(defined $self->ruleset){
+      $cf_script  = $self->_executable($self->ruleset->value("path"));
+      $cf_script||= $self->_executable($self->ruleset->value("root"));
+      $cf_script||= $self->_executable($self->ruleset->value("crisprfinder"));
    }else{
-      $cf_def_dir = "CRISPRFinder";
+      $cf_script = $self->_executable;
    }
-   $cf_dir = $cf_loc if $cf_loc && -d $cf_loc;
-   $cf_dir ||= $root . $cf_def_dir if $root && -d $root . $cf_def_dir;
-   $cf_dir ||= "~/" . $cf_def_dir if -d "~/" . $cf_def_dir;
-   $cf_dir ||= "/opt/" . $cf_def_dir if -d "/opt/" . $cf_def_dir;
-   $cf_dir ||= "/var/" . $cf_def_dir if -d "/var/" . $cf_def_dir;
-   $cf_dir or $self->throw("Could not find the CRISPRFinder directory", $root);
-   $cf_dir = File::Spec->rel2abs($cf_dir) unless File::Spec->file_name_is_absolute($cf_dir);
-   $cf_dir.= "/";
-   
-   my $perl = $io->exists_exe("perl");
-   $perl ||= $io->exists_exe("perl5");
-   $perl or $self->throw("Where is perl?");
-   
-   $cf_script = "CRISPRFinder-v3.pl";
-   $cf_script = "CRISPRFinder-v3" unless -e $cf_dir . $cf_script;
-   $cf_script = "CRISPRFinder.pl" unless -e $cf_dir . $cf_script;
-   $cf_script = "CRISPRFinder" unless -e $cf_dir . $cf_script;
-   -e $cf_dir . $cf_script or $self->throw("I can not find the CRISPRFinder script", $cf_dir);
+   $cf_script or $self->throw("Could not find the CRISPRFinder executable");
    
    # Write the sequence
    my($seq_fh, $seq_file) = $io->tempfile(-suffix=>'.fasta'); # required by CRISPRFinder
    close $seq_fh;
    my $seqO = Bio::SeqIO->new(-file=>">$seq_file", -format=>'Fasta');
    $seqO->write_seq($seq);
+
+   # A tmp output directory
+   my $out_dir = $io->tempdir();
    
    # Run it
-   my $cwd = cwd();
    $self->debug("Sequence file: $seq_file (".(-s $seq_file).")");
-   my @run = ($perl, $cf_script, $seq_file);
+   my $cwd = cwd();
+   my @run = ($cf_script, $seq_file, "result");
    push @run, "2>&1";
    push @run, "|";
-   chdir $cf_dir or $self->throw("I can not move myself to the CRISPRFinder directory: $!", $cf_dir);
+   chdir $out_dir or $self->throw("I can not move myself to the temporal directory: $!", $out_dir);
    $self->debug("Hello from ".cwd());
    $self->debug("Running: ".join(" ",@run));
    my $run = Bio::Polloc::Polloc::IO->new(-file=>join(" ",@run));
-   my @dirs = ();
+   my $gff_output;
    while(my $line = $run->_readline){
-      if($line =~ m/\*\*\* your results files will be in the (.*) directory \*\*\*/){
-         push @dirs, $1;
-      }
+      chomp $line;
+      if($line =~ m/^GFF results are be in (.*)/){ $gff_output = $1 }
+      elsif($line =~ m/^failure: (.*)/){ $self->throw("CRISPRFinder error", $1) }
    }
    $run->close();
+   unless (-e $gff_output){
+      $self->warn("Unexistent CRISPRFinder GFF output, probably something went wrong");
+      return [];
+   }
+
+   # Unfortunatelly, CRISPRFinder's GFF contains unsupported fields in the last column,
+   # therefore I should not directly import it using Polloc::LocusIO
+   $self->debug("Reading GFF at $gff_output");
+   my $gff = Bio::Polloc::Polloc::IO->new(-file=>$gff_output);
+   my $loci = {};
+   while(my $line = $gff->_readline){
+      chomp $line;
+      next if $line =~ /^#/;
+      next if $line =~ /^\s*$/;
+      my @f = split /\t/, $line;
+      next if $f[2] eq 'PossibleCRISPR' and $self->_search_value("IGNOREPROBABLE");
+      my %par = map { split /=/, $_, 2 } split /;/, $f[8];
+      if($f[2] =~ /^(?:Possible)?CRISPR$/){
+	 my $id = $self->_next_child_id;
+	 $loci->{$par{ID}} = {
+	    -type=>$self->type, -rule=>$self, -seq=>$seq,
+	    -from=>$f[3]+0, -to=>$f[4]+0, -strand=>'-',
+	    -name=>$self->name,
+	    -id=>(defined $id ? $id : ''),
+	    -score=>($f[2] eq 'CRISPR' ? 100 : 50),
+	    -dr=>$par{DR}, -spacers_no=>$par{Number_of_spacers},
+	    -spacers=>[],
+	 };
+      }elsif(defined $loci->{$par{Parent}} and $f[2] eq 'CRISPRspacer'){
+         push @{$loci->{$par{Parent}}->{spacers}}, {-from=>$f[3]+0, -to=>$f[4]+0, -raw_seq=>$par{sequence}};
+      }
+   }
+   $gff->close();
+
+   # Clean the mess
+   # DEBUG $self->rrmdir('result');
+   
+   # Back to reality
    chdir $cwd or $self->throw("I can not come back to the previous folder: $!", $cwd);
    $self->debug("Hello from ".cwd());
+
+   # Create loci
+   #   This is not directly done above because of the different CWD, which could cause problems
+   #   while dynamically loading Bio::Polloc::Locus::crispr from Bio::Polloc::LocusI
+   my $out = [];
+   for my $locus (values %$loci){
+      $self->debug("Creating locus wiht @$locus");
+      my $L = new Bio::Polloc::LocusI(%$locus);
+      for my $s (@{$locus->spacers}){
+         $L->add_spacer(%$s);
+      }
+   }
    
-   my $getProbables = ! $self->_search_value("IGNOREPROBABLE");
-   my @feats = ();
-   my $out = "";
-   for my $dir (@dirs){
-      $dir = $cf_dir . '/' . $dir;
-      next unless -d $dir; # CRISPRFinder automatically delete empty directories
-      $self->debug("Gathering results for $dir");
-      for my $file (<$dir/*>){
-         $self->debug("Reading $file");
-	 if($file=~m/_Crispr_(\d+)$/i || ($getProbables && $file=~m/_PossibleCrispr_(\d+)$/i)){
-	    #my $id = $1+0;
-	    #my $spacers = $dir . '/' . "Spacers_$id";
-	    my $from;
-	    my $to;
-	    my $spacers;
-	    my $dr;
-	    open CR, "<", $file or $self->throw("I can not open the file: $!", $file);
-	    while(<CR>){
-	       if(m/^# Crispr_begin_position:\s+(\d+)\s+Crispr_end_position:\s+(\d+)/){
-	          $from = $1+0;
-		  $to = $2+0;
-	       }elsif(m/^# DR:\s+(\S+)\s+DR_length:\s+(\d+)\s+Number_of_spacers:\s+(\d+)/){
-	          $dr = $1;
-		  $spacers = $3+0;
-	       }
-	    } #while line
-	    close CR;
-	    if(defined $from && defined $to){
-	       $dr ||= "";
-	       $spacers ||= 0;
-	       my $id = $self->_next_child_id;
-	       my $score = $file=~/_PossibleCrispr_\d+$/i ? 50 : 100;
-	       push @feats, Bio::Polloc::LocusI->new(
-	 		-type=>$self->type, -rule=>$self, -seq=>$seq,
-			-from=>$from, -to=>$to, -strand=>"+",
-			-name=>$self->name,
-			-id=>(defined $id ? $id : ""),
-			-dr=>$dr,
-			-score=>$score,
-			-spacers_no=>$spacers);
-	    }
-	 } # if proper file
-	 unlink $file;
-      } # for files
-      rmdir $dir;
-   } # for dirs
-   return wantarray ? @feats : \@feats;
+   return $out;
 }
 
 =head2 stringify_value
 
+=over
+
+=item 
+
 Stringifies the requested value
+
+=back
 
 =cut
 
@@ -200,6 +207,27 @@ sub stringify_value {
    return $out;
 }
 
+=head2 value
+
+=over
+
+=item Arguments
+
+Value (I<str> or I<hashref> or I<arrayref>).  The supported keys are:
+
+=over
+
+=item -ignoreprobable
+
+Should I ignore the I<ProbableCrispr> results?
+
+=back
+
+=item Returns
+
+Value (I<hashref> or C<undef>).
+
+=back
 
 =head1 INTERNAL METHODS
 
@@ -213,21 +241,37 @@ sub _parameters {
    return [qw(IGNOREPROBABLE)];
 }
 
+=head2 _executable
+
+Attempts to find the CRISPRfinder script.
+
+=cut
+
+sub _executable {
+   my($self, $path) = @_;
+   my $exe;
+   my $bin;
+   my $name = 'CRISPRFinder';
+   my $io = "Bio::Polloc::Polloc::IO";
+   $self->debug("Searching the $name binary for $^O");
+   my @pre = ('');
+   unshift @pre, $path if $path;
+   for my $p (@pre){
+      # Try first WITH version, to avoid v2
+      for my $v (("-v3.1", "-v3", "-v3-LK", '')){
+         for my $e (('.pl', '')){
+	   for my $n (("CRISPRFinder", "CRISPRfinder", "crisprfinder")){
+	      $exe = $io->exists_exe($p . $n . $v . $e);
+	      return $exe if $exe;
+	   }
+	 }
+      }
+   }
+}
+
 =head2 _qualify_value
 
 Implements the C<_qualify_value()> from the L<Bio::Polloc::RuleI> interface
-
-=head2 Arguments
-
-Value (str or ref-to-hash or ref-to-array).  The supported keys are:
-
-=over
-
-=item -ignoreprobable
-
-Should I ignore the 'ProbableCrispr' results?
-
-=back
 
 =head2 Return
 

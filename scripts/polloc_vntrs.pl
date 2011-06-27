@@ -7,6 +7,8 @@ use Bio::Polloc::Genome;
 use Bio::SeqIO;
 use List::Util qw(min max);
 
+use Pod::Usage;
+
 # ------------------------------------------------- METHODS
 # Output methods
 sub csv_header();
@@ -29,37 +31,7 @@ my $csv = "$out.csv";
 my $groupcsv = "$out.group.csv";
 unless($cnf and $out and $buildgroups and defined $extendgroups
 	and defined $summarizegroups and $#inseqs>-1){
-die <<HELP
-
-   polloc_vntrs.pl - Scans genomes searching for VNTRs, compares and groups
-   the found loci, extends the groups based on homology and produce detailed
-   per-group reports.
-   
-   Usage: $0 [Params]
-   Params, in that order:
-      cnf (path):	Path to the configuration file (.cnf or .bme).
-      			Example: t/vntrs.bme
-      out (path):	Path to the base of the output files.
-      			Example: /tmp/polloc-vntrs.out
-      buildgroups:	If on, groups the detected loci.
-      			Values: 'on' or '' (empty string)
-      extendgroups:	If on, extends the groups of loci (buildgroups
-      			must be on).
-			Values: 'on' or '' (empty string)
-      summarizegroups:	If on, creates files with additional information
-      			about groups (buildgroups must be on).
-			Values: 'on' or '' (empty string)
-      names (str):	The names of the genomes separated by colons (:).
-      			Alternatively, can be an empty string ('') to
-			assign genome names from files.
-      			Example: Xci3:Xeu8:XamC
-      inseqs (paths):	Sequences to scan (input).  Each argument will be
-      			considered a single genome, and the values of
-			'names' will be applied.  The order of the inseqs
-			must be the same of the names.
-			Example: /data/Xci3.fa /data/Xeu8.fa /data/XamC.fa
-      
-HELP
+   pod2usage(1);
 }
 
 Bio::Polloc::Polloc::Root->DEBUGLOG(-file=>">$out.log");
@@ -247,6 +219,12 @@ __END__
 =head1 AUTHOR
 
 Luis M. Rodriguez-R < lmrodriguezr at gmail dot com >
+
+=head1 DESCRIPTION
+
+This script is the core of the VNTRs analysis tool
+(L<http://bioinfo-prod.mpl.ird.fr/xantho/utils/#vntrs>).  It requires the C<vntrs.bme>
+file, at the C<examples> folder.  Run it with no arguments to check the required parameters.
 
 =head1 LICENSE
 

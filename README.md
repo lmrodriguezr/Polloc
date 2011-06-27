@@ -157,10 +157,11 @@ Usage
 The scripts distributed with Polloc are located at the `scripts` folder.  Scripts
 include a small help message, so that you can just run it with `perl`.
 
-* Running the **polloc_vntrs.pl** script.  This script is the core of the [VNTRs analysis
-tool](http://bioinfo-prod.mpl.ird.fr/xantho/utils/#vntrs).  It requires the `vntrs.bme`
-file, also at the `t` folder.  Run it with no arguments to check the required parameters.
+**ToDo**: Documentation for:
 
+* **polloc_primers.pl**.
+
+* **polloc_gel.pl**.
 
 ### Writing new scripts
 
@@ -178,7 +179,8 @@ F.A.Q.
 
 Yes, the [VNTRs detection tool](http://bioinfo-prod.mpl.ird.fr/xantho/utils/#vntrs),
 a web-service devoted to the detection and analysis of VNTR loci (Variable Number of
-Tandem Repeats).  If you have another tool making use of Polloc, please let us know.
+Tandem Repeats).  If you have another tool making use of Polloc, [please let us
+know](mailto:lrr@cpan.org?subject=Polloc%20tool).
 
 ### How can I contribute to the Polloc project?
 
@@ -192,5 +194,5 @@ at the [git website](http://www.git-scm.com/).
 ### Where can I find the documented modules in human-readable format?
 
 You can read the documentation of Polloc in HTML format at CPAN:
-(http://search.cpan.org/dist/Polloc/)
+(http://search.cpan.org/dist/Polloc/).
 
