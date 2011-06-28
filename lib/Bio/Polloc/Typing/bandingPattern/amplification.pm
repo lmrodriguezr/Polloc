@@ -73,6 +73,7 @@ sub fragments {
    my ($locigroup) = $self->_rearrange([qw(LOCIGROUP)], @args);
    defined $locigroup or $self->throw('Trying to amplify fragments, but no loci group provided');
    my $primers = $self->design_primers(-locigroup=>$locigroup);
+   return unless defined $primers;
    UNIVERSAL::can($primers, 'isa') and $primers->isa('Bio::Polloc::Polloc::IO')
    		or $self->throw('Wrong primers file', $primers, 'Bio::Polloc::Polloc::UnexpectedException');
    defined $primers->file or $self->throw('Impossible to locate primers temporal file', $primers, 'Bio::Polloc::Polloc::UnexpectedException');
