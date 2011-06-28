@@ -62,7 +62,7 @@ modules:
 The following requirements can be ignored depending on the
 set of modules to be used.
 
-#### Perl modules:
+#### Perl modules:
 
 * `File::Basename`
 
@@ -195,4 +195,94 @@ at the [git website](http://www.git-scm.com/).
 
 You can read the documentation of Polloc in HTML format at CPAN:
 (http://search.cpan.org/dist/Polloc/).
+
+### The tests failed during installation and CPAN suggests to force installation, should I?
+
+It is very hard to predict the behavior your are going to experience with Polloc if you
+install it with failed tests.  Instead, we prepared a generic troubleshooting for failed
+tests we have observed either at the CPAN tester matrix or running installations in our
+machines:
+
+#### Test `t/05-typing/02-typing.t` failure 1:
+
+Are you reading a message like this?:
+
+```
+t/05-typing/02-typing.t ............ 1/13 Use of uninitialized value in concatenation (.) or string at /Library/Perl/5.10.0/Bio/Tools/Run/Alignment/Muscle.pm line 427.
+sh: - : invalid option
+Usage:	sh [GNU long option] [option] ...
+	sh [GNU long option] [option] script-file ...
+GNU long options:
+	--debug
+	--debugger
+	--dump-po-strings
+	--dump-strings
+	--help
+	--init-file
+	--login
+	--noediting
+	--noprofile
+	--norc
+	--posix
+	--protected
+	--rcfile
+	--restricted
+	--verbose
+	--version
+	--wordexp
+Shell options:
+	-irsD or -c command or -O shopt_option		(invocation only)
+	-abefhkmnptuvxBCHP or -o option
+
+--------------------- WARNING ---------------------
+MSG: Muscle call crashed: 512 [command  -in /tmp/_YS2FojZj7  -out /tmp/7BP7tE2dKG/fwsAmEh1NG 2> /dev/null]
+
+---------------------------------------------------
+Can't call method "average_percentage_identity" on an undefined value at /Users/luismrodriguezr/.cpan/build/Bio::Polloc-1.0503-xA5_RC/blib/lib/Bio/Polloc/LociGroup.pm line 376.
+# Looks like you planned 13 tests but ran 6.
+# Looks like your test exited with 2 just after 6.
+t/05-typing/02-typing.t ............ Dubious, test returned 2 (wstat 512, 0x200)
+Failed 7/13 subtests 
+```
+
+This very verbose message often means one thing: you have `Bio::Tools::Run::Alignment::Muscle` installed in
+your system, but you don't have Muscle.  The solution is pretty easy: install muscle, available at
+[Robert Edgar's website](http://www.drive5.com/muscle/downloads.htm).
+
+#### Test `t/05-typing/02-typing.t` failure 2:
+
+Or, instead, are you reading a message like this?:
+
+```
+t/05-typing/02-typing.t ............ 1/13 sh: primersearch: command not found
+t/05-typing/02-typing.t ............ 7/13 
+#   Failed test 'The thing isa ARRAY'
+#   at t/05-typing/02-typing.t line 35.
+#     The thing isn't defined
+
+#   Failed test at t/05-typing/02-typing.t line 36.
+#          got: '-1'
+#     expected: '0'
+
+#   Failed test at t/05-typing/02-typing.t line 37.
+#          got: undef
+#     expected: '105'
+
+#   Failed test at t/05-typing/02-typing.t line 42.
+#          got: undef
+#     expected: '1'
+# Looks like you failed 4 tests of 13.
+t/05-typing/02-typing.t ............ Dubious, test returned 4 (wstat 1024, 0x400)
+Failed 4/13 subtests 
+```
+
+This is far less verbose, but again means you lack required software in your machine.  This time, it is
+the `primersearch` utility of EMBOSS.  The solution: install EMBOSS, available at
+[Sourceforge](http://emboss.sourceforge.net/download/).
+
+#### Other errors?
+
+If you have non-listed failures, please do not hesitate to
+[contact us](mailto:lrr@cpan.org?subject=Polloc%20Unknown%20failure), or directly register them at
+[GitHub](http://www.github.com/lmrodriguezr/Polloc/issues).
 
