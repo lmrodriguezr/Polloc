@@ -196,14 +196,14 @@ at the [git website](http://www.git-scm.com/).
 You can read the documentation of Polloc in HTML format at CPAN:
 (http://search.cpan.org/dist/Polloc/).
 
-### The tests failed during installation and CPAN suggests to force installation, should I?
+### The tests failed, should I force installation?
 
 It is very hard to predict the behavior your are going to experience with Polloc if you
 install it with failed tests.  Instead, we prepared a generic troubleshooting for failed
 tests we have observed either at the CPAN tester matrix or running installations in our
 machines:
 
-#### Test `t/05-typing/02-typing.t` failure 1:
+#### Test `t/05-typing/02-typing.t` failure 1
 
 Are you reading a message like this?:
 
@@ -249,7 +249,7 @@ This very verbose message often means one thing: you have `Bio::Tools::Run::Alig
 your system, but you don't have Muscle.  The solution is pretty easy: install muscle, available at
 [Robert Edgar's website](http://www.drive5.com/muscle/downloads.htm).
 
-#### Test `t/05-typing/02-typing.t` failure 2:
+#### Test `t/05-typing/02-typing.t` failure 2
 
 Or, instead, are you reading a message like this?:
 
