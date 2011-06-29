@@ -9,7 +9,9 @@ WriteMakefile
   'PL_FILES' => {},
   'INSTALLDIRS' => 'site',
   'NAME' => 'Bio::Polloc::Polloc::Root',
-  'EXE_FILES' => [],
+  'EXE_FILES' => [
+                   'scripts/polloc_experiment.pl'
+                 ],
   'VERSION_FROM' => 'lib/Bio/Polloc/Polloc/Root.pm',
   'PREREQ_PM' => {
                    'File::Spec' => 0,
