@@ -296,7 +296,7 @@ A L<Bio::Polloc::LocusI> object or undef.
 
 =item Note
 
-This is a lazzy method, and should be used B<ONLY> after C<get_loci()>
+This is a lazy method, and should be used B<ONLY> after C<get_loci()>
 were called at least once.  Otherwise, the order might not be the expected,
 and weird results would appear.
 
@@ -462,7 +462,7 @@ sub extension {
 
 =item 
 
-Extends a group based on the arguments provided by L<Bio::Polloc::GroupCriteria->extension>.
+Extends a group based on the arguments provided by L<Bio::Polloc::GroupCriteria-E<gt>extension>.
 
 =item Arguments
 

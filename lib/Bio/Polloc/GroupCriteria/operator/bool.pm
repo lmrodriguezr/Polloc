@@ -24,7 +24,7 @@ Generic initialization method.
 
 =head3 Arguments
 
-See L<Bio::Polloc::GroupCriteria::operator->new()>
+See L<Bio::Polloc::GroupCriteria::operator-E<gt>new>
 
 =head3 Returns
 
