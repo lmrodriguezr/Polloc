@@ -23,16 +23,22 @@ sub advance_extension($$); # group, Ngroups
 my $cnf = shift @ARGV;
 our $out = shift @ARGV;
 my $buildgroups = shift @ARGV;
+$buildgroups = '' if $buildgroups =~ /off/i;
 my $extendgroups = shift @ARGV;
+$extendgroups = '' if $extendgroups =~ /off/i;
 my $summarizegroups = shift @ARGV;
+$summarizegroups = '' if $summarizegroups =~ /off/i;
 my @names = split ":", shift @ARGV;
 my @inseqs = @ARGV;
 my $csv = "$out.csv";
 my $groupcsv = "$out.group.csv";
-unless($cnf and $out and $buildgroups and defined $extendgroups
-	and defined $summarizegroups and $#inseqs>-1){
-   pod2usage(1);
-}
+
+pod2usage(1)	unless $cnf
+		and $out
+		and defined $buildgroups
+		and defined $extendgroups
+		and defined $summarizegroups
+		and $#inseqs>-1;
 
 Bio::Polloc::Polloc::Root->DEBUGLOG(-file=>">$out.log");
 Bio::Polloc::Polloc::Root->VERBOSITY(4);

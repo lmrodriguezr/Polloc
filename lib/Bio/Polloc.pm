@@ -1,6 +1,6 @@
 =head1 NAME
 
-Bio::Polloc - Perl library for Polymorphic Locy analyses
+Bio::Polloc - Perl library for Polymorphic Loci analyses
 
 =head1 AUTHOR - Luis M. Rodriguez-R
 

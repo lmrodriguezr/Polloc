@@ -30,7 +30,7 @@ is($l1->error, 3);
 is($l1->seq_name, 'Scaffold1');
 
 # 12
-my $O = Bio::Polloc::LocusIO->new(-file=>'>t/loci_out.gff3', -format=>'Gff3');
+my $O = Bio::Polloc::LocusIO->new(-fh=>\*STDOUT, -format=>'Gff3');
 isa_ok($O, 'Bio::Polloc::LocusIO');
 isa_ok($O, 'Bio::Polloc::LocusIO::gff3');
 
