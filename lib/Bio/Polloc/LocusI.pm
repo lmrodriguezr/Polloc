@@ -454,7 +454,7 @@ The explicitly defined family.
 
 =item 2
 
-The prefix of the ID (asuming it was produced by some L<Bio::Polloc::RuleI> object).
+The prefix of the ID (assuming it was produced by some L<Bio::Polloc::RuleI> object).
 
 =item 3
 
@@ -778,7 +778,7 @@ See the documentation for additional arguments and precisions.
 
 B<Throws>
 
-L<Bio::Polloc::Polloc::NotImplementedException> if not implemented by the correspondig class.
+L<Bio::Polloc::Polloc::NotImplementedException> if not implemented by the corresponding class.
 
 =cut
 

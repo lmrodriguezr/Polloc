@@ -128,7 +128,7 @@ The loci to be amplified.
 
 =head3 Returns
 
-A <Bio::Polloc::Polloc::IO> object pointing to a file containing the primers
+A L<Bio::Polloc::Polloc::IO> object pointing to a file containing the primers
 designed in the format required by EMBOSS primerseq:
 
   NAME_1  FWD-SEQ  REV-SEQ

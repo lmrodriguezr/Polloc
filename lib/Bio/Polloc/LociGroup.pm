@@ -106,7 +106,7 @@ incremental for each locus.
 
 B<Note>
 
-This function is provided for convenience in some output formating,
+This function is provided for convenience in some output formatting,
 but its use should be avoided as it causes a huge processing time
 penalty.
 
