@@ -259,7 +259,7 @@ sub _executable {
    unshift @pre, $path if $path;
    for my $p (@pre){
       # Try first WITH version, to avoid v2
-      for my $v (("-v3.1", "-v3", "-v3-LK", '')){
+      for my $v (("-v3.3", "-v3.2", "-v3.1", "-v3", "-v3-LK", '')){
          for my $e (('.pl', '')){
 	   for my $n (("CRISPRFinder", "CRISPRfinder", "crisprfinder")){
 	      $exe = $io->exists_exe($p . $n . $v . $e);

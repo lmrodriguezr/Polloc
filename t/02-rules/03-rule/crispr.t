@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 #1
 use_ok('Bio::Polloc::Rule::crispr');
@@ -24,6 +24,7 @@ is($#$loci, 0, 'Correct number of loci');
 isa_ok($loci->[0], 'Bio::Polloc::Locus::crispr');
 is($loci->[0]->from, 43, 'Correct origin of locus 1');
 is($loci->[0]->strand, '.', 'Correct strand of locus 1');
-is($loci->[0]->spacers_no, 87, 'Correct number of spacers');
+is($loci->[0]->spacers_no, 87, 'Correct spacers number');
+is($#{$loci->[0]->spacers}, 86, 'Correct spacers count');
 
 }

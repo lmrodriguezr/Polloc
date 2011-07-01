@@ -182,7 +182,7 @@ sub add_spacer {
 
 =item 
 
-Gets the spacers as an arrayref or hashrefs with keys C<from>, C<to> and C<raw_seq>.
+Gets the spacers as an arrayref of hashrefs with keys C<from>, C<to> and C<raw_seq>.
 
 =back
 
