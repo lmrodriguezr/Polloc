@@ -294,12 +294,10 @@ Recursively removes a directory.
 sub rrmdir {
    my ($self, $dir) = @_;
    $self->throw("Trying to delete an unexistent folder", $dir) unless -d $dir;
-   print STDERR "DIR: $dir\n";
    opendir(my $dh, $dir) or $self->throw("Impossible to read the folder: $!", $dir);
    while(my $file = readdir $dh){
       next if $file =~ /^\.\.?$/;
       $file = Bio::Polloc::Polloc::IO->catfile($dir, $file);
-      print STDERR "FILE: $file\n";
       if (-d $file){ $self->rrmdir($file) }
       else { unlink $file or $self->throw("Impossible to delete the file: $!", $file) }
    }

@@ -286,3 +286,33 @@ If you have non-listed failures, please do not hesitate to
 [contact us](mailto:lrr@cpan.org?subject=Polloc%20Unknown%20failure), or directly register them at
 [GitHub](http://www.github.com/lmrodriguezr/Polloc/issues).
 
+### More known errors
+
+#### Detecting CRISPR (1)
+
+If you have an error message that looks like:
+
+```
+ ---------- ERROR ---------- 
+ Bio::Polloc::Polloc::Error
+ MSG: CRISPRFinder error.
+ VALUE: "vmatch -l 23 25 60 -e 1 -s leftseq -evalue 1 -absolute -nodist -noevalue -noscore -noidentity -sort ia -best 1000000 -selfun sel392.so 55 kCzbAAyphT.fasta  > vmatch_result.txt", errorcode 256 - SCALAR
+  ........................... 
+  STACK Bio::Polloc::Polloc::Error::stringify lib/Bio/Polloc/Polloc/Error.pm:69
+  STACK Error::throw /usr/lib/perl5/vendor_perl/5.8.8/Error.pm:184
+  STACK Bio::Polloc::Polloc::Root::throw lib/Bio/Polloc/Polloc/Root.pm:165
+  STACK Bio::Polloc::Rule::crispr::execute lib/Bio/Polloc/Rule/crispr.pm:130
+  STACK Bio::Polloc::RuleIO::execute lib/Bio/Polloc/RuleIO.pm:336
+  STACK toplevel scripts/polloc_detect.pl:15
+ --------------------------- 
+```
+
+It is probably due to the absence of sel392.so in your libraries path.  To solve it, please go to the Vmatch
+folder, and compile the objects in the SELECT folder (if not already compiled).  Now, just copy sel392.so
+into some lib path (for example `/usr/lib`)
+
+    export LD_LIBRARY_PATH=~/Software/vmatch.linux32.distribution/SELECT:$LD_LIBRARY_PATH
+
+Please note that you should replace `~/Software/vmatch.linux32.distribution` for whatever your actual
+Vmatch location is.
+
