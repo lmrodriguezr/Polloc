@@ -206,7 +206,7 @@ B<Arguments>
 The group of loci to be used as base.  If not provided,
 attempts to find the last value returned by L<scan>.
 If never called (or not cached by the implementation)
-looks for the base loci (setted via L<locigroup> or
+looks for the base loci (set via L<locigroup> or
 at initialization).  If everything fails to provide a
 base group of loci, warns about it and returns C<undef>.
 
@@ -291,7 +291,7 @@ Height of the image in pixels.  300 by default.
 
 Font of the text in the image (if any).  'Times' by default, but
 certain images require a TrueType Font in order to work properly.
-This argument is optional, but we strongly reccomend to provide
+This argument is optional, but we strongly recommend to provide
 the path to Lucida Sans Regular, or any other similar TrueType
 Font.
 

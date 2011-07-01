@@ -182,7 +182,11 @@ sub add_spacer {
 
 =item 
 
+<<<<<<< HEAD
 Gets the spacers as an arrayref of hashrefs with keys C<from>, C<to> and C<raw_seq>.
+=======
+Gets the spacers as an I<arrayref> of I<hashrefs> with keys C<from>, C<to> and C<raw_seq>.
+>>>>>>> 4d166624bae14c86c7ec8b7bcc9399d65e70d7b8
 
 =back
 
@@ -200,7 +204,7 @@ sub spacers {
 
 =item 
 
-Gets the repeats as an arrayref of hashrefs with keys C<from> and C<to>.  The actual
+Gets the repeats as an I<arrayref> of I<hashrefs> with keys C<from> and C<to>.  The actual
 sequence of the repeats can be retrieved using L<dr>.  There is no way to directly
 set the coordinates of the repeats, instead, you must set the coordinates of the
 L<spacers>.

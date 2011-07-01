@@ -55,7 +55,7 @@ sub new {
 
 =head2 letters
 
-Gets/sets the analysed residues.
+Gets/sets the analyzed residues.
 
 =head3 Arguments
 

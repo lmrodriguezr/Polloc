@@ -50,7 +50,7 @@ The format of the file
 
 =item -genomes
 
-The genomes to be scaned
+The genomes to be scanned
 
 =back
 

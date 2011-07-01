@@ -95,7 +95,7 @@ The key.
 
 The value (if any).
 
-=item alert
+=item -alert
 
 If true, alerts if the key is not set.
 

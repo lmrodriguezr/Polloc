@@ -255,7 +255,7 @@ Boolean (0 or 1; optional)
 
 =item Returns
 
-1 if expicilty executable, 0 otherwise
+1 if explicitly executable, 0 otherwise
 
 =item Note
 

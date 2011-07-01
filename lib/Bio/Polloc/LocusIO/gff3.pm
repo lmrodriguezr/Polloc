@@ -68,10 +68,11 @@ Boolean (1 or 0)
 =head3 Returns
 
 The GFF3-formatted line (str)
+
 =head3 Note
 
 This function stores the line in cache.  If it is called twice, the second
-time will return the cached line unless the C<-force=>1> flag is passed.
+time will return the cached line unless the C<-force=E<gt>1> flag is passed.
 
 =cut
 

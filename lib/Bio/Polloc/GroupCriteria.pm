@@ -62,7 +62,7 @@ Generic initialization method
 
 =over
 
-=item -souce I<str>
+=item -source I<str>
 
 See L<source>
 
@@ -633,7 +633,7 @@ A reference to a boolean 2-dimensional array (only left-down triangle)
 
 =item Note
 
-B<WARNING!>  The order of the output is not allways the same of the input.
+B<WARNING!>  The order of the output is not always the same of the input.
 Please use C<get_loci()> instead, as source features B<MUST> be after
 target features in the array.  Otherwise, it is not possible to have the
 full picture without building the full matrix (instead of half).

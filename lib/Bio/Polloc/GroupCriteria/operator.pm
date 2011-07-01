@@ -50,9 +50,9 @@ A name for the operator
 
 The operation itself
 
-=item -operators I<refarr>
+=item -operators I<arrayref>
 
-A refarray containing the operators (I<mix>).
+An arrayref containing the operators (I<mix>).
 
 =back
 
