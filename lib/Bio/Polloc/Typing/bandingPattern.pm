@@ -29,7 +29,23 @@ Methods provided by the package
 
 =head2 new
 
-Generic initialization method
+=over
+
+=item Arguments
+
+=over
+
+=item -minsize I<int>
+
+Minimum locus size
+
+=item -maxsize I<int>
+
+Maximum locus size
+
+=back
+
+=back
 
 =cut
 
@@ -44,10 +60,16 @@ sub new {
 
 =head2 scan
 
+=over
+
+=item *
+
 See L<Bio::Polloc::TypingI-E<gt>scan>.
 
 L<fragments> must be implemented by the C<Bio::Polloc::Typing::bandingPattern::*>
 object.
+
+=back
 
 =cut
 

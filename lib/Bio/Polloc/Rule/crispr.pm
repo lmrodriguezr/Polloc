@@ -108,6 +108,8 @@ sub execute {
    my($seq_fh, $seq_file) = $io->tempfile(-suffix=>'.fasta'); # required by CRISPRFinder
    close $seq_fh;
    my $seqO = Bio::SeqIO->new(-file=>">$seq_file", -format=>'Fasta');
+   (my $s2ch = $seq->seq) =~ s/[Xx]/N/g;
+   $seq->seq($s2ch);
    $seqO->write_seq($seq);
 
    # A tmp output directory
@@ -124,11 +126,17 @@ sub execute {
    $self->debug("Running: ".join(" ",@run));
    my $run = Bio::Polloc::Polloc::IO->new(-file=>join(" ",@run));
    my $gff_output;
+   my $verbose_out = '';
    while(my $line = $run->_readline){
+      $verbose_out.= $line;
       chomp $line;
       if($line =~ m/^GFF results are be in (.*)/){ $gff_output = $1 }
-      elsif($line =~ m/^failure: (.*)/){ $self->throw("CRISPRFinder error", $1) }
+      elsif($line =~ m/^failure: (.*)/){
+	while($run->_readline){$verbose_out.=$_}
+	$self->throw("CRISPRFinder error", $verbose_out)
+      }
    }
+   $verbose_out = undef;
    $run->close();
    unless (-e $gff_output){
       $self->warn("Unexistent CRISPRFinder GFF output, probably something went wrong");
