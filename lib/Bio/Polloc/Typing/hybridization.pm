@@ -71,8 +71,15 @@ available (see L<function> for further details).
 
 =cut
 
-sub scan {} # ToDo!!!!
-
+sub scan {
+   my($self, @args) = @_;
+   my($locigroup) = $self->_rearrange([qw(LOCIGROUP)], @args);
+   $locigroup ||= $self->locigroup;
+   return $self->_scan_locigroup($self->_plot_loci_fx(-locigroup=>$locigroup)) if $self->function  eq 'plot_loci';
+   return $self->_scan_locigroup($self->_search_loci_fx(-locigroup=>$locigroup)) if $self->function eq 'search_loci';
+   return $self->_scan_locigroup($self->_get_probes_fx(-locigroup=>$locigroup)) if $self->function eq 'get_probes';
+   $self->throw("Unsupported function", $self->function, 'Bio::Polloc::Polloc::UnexpectedException');
+}
 
 =head2 function
 

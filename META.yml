@@ -11,7 +11,7 @@ license: artistic_2
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-name: Bio::Polloc
+name: Bio--Polloc
 provides:
   Bio::Polloc:
     file: lib/Bio/Polloc.pm
