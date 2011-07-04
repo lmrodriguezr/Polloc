@@ -69,22 +69,16 @@ eval context
 
 
 [ Typing ]
-# ToDo: This should reflect the actual typing method (spoligotyping) using
-# probes-based methods, instead of banding patterns, but this is still
-# unimplemented.
+# Implies a search of predesigned probes over the loci, not the full genomes.
+# If you want to perform a full-genome search of the probes (spacers) use the
+# 'search_loci' function instead
+function = 'get_probes'
 
-# Maximum amplicon size
-maxSize = 2000
+# Indicates the method to extract probes from loci (CRISPR).  I.e., indicates
+# that strings returned by 'spacers_str' (the list of spacers) should be used
+# as the collection of probes.
+loci_probes = 'spacers_str'
 
-# Minimum amplicon size
-minSize = 1
-
-# Minimum conservation for primer design
-primerConservation = 0.9
-
-# Length of primers
-primerSize = 20
-
-# Define bandingPatter::amplification as the typing class
-eval banding::ampl
+# Define hybridization as the typing class
+eval hybridization
 

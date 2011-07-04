@@ -20,6 +20,9 @@ Email lrr at cpan dot org
 package Bio::Polloc::Typing::hybridization;
 use base qw(Bio::Polloc::TypingI);
 use strict;
+use Bio::Seq;
+use Bio::Polloc::LociGroup;
+use Bio::Polloc::LocusI;
 our $VERSION = 1.0503; # [a-version] from Bio::Polloc::Polloc::Version
 
 
@@ -75,11 +78,105 @@ sub scan {
    my($self, @args) = @_;
    my($locigroup) = $self->_rearrange([qw(LOCIGROUP)], @args);
    $locigroup ||= $self->locigroup;
-   return $self->_scan_locigroup($self->_plot_loci_fx(-locigroup=>$locigroup)) if $self->function  eq 'plot_loci';
-   return $self->_scan_locigroup($self->_search_loci_fx(-locigroup=>$locigroup)) if $self->function eq 'search_loci';
-   return $self->_scan_locigroup($self->_get_probes_fx(-locigroup=>$locigroup)) if $self->function eq 'get_probes';
+   defined $locigroup or $self->throw("Impossible to find a locigroup");
+   return $self->_scan_locigroup($self->_plot_loci_fx($locigroup)) if $self->function  eq 'plot_loci';
+   return $self->_scan_locigroup($self->_search_loci_fx($locigroup)) if $self->function eq 'search_loci';
+   return $self->_scan_locigroup($self->_get_probes_fx($locigroup)) if $self->function eq 'get_probes';
    $self->throw("Unsupported function", $self->function, 'Bio::Polloc::Polloc::UnexpectedException');
 }
+
+=head2 cluster
+
+=head2 typing_value
+
+See L<Bio::Polloc::TypingI-E<gt>typing_value>.
+
+Returns the score.  If applied over a locigroup returned by L<scan>,
+it is 1 for presence or 0 for absence.  Eventual values ranging from zero
+to one can be implemented in future versions, aimed to reflect imperfect
+match (for example, the identity).
+
+=cut
+
+sub typing_value {
+   my ($self, @args) = @_;
+   my($loci) = $self->_rearrange([qw(LOCI)], @args);
+   $self->throw("Impossible to analyze loci", $loci)
+   	unless defined $loci and ref($loci) and ref($loci)=~/ARRAY/i;
+   return [ map { $_->score } @$loci ];
+}
+
+=head2 graph_content
+
+Generates the graphical representation of the dot-plot matrix.  See
+L<Bio::Polloc::TypingI-E<gt>graph>.
+
+=cut
+
+sub graph_content {
+   my($self, $locigroup, $width, $height, $font) = @_;
+   return unless defined $locigroup;
+   return unless $self->_load_module('GD::Simple');
+   
+   # Prepare data
+   my $struc = $locigroup->structured_loci;
+   my $genomes = $locigroup->genomes;
+   $self->throw("You must define the genomes of the loci group in order to create a dotplot matrix")
+   	unless defined $genomes;
+   
+   # Set the matrix up
+   my ($nameh, $namev, $rightm, $bottomm) = (150, 120, 5, 5);
+   my $names = ();
+   for my $l (@{$locigroup->loci}){$names->{$l->probeid}=1 if $l->can('probeid')}
+   $names = [keys %$names];
+   my ($ix, $iy, $nh, $nv) = ($nameh, $namev, $#$names+1, $#$genomes+1);
+   my ($iw, $ih) = ($width-$nameh-$rightm, $height-$namev-$bottomm);
+   my ($lw, $lh) = ($iw/$nh, $ih/$nv);
+   my $img = GD::Simple->new($width, $height);
+   $img->bgcolor('white');
+   $img->fgcolor('black');
+   $img->rectangle($ix, $iy, $ix+$iw, $iy+$ih);
+   $img->font($font);
+   my $positive = $img->alphaColor(0, 0, 0, 0);
+   my $negative = $img->alphaColor(255, 255, 255, 0);
+   $self->debug("DOTPLOT iw:$iw ih:$ih namev:$namev nameh:$nameh lw:$lw lh:$lh nh:$nh nv:$nv");
+
+   # Draw spots
+   my @check_name = ();
+   for my $g (0 .. $#$struc){
+      $img->fgcolor('black');
+      $img->moveTo(int($nameh*0.1), int($namev + (($g+0.3)*$ih/$nv)));
+      $img->fontsize(8);
+      $img->string($genomes->[$g]->name);
+      my $y1 = int($namev + (($g+0.1)*$ih/$nv));
+      my $y2 = $y1+int(0.8*$lh);
+      for my $lk (0 .. $#{$struc->[$g]}){
+	 my $l = $struc->[$g]->[$lk];
+	 $self->throw("Bad loci structure (g:$g)", $struc->[$g], "Bio::Polloc::Polloc::UnexpectedException")
+	 	unless UNIVERSAL::can($l, 'isa') and $l->isa('Bio::Polloc::LocusI');
+         if(not $check_name[$lk] and $l->can('probeid') and $l->probeid){
+	    my $xName = int($nameh + (($lk+0.5)*$iw/$nh));
+	    $img->moveTo($xName, int($namev*0.9));
+	    $img->fgcolor('black');
+	    $img->fontsize(8);
+	    $img->angle(-90);
+	    $img->string($l->probeid);
+	    $img->angle(0);
+	    $check_name[$lk] = 1;
+	    $self->debug("Column at $xName");
+	 }
+	 #next unless $l->score;
+	 my $x1 = int($nameh + (($lk+0.1)*$iw/$nh));
+	 my $x2 = $x1 + int(0.8*$lw);
+	 $img->bgcolor($l->score ? $positive : $negative);
+	 $img->fgcolor('black');
+	 $img->rectangle($x1, $y1, $x2, $y2);
+      }
+   }
+   return $img;
+}
+
+=head1 SPECIFIC METHODS
 
 =head2 function
 
@@ -135,10 +232,191 @@ sub function {
    return $self->{'_function'};
 }
 
+=head2 probe_size
+
+=over
+
+=item 
+
+The expected size of the probe.  Use C<undef> or zero to trigger the default
+behavior (see L<function>).
+
+=item Arguments
+
+An I<int> in nucleotides.
+
+=back
+
+=cut
+
+sub probe_size {
+   my ($self, $value) = @_;
+   $self->{'_probe_size'} = $value+0 if defined $value;
+   return $self->{'_probe_size'};
+}
+
+=head2 loci_probes
+
+A I<str>, must be a valid method in the expected locus.
+
+=cut
+
+sub loci_probes {
+   my ($self, $value) = @_;
+   $self->{'_loci_probes'} = $value if defined $value;
+   return $self->{'_loci_probes'};
+}
 
 =head1 INTERNAL METHODS
 
 Methods intended to be used only within the scope of Bio::Polloc::*
+
+=head2 _plot_loci_fx
+
+=cut
+
+sub _plot_loci_fx {
+   my ($self, $locigroup) = @_;
+   return $locigroup;
+}
+
+=head2 _search_loci_fx
+
+=cut
+
+sub _search_loci_fx {
+   my ($self, $locigroup) = @_;
+   my $genomes = $locigroup->genomes;
+   $self->throw("Please define the genomes in the locigroup", $locigroup) unless defined $genomes;
+   my $out = Bio::Polloc::LociGroup->new(-genomes=>$genomes);
+   GENOME: for my $genome (@$genomes){
+      # This weird order of nested loops is to allow jumping to the end of the locus
+      # if at least one probe from that locus is found in at least one sequence of the
+      # genome.  Otherwise, the structure of the locigroup is broken.
+      #   -lrr
+      LOCUS: for my $locus (@{$locigroup->loci}){
+	 SEQ: for my $seq (@{$genome->get_sequences}){
+	    my $probes = [];
+	    if($self->loci_probes){
+	       my $f = $self->loci_probes;
+	       $probes = {};
+	       for my $locus (@{$locigroup->locus}){
+	          $self->throw("Unsupported loci_probes function", $f) if $locus->can($f);
+		  # ToDo: reduce redundant probes!
+	          for my $probe ( @{ $locus->$f } ){
+		     $probes->{$probe} = 1;
+		  }
+	       }
+	       $probes = [keys %$probes];
+	    }else{
+	       $probes = [uc $locus->seq->subseq($locus->from, $locus->to)];
+	       $probes->[0] = substr $probes->[0],
+	       		int(0.5*($locus->length-$self->probe_size)),
+			int(0.5*($locus->length+$self->probe_size))
+			if $self->probe_size;
+	    }
+	    my $probek = 0;
+	    PROBE: for my $qF (@$probes){
+	       my $qR = uc Bio::Seq->new(-seq=>$qF)->revcom->seq;
+	       my $t = uc $seq->seq;
+	       my $probeid = ''.($locus->id || '')."/".(++$probek);
+	       $qF =~ s/[^A-Z]//g;
+	       $qR =~ s/[^A-Z]//g;
+	       $t  =~ s/[^A-Z]//g;
+	       if($t =~ m/($qF|$qR)/g){
+		  $out->add_locus(Bio::Polloc::LocusI->new(
+			-from=>pos(),
+			-to=>pos()+length($1),
+			-strand=>($1 eq $qF ? '+' : '-'),
+			-genome=>$genome,
+			-seq=>$seq,
+			-type=>'hybridization',
+			-probe=>$qF,
+			-probeid=>$probeid,
+			-score=>1,
+		     ));
+		  next LOCUS;	# This is because the function is aimed to the detection of loci at genomes,
+		  		# so the first positive result is enough to save it as present.
+				#   -lrr
+	       }
+	    } #PROBE
+	 } #SEQ
+	 # If I'm --> here <--, is because any probe matched any sequence in the genome, so add a negative result.
+	 $out->add_locus(Bio::Polloc::LocusI->new(
+	       -genome=>$genome,
+	       -type=>'generic',
+	       -score=>0,
+	    ));
+      } #LOCUS
+   } #GENOME
+   return $out;
+}
+
+=head2 _get_probes_fx
+
+=cut
+
+sub _get_probes_fx {
+   my ($self, $locigroup) = @_;
+   my $out = Bio::Polloc::LociGroup->new(-genomes=>$locigroup->genomes);
+   $self->throw("You must define loci_probes, probe_size or both in order to use the get_probes function")
+   		unless $self->loci_probes or $self->probe_size;
+   my $probes = [];
+   if($self->loci_probes){
+      $self->debug("Getting probes from method ".$self->loci_probes);
+      my $f = $self->loci_probes;
+      $probes = {};
+      for my $locus (@{$locigroup->loci}){
+         $self->throw("Unsupported loci_probes function", $f) unless $locus->can($f);
+	 $self->debug("Getting probes from ".$locus->id);
+	 # ToDo: Sort them intelligently!
+	 for my $probe (@{$locus->$f}){
+	    $probes->{$probe} = 1;
+	 }
+      }
+      $probes = [keys %$probes];
+   }else{
+      for my $locus (@{$locigroup->loci}){
+         my $seq = $locus->seq->subseq($locus->from, $locus->to);
+	 for my $i (0 .. int($locus->length / $self->probe_size)){
+	    push @$probes, substr($seq, $i*$self->probe_size, ($i+1)*$self->probe_size);
+	 }
+      }
+   }
+   $self->debug("Scanning loci with ".($#$probes+1)." probes");
+   LOCUS: for my $locus (@{$locigroup->loci}){
+      my $t = $locus->seq->subseq($locus->from, $locus->to);
+      my $probek = 0;
+      PROBE: for my $qF (@$probes){
+	 my $qR = uc Bio::Seq->new(-seq=>$qF)->revcom->seq;
+	 $qF =~ s/[^A-Z]//g;
+	 $qR =~ s/[^A-Z]//g;
+	 $t  =~ s/[^A-Z]//g;
+	 my $probeid = ''.($locus->id || '').'/'.($probek++);
+	 if($t =~ m/($qF|$qR)/g){
+	    $out->add_locus(Bio::Polloc::LocusI->new(
+		  -from=>$locus->from + pos(),
+		  -to=>$locus->from + pos()+length($1),
+		  -strand=>($1 eq $qF ? $locus->strand : $locus->strand eq '+' ? '-' : $locus->strand eq '-' ? '+' : '.'),
+		  -genome=>$locus->genome,
+		  -seq=>$locus->seq,
+		  -type=>'hybridization',
+		  -probe=>$qR,
+		  -probeid=>$probeid,
+		  -score=>1,
+	       ));
+	 }else{
+	    $out->add_locus(Bio::Polloc::LocusI->new(
+		  -genome=>$locus->genome,
+		  -seq=>$locus->seq,
+		  -type=>'generic',
+		  -score=>0,
+	       ));
+	 }
+      } #PROBE
+   } #LOCUS
+   return $out;
+}
 
 =head2 _initialize
 
@@ -146,9 +424,10 @@ Methods intended to be used only within the scope of Bio::Polloc::*
 
 sub _initialize {
    my($self,@args) = @_;
-   my($probesize, $function) = $self->_rearrange([qw(PROBESIZE FUNCTION)], @args);
+   my($probesize, $function, $lociprobes) = $self->_rearrange([qw(PROBE_SIZE FUNCTION LOCI_PROBES)], @args);
    $self->probe_size($probesize);
    $self->function($function);
+   $self->loci_probes($lociprobes);
 }
 
 1;

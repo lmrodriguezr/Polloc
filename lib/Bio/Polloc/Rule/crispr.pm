@@ -167,29 +167,25 @@ sub execute {
 	    -spacers=>[],
 	 };
       }elsif(defined $loci->{$par{Parent}} and $f[2] eq 'CRISPRspacer'){
-         push @{$loci->{$par{Parent}}->{-spacers}}, {-from=>$f[3]+0, -to=>$f[4]+0, -raw_seq=>$par{sequence}};
+         push @{$loci->{$par{Parent}}->{-spacers}}, {from=>$f[3]+0, to=>$f[4]+0, raw_seq=>$par{sequence}};
       }
    }
    $gff->close();
 
-   # Clean the mess
-   $self->rrmdir('result');
-   
    # Back to reality
    chdir $cwd or $self->throw("I can not come back to the previous folder: $!", $cwd);
    $self->debug("Hello from ".cwd());
 
+   # Clean the mess
+   $self->rrmdir($out_dir);
+   
    # Create loci
    #   This is not directly done above because of the different CWD, which could cause problems
    #   while dynamically loading Bio::Polloc::Locus::crispr from Bio::Polloc::LocusI
    my $out = [];
    for my $locus (values %$loci){
       $self->debug("Creating locus");
-      my $L = new Bio::Polloc::LocusI(%$locus);
-      for my $s (@{$locus->{-spacers}}){
-         $L->add_spacer(%$s);
-      }
-      push @$out, $L;
+      push @$out, new Bio::Polloc::LocusI(%$locus);
    }
    
    return $out;

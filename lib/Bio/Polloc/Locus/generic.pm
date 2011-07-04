@@ -55,8 +55,9 @@ Methods intended to be used only within the scope of Bio::Polloc::*
 =cut
 
 sub _initialize {
-   # my($self,@args) = @_;
-   # Do nothing ;-), just to avoid the unimplemented error.
+   my($self,@args) = @_;
+   my($score) = $self->_rearrange([qw(SCORE)], @args);
+   $self->score($score);
 }
 
 1;

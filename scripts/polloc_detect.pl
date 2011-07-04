@@ -61,7 +61,7 @@ sequence) in [multi-]fasta format.
 
 =back
 
-Run C<perl polloc_vntrs.pl> without arguments to see the help
+Run C<perl polloc_detect.pl> without arguments to see the help
 message.
 
 =head1 SEE ALSO

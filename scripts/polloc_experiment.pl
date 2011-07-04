@@ -16,9 +16,10 @@ my $genomes = Bio::Polloc::Genome->build_set(-files=>\@ARGV);
 
 my $locusIO = Bio::Polloc::LocusIO->new(-file=>$gff, -format=>'gff');
 my $loci = $locusIO->read_loci(-genomes=>$genomes);
+
 my $typing = Bio::Polloc::TypingIO->new(-file=>$cnf)->typing;
 $typing->scan(-locigroup=>$loci);
-my $graph = $typing->graph;
+my $graph = $typing->graph(-width=>2400, height=>1000);
 open PNG, '>', $out or die $0.': Unable to open '.$out.': '.$!;
 binmode PNG;
 print PNG $graph->png;
@@ -45,7 +46,7 @@ I<The Artistic License>.  See LICENSE.txt for details.
 
 =head1 SYNOPSIS
 
-C<perl polloc_detect.pl> B<arguments>
+C<perl polloc_experiment.pl> B<arguments>
 
 The arguments must be in the following order:
 
@@ -71,7 +72,7 @@ sequence) in [multi-]fasta format.
 
 =back
 
-Run C<perl polloc_vntrs.pl> without arguments to see the help
+Run C<perl polloc_experiment.pl> without arguments to see the help
 message.
 
 =head1 SEE ALSO

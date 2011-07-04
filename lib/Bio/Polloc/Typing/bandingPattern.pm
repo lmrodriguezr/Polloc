@@ -84,14 +84,20 @@ sub scan {
 
 =head2 typing_value
 
+=over
+
+=item *
+
 See L<Bio::Polloc::TypingI-E<gt>typing_value>.
 
 Returns the size of the loci between the minimum (L<min_size>)
 and the maximum (L<max_size>) size.
 
-=head3 Returns
+=item Returns
 
 A reference to an array of integers.
+
+=back
 
 =cut
 
@@ -110,7 +116,13 @@ sub typing_value {
 
 =head2 graph_content
 
+=over
+
+=item *
+
 Generates the expected gel.  See L<Bio::Polloc::TypingI-E<gt>graph>.
+
+=back
 
 =cut
 
@@ -175,9 +187,13 @@ sub graph_content {
 
 =head2 fragments
 
+=over
+
+=item *
+
 Generates fragments.
 
-=head3 Arguments
+=item Arguments
 
 =over
 
@@ -187,14 +203,16 @@ The group of loci to be used as base to design the protocol.
 
 =back
 
-=head3 Returns
+=item Returns
 
 A L<Bio::Polloc::LociGrop>, where each locus is a fragment.
 
-=head3 Throws
+=item Throws
 
 A L<Bio::Polloc::Polloc::NotImplementedException> unless implemented
 by the specific C<Bio::Polloc::Typing::bandingPattern::*> object.
+
+=back
 
 =cut
 
@@ -202,7 +220,13 @@ sub fragments { $_[0]->throw("fragments", $_[0], "Bio::Polloc::Polloc::NotImplem
 
 =head2 max_size
 
+=over
+
+=item *
+
 Gets/sets the maximum locus size.  No limit (C<inf>) by default.
+
+=back
 
 =cut
 
@@ -215,7 +239,13 @@ sub max_size {
 
 =head2 min_size
 
+=over
+
+=item *
+
 Gets/sets the minimum locus size.  1 by default.
+
+=back
 
 =cut
 

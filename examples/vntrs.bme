@@ -82,6 +82,6 @@ primerConservation = 0.9
 # Length of primers
 primerSize = 20
 
-# Define bandingPatter::amplification as the typing class
+# Define bandingPattern::amplification as the typing class
 eval banding::ampl
 

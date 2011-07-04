@@ -171,7 +171,6 @@ sub add_spacer {
    my($self, @args) = @_;
    my ($from, $to, $raw_seq) = $self->_rearrange([qw(FROM TO RAW_SEQ)], @args);
    return unless defined $from and defined $to;
-   $raw_seq = $self->seq->subseq($from, $to) if defined $self->seq and not defined $raw_seq;
    $self->{'_spacers'} ||= [];
    push @{$self->{'_spacers'}}, {from=>$from, to=>$to, raw_seq=>$raw_seq};
 }
@@ -182,16 +181,75 @@ sub add_spacer {
 
 =item 
 
-Gets the spacers as an I<arrayref> of I<hashrefs> with keys C<from>, C<to> and C<raw_seq>.
+Gets/sets the spacers as an I<arrayref> of I<hashrefs> with keys C<from>, C<to> and C<raw_seq>.
+When setting, C<raw_seq> keys can be safely ignored.  Also, it can be set from string, with the
+format:
+
+    1..7,19..25, ...
+
+This is, regions separeted by comma (or space or semi-colon) each with the coordinates C<from> and C<to>
+separated by two (or three) dots.  Each region can contains additional data (like the raw sequence)
+after a colon, for example:
+
+    1..7:AGCATGC,19..25:GCATGTC, ...
+
+=item Arguments
+
+I<str>, I<arrayref> of I<hashrefs> (with keys C<from> and C<to>), or I<arrayref> of I<arrayrefs>
+(Each with two values, indicating the coordinates C<from> and C<to>).
 
 =back
 
 =cut
 
 sub spacers {
-   my $self = shift;
+   my ($self, $value) = @_;
+   if(defined $value){
+      $value = [map { [split /(?:\.\.\.?|:)/, $_, 2] } split /[,; ]/, $value] unless ref $value;
+      my $o = [];
+      for my $v (@$value){ push @$o, (ref $v eq 'HASH' ? $v : {from=>$v->[0], to=>$v->[1]}) }
+      $self->{'_spacers'} = [];
+      $self->add_spacer(-from=>$_->{from}, -to=>$_->{to}) for @$o;
+   }
    $self->{'_spacers'}||= [];
+   for my $i (0 .. $#{$self->{'_spacers'}}){
+      $self->{'_spacers'}->[$i]->{'raw_seq'} =
+      	$self->seq->subseq($self->{'_spacers'}->[$i]->{'from'}, $self->{'_spacers'}->[$i]->{'to'})
+	if defined $self->seq and not defined $self->{'_spacers'}->[$i]->{'raw_seq'};
+   }
    return $self->{'_spacers'};
+}
+
+=head2 spacers_location_str
+
+=over
+
+=item 
+
+Gets the location string as defined in L<spacers>.
+
+=back
+
+=cut
+
+sub spacers_location_str { return join ' ', map { $_->{from}.'..'.$_->{to} } @{shift->spacers} }
+
+=head2 spacers_str
+
+=over
+
+=item *
+
+Gets an arrayref with the strings of the spacer sequences.
+
+=back
+
+=cut
+
+sub spacers_str {
+   my $self = shift;
+   return unless defined $self->spacers;
+   return [ map { $_->{raw_seq} } @{$self->spacers} ];
 }
 
 =head2 repeats
@@ -235,14 +293,16 @@ Methods intended to be used only within the scope of Bio::Polloc::*
 
 sub _initialize {
    my($self,@args) = @_;
-   my($spacers_no, $dr, $score) = $self->_rearrange( [qw(SPACERS_NO DR SCORE)], @args);
+   my($spacers_no, $dr, $score, $spacers) = $self->_rearrange( [qw(SPACERS_NO DR SCORE SPACERS)], @args);
    $self->type('crispr');
    $self->spacers_no($spacers_no);
-   $self->comments("Spacers=" . $self->spacers_no) if defined $self->spacers_no;
+   $self->comments("Spacers_no=" . $self->spacers_no) if defined $self->spacers_no;
    $self->dr($dr);
    $self->comments("DR=" . $self->dr) if defined $self->dr;
    $self->score($score);
    $self->comments("questionable structure") if defined $self->score && $self->score < 60;
+   $self->spacers($spacers);
+   $self->comments("Spacers=" . $self->spacers_location_str) if $self->spacers_location_str;
 }
 
 1;

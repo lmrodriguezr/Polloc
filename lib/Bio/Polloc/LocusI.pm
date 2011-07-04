@@ -576,23 +576,19 @@ sub rule {
 
 =head2 score
 
-Sets/gets the score of the feature.  Most loci implement
-different score functions, and it's often read-only.
+Sets/gets the score of the feature.  Most loci implement different score
+functions, and it's often read-only.
 
 B<Returns>
 
 The score (float)
-
-B<Throws>
-
-L<Bio::Polloc::Polloc::NotImplementedException> if not implemented
 
 =cut
 
 sub score {
    my($self,$value) = @_;
    my $k = '_score';
-   $self->{$k} = $value if defined $value;
+   $self->{$k} = $value+0 if defined $value;
    return $self->{$k};
 }
 
