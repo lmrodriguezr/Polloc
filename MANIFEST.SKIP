@@ -71,6 +71,7 @@
 
 # Avoid archives of this distribution
 \bBio::Polloc-[\d\.\_]+
+\bBio--Polloc-[\d\.\_]+
 
 # Others
 auto-version.pl
