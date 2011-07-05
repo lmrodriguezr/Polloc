@@ -134,6 +134,24 @@ sub structured_loci {
    return $struct;
 }
 
+=head2 arrange_by_location
+
+Internally arranges the loci, first by genome, then by sequence (in the genome), and finally
+by position in the sequence.
+
+=cut
+
+sub arrange_by_location {
+   my $self = shift;
+   my $struc = $self->structured_loci;
+   my $out = [];
+   for my $gk (0 .. $#$struc){
+      push @$out, sort { $a->seq_name cmp $b->seq_name } sort { $a->from <=> $b->from } @{$struc->[$gk]};
+   }
+   $self->{'_loci'} = $out;
+   return $self->loci;
+}
+
 =head2 locus
 
 Get a locus by ID

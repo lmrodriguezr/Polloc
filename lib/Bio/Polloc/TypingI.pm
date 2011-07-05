@@ -331,7 +331,7 @@ sub graph {
    $width  ||= 600;
    $height ||= 300;
    $font   ||= 'Times';
-   return $self->graph_content($locigroup, $width, $height, $font);
+   return $self->graph_content($locigroup, $width, $height, $font, @args);
 }
 
 =head1 METHODS TO BE IMPLEMENTED

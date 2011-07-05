@@ -108,6 +108,7 @@ sub execute {
    my($seq_fh, $seq_file) = $io->tempfile(-suffix=>'.fasta'); # required by CRISPRFinder
    close $seq_fh;
    my $seqO = Bio::SeqIO->new(-file=>">$seq_file", -format=>'Fasta');
+   $self->debug("Cleaning ".$seq->display_id);
    (my $s2ch = $seq->seq) =~ s/[Xx]/N/g;
    $seq->seq($s2ch);
    $seqO->write_seq($seq);
@@ -126,22 +127,23 @@ sub execute {
    $self->debug("Running: ".join(" ",@run));
    my $run = Bio::Polloc::Polloc::IO->new(-file=>join(" ",@run));
    my $gff_output;
-   my $verbose_out = '';
+   my $verbose_out = [];
    while(my $line = $run->_readline){
-      $verbose_out.= $line;
+      push @$verbose_out, $line;
       chomp $line;
       if($line =~ m/^GFF results are be in (.*)/){ $gff_output = $1 }
-      elsif($line =~ m/^failure: (.*)/){
-	while($run->_readline){$verbose_out.=$_}
-	$self->throw("CRISPRFinder error", $verbose_out)
+      elsif($line =~ m/^(?:failure: (.*)|(Error in .*))/){
+	while($run->_readline){push @$verbose_out, $_}
+	$self->throw("CRISPRFinder error", join "", @$verbose_out);
       }
+      shift @$verbose_out if $#$verbose_out>=5;
    }
-   $verbose_out = undef;
    $run->close();
    unless (-e $gff_output){
-      $self->warn("Unexistent CRISPRFinder GFF output, probably something went wrong");
+      $self->warn("Unexistent CRISPRFinder GFF output, probably something went wrong", join("",@$verbose_out));
       return [];
    }
+   $verbose_out = undef;
 
    # Unfortunatelly, CRISPRFinder's GFF contains unsupported fields in the last column,
    # therefore I should not directly import it using Polloc::LocusIO

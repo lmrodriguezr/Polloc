@@ -11,7 +11,7 @@ Email lrr at cpan dot org
 package Bio::Polloc::Polloc::Version;
 
 use strict;
-our $VERSION = 1.0503;
+our $VERSION = 1.0504;
 
 sub import {
    no strict 'refs';

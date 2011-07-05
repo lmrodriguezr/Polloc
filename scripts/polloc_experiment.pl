@@ -7,6 +7,7 @@ use Bio::Polloc::TypingIO;
 
 use Pod::Usage;
 
+if($ARGV[0] eq '-debug'){ shift @ARGV; $Bio::Polloc::Polloc::Root::VERBOSITY = 4 }
 my $cnf = shift @ARGV; # Configuration file
 my $gff = shift @ARGV; # Input GFF containing the loci in a group
 my $out = shift @ARGV; # Output PNG image

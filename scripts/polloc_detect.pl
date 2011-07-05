@@ -7,6 +7,7 @@ use Bio::Polloc::LocusIO;
 
 use Pod::Usage;
 
+if($ARGV[0] eq '-debug'){shift @ARGV; $Bio::Polloc::Polloc::Root::VERBOSITY=4}
 my $cnf = shift @ARGV; # Input configuration file
 my $gff = shift @ARGV; # Output GFF file
 pod2usage(1) unless $cnf and $gff;
